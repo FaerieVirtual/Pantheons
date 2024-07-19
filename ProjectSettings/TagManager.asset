@@ -9,6 +9,7 @@ TagManager:
   - PlayerAttackHitbox
   - Healthbar
   - PauseMenu
+  - Theme
   layers:
   - Default
   - TransparentFX

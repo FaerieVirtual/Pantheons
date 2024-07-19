@@ -1,117 +1,95 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class GodMenu : MonoBehaviour, IMenuBase
+public class GodMenu : MonoBehaviour
 {
-    public God god;
+    public List<GodBase> gods;
+    public Image godView;
+    public Text descriptionText;
+    public Text stat1;
+    public Text stat2;
+    public Text stat3;
+    public Text stat4;
+    public Button confirmButton;
 
-    public List<RectTransform> cards; 
-    public ScrollRect scrollRect;
-    private float snapSpeed = 10f; 
-    //public float scaleFactor = 0.9f; 
+    public List<Sprite> viewSprites;
+    //public List<string> descriptions;
+    public List<Sprite> symbolSprites;
 
-    private int currentIndex = 2; 
-    private bool isSnapping = false;
+    //public GameObject selectedObject;
+    //public GameObject previousObject;
+    //public GameObject nextObject;
+    public SpriteRenderer selected;
+    public SpriteRenderer previous;
+    public SpriteRenderer next;
 
-    private void Start()
+    private int currentIndex = 0;
+
+    void Start()
     {
-        //UpdateCardVisuals();
-    }
+        confirmButton.onClick.AddListener(OnConfirmSelection);
+        confirmButton.onClick.AddListener(GameManager.instance.ChooseGod);
+        UpdateSelection();
+        viewSprites = new List<Sprite>();
+        symbolSprites = new List<Sprite>();
+        for (int i = 0; i < gods.Count; i++)
+        {
+            viewSprites.Add(gods[i].Profile);
+            symbolSprites.Add(gods[i].Symbol);
+        }
 
+        //selected = selectedObject.GetComponent<SpriteRenderer>();
+        //previous = previousObject.GetComponent<SpriteRenderer>();
+        //next = nextObject.GetComponent<SpriteRenderer>();
+    }
     private void Update()
     {
-        if (isSnapping)
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKey(KeyCode.Return))
         {
-            //float targetX = -cards[currentIndex].anchoredPosition.x;
-            //float newX = Mathf.Lerp(scrollRect.content.anchoredPosition.x, targetX, Time.deltaTime * snapSpeed);
-            //scrollRect.content.anchoredPosition = new Vector2(newX, scrollRect.content.anchoredPosition.y);
+            OnConfirmSelection();
+        }
+        if (Input.GetKeyDown(KeyCode.RightArrow)) { OnNext(); }
+        if (Input.GetKeyDown(KeyCode.LeftArrow)) { OnPrevious(); }
+    }
 
-            //if (Mathf.Abs(scrollRect.content.anchoredPosition.x - targetX) < 0.1f)
-            //{
-            //    scrollRect.content.anchoredPosition = new Vector2(targetX, scrollRect.content.anchoredPosition.y);
-            //    isSnapping = false;
-            //}
+    public void OnNext()
+    {
+        currentIndex = (currentIndex + 1) % viewSprites.Count;
+        UpdateSelection();
+    }
+
+    public void OnPrevious()
+    {
+        currentIndex = (currentIndex - 1 + viewSprites.Count) % viewSprites.Count;
+        UpdateSelection();
+    }
+
+    private void UpdateSelection()
+    {
+        if (gods[currentIndex] != null)
+        {
+            GodBase god = gods[currentIndex];
+
+            godView.sprite = god.Profile;//godView.sprite = viewSprites[currentIndex];
+            //descriptionText.text = god.description;//descriptionText.text = descriptions[currentIndex];
+            selected.sprite = god.Symbol;//symbolSprites[currentIndex];
+            stat1.text = god.stat1;
+            stat2.text = god.stat2;
+            stat3.text = god.stat3;
+            stat4.text = god.stat4;
 
         }
+        int prevIndex = (currentIndex - 1 + viewSprites.Count) % viewSprites.Count;
+        previous.sprite = gods[prevIndex].Symbol;//symbolSprites[prevIndex];
+        int nextIndex = (currentIndex + 1 + viewSprites.Count) % viewSprites.Count;
+        next.sprite = gods[nextIndex].Symbol;//symbolSprites[nextIndex];
+
     }
 
-    public void ScrollLeft()
+    public void OnConfirmSelection()
     {
-        if (currentIndex > 0)
-        {
-            currentIndex--;
-            isSnapping = true;
-            //UpdateCardVisuals();
-        }
+        GameManager.instance.god = gods[currentIndex];
+
     }
-
-    public void ScrollRight()
-    {
-        if (currentIndex < 4)//cards.Count - 1)
-        {
-            currentIndex++;
-            isSnapping = true;
-            //UpdateCardVisuals();
-        }
-    }
-
-    //private void UpdateCardVisuals()
-    //{
-    //    for (int i = 0; i < cards.Count; i++)
-    //    {
-    //        float scale = (i == currentIndex) ? 1f : scaleFactor;
-
-    //        cards[i].localScale = Vector3.one * scale;
-    //    }
-    //}
-    public void Confirm()
-    {
-        switch (currentIndex)
-        {
-            case 0:
-                Game.god = null; break;
-            case 1:
-                Game.god = new Heavens(); break;
-            case 2:
-                Game.god = new Chance(); break;
-            case 3:
-                Game.god = new Traveler(); break;
-            case 4:
-                Game.god = null; break;
-        }
-        Debug.Log("Máme boha!" + god);
-        if (Game.god != null) { SceneManager.LoadScene(SceneManager.GetSceneByBuildIndex(2).name); }
-    }
-
-    public void Options()
-    {
-        throw new NotImplementedException();
-    }
-
-    public void Quit()
-    {
-        throw new NotImplementedException();
-    }
-}
-
-public class God
-{
-
-
-}
-public class Heavens : God
-{ 
-    
-}
-public class Chance : God 
-{ 
-
-}
-
-public class Traveler : God 
-{ 
-
 }

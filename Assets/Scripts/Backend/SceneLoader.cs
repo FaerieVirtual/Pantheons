@@ -7,18 +7,34 @@ public class SceneLoader : MonoBehaviour
 {
     public int nextSceneIndex;
     public string mode;
+    private GameObject player;
     public void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag("Player"))
         {
+            player = collision.gameObject;
             LoadScene();
         }
     }
     public void LoadScene()
     {
-        StartCoroutine(LoadSceneAsync());
+        mode = "load";
+        StartCoroutine(LoadSceneAsync(mode));
     }
-    private IEnumerator LoadSceneAsync()
+
+    public void OnPlayerRespawn()
+    {
+        mode = "respawn";
+        player = GameObject.FindGameObjectWithTag("Player");
+        nextSceneIndex = player.GetComponent<PlayerManager>().respawnPointScene;
+        if (nextSceneIndex == SceneManager.GetActiveScene().buildIndex)
+        {
+            GameObject respawnPoint = GameObject.FindGameObjectWithTag("Respawn");
+            transform.position = respawnPoint.transform.position;
+        }
+        else { StartCoroutine(LoadSceneAsync(mode)); }
+    }
+    private IEnumerator LoadSceneAsync(string mode)
     {
         AsyncOperation load = SceneManager.LoadSceneAsync(nextSceneIndex, LoadSceneMode.Additive);
         load.allowSceneActivation = false;
@@ -34,7 +50,6 @@ public class SceneLoader : MonoBehaviour
         load.completed += (x) =>
         {
 
-            GameObject player = GameObject.FindGameObjectWithTag("Player");
             SceneManager.MoveGameObjectToScene(player, SceneManager.GetSceneByBuildIndex(nextSceneIndex));
             GameObject[] nextSceneObjects = SceneManager.GetSceneByBuildIndex(nextSceneIndex).GetRootGameObjects();
             GameObject pointToMove = null;
@@ -61,7 +76,7 @@ public class SceneLoader : MonoBehaviour
                 }
             }
             player.transform.position = pointToMove.transform.position;
-            virtualCamera.Follow = player.transform;
+            //virtualCamera.Follow = player.transform;
         };
 
         load.allowSceneActivation = true;

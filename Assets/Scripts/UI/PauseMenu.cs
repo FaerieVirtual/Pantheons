@@ -1,36 +1,15 @@
 using System.ComponentModel;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PauseMenu : MonoBehaviour, IMenuBase
 {
+    GameRunningState running = new(GameManager.instance.machine);
 
-    Game game;
-    PausedState paused;
-    RunningState running;
-
-    public static PauseMenu instance;
-
-    private void Awake()
-    {
-        if (instance == null) { instance = this; }
-        if (instance != null) { Destroy(gameObject); }
-    }
-    private void Start()
-    {
-        game = FindAnyObjectByType<Game>();
-        paused = new PausedState(game.machine);
-        running = new RunningState(game.machine);
-    }
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Escape) && game.machine.currentState == paused)
-        {
-            Resume();
-        }
-    }
     public void Resume()
     {
-        game.machine.ChangeState(running);
+        
+        GameManager.instance.machine.ChangeState(running);
     }
 
     public void Options()

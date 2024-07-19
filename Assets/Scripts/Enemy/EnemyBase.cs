@@ -10,12 +10,15 @@ public class EnemyBase : MonoBehaviour, IDamageable, IMoveable
     #region Start/Updates
     void Start()
     {
-        hp = maxHp;
         animator = GetComponent<Animator>();
         idleState = new IdleState(this, enemyStatemachine);
         deathState = new DeathState(this, enemyStatemachine);
         enemyStatemachine.Init(idleState);
+
+        hp = maxHp;
         ground = LayerMask.GetMask("Ground");
+        groundCheck = transform.GetChild(2);
+        wallCheck = transform.GetChild(3);
     }
     void Update()
     {
@@ -44,8 +47,8 @@ public class EnemyBase : MonoBehaviour, IDamageable, IMoveable
 
     #region Movement 
     public float speed;
-    public Transform groundCheck;
-    public Transform wallCheck;
+    private Transform groundCheck;
+    private Transform wallCheck;
     private LayerMask ground;
     public Rigidbody2D RigidBody => GetComponent<Rigidbody2D>();
     private bool facingRight = true;
@@ -88,7 +91,7 @@ public class EnemyBase : MonoBehaviour, IDamageable, IMoveable
 
         if (collision.gameObject.CompareTag("Player"))
         {
-            Player player = collision.gameObject.GetComponent<Player>();
+            PlayerManager player = collision.gameObject.GetComponent<PlayerManager>();
             Rigidbody2D otherRigidBody = playerObject.GetComponent<Rigidbody2D>();
 
             player.TakeDamage(1);
@@ -97,10 +100,9 @@ public class EnemyBase : MonoBehaviour, IDamageable, IMoveable
         }
         if (collision.gameObject.CompareTag("PlayerAttackHitbox"))
         {
-            Debug.Log("kolize s hitboxem");
-            TakeDamage(Player.damage);
-            Debug.Log("beru damage" + Player.damage);
+            TakeDamage(PlayerManager.damage);
             Vector2 bounce = (collision.transform.position - transform.position).normalized;
+            RigidBody.AddForce(bounce * 4, ForceMode2D.Impulse);
 
         }
     }

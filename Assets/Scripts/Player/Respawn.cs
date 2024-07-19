@@ -5,12 +5,12 @@ public class Respawn : MonoBehaviour
 {
     public bool activated = false;
     private Transform fire;
-    private Player player;
+    private PlayerManager player;
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            player = collision.GetComponent<Player>();
+            player = collision.GetComponent<PlayerManager>();
         }
     }
     private void Start()
@@ -28,19 +28,14 @@ public class Respawn : MonoBehaviour
             fire.gameObject.SetActive(true);
             fire.GetComponent<Animator>().Play("Idle");
 
-            player.respawnPointScene = SceneManager.GetActiveScene().buildIndex;
+            if (player != null)
+            {
+                player.respawnPointScene = SceneManager.GetActiveScene().buildIndex;
+            }
         }
         if (!activated) 
         {
             fire.gameObject.SetActive(false);
         }
     }
-    //private void Update()
-    //{
-    //    if (activated)
-    //    {
-    //        fire.gameObject.SetActive(true);
-    //        fire.GetComponent<Animator>().Play("Idle");
-    //    }
-    //}
 }

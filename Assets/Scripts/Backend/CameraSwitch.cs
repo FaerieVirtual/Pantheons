@@ -8,7 +8,14 @@ public class CameraSwitch : MonoBehaviour
     private CinemachineVirtualCamera vcam;
     void Start()
     {
-        var vcam = GetComponent<CinemachineVirtualCamera>();
+        vcam = gameObject.GetComponent<CinemachineVirtualCamera>();
         vcam.Follow = GameObject.FindGameObjectWithTag("Player").transform;
+    }
+    private void Update()
+    {
+        if (vcam.Follow == null)
+        {
+            vcam.Follow = GameObject.FindGameObjectWithTag("Player").transform;
+        }
     }
 }

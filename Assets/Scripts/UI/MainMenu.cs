@@ -1,13 +1,23 @@
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour, IMenuBase
 {
+    public UnityEvent gameLoad = new();
+    public UnityEvent gameNew = new();
+    private void Start()
+    {
+        gameNew.AddListener(GameManager.instance.NewGame);
+    }
     public void NewGame()
     {
-        SceneManager.LoadScene("AP1");
+        gameNew.Invoke();
     }
-    public void LoadGame() { }
+    public void LoadGame()
+    {
+        throw new System.NotImplementedException();
+    }
 
     public void Options()
     {
