@@ -90,6 +90,6 @@ public class GodMenu : MonoBehaviour
     public void OnConfirmSelection()
     {
         GameManager.instance.god = gods[currentIndex];
-
+        GameManager.instance.machine.ChangeState();
     }
 }
