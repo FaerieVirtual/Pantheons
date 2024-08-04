@@ -21,7 +21,7 @@ public class PlayerHurtState : PlayerState
     public override void EnterState()
     {
         playerHit.Invoke();
-        animator.Play("Hurt");
+        animator.SetTrigger("Hurt");
         invincible = true; 
 
     }

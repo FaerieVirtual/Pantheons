@@ -8,7 +8,7 @@ public class PlayerFallState : PlayerState
     private float timer = 0f;
     private float rampupTime = 3f;
     private Rigidbody2D RigidBody;
-    private Animator animator;
+    //private Animator animator;
     private AudioManager audio;
 
     public UnityEvent playerFall = new UnityEvent();
@@ -19,7 +19,7 @@ public class PlayerFallState : PlayerState
         this.player = player;
         this.machine = machine;
         RigidBody = player.RigidBody;
-        animator = player.Animator;
+        //animator = player.Animator;
         audio = player.Audio;
         playerFall.AddListener(audio.OnPlayerFall);
         playerFallStop.AddListener(audio.OnPlayerFallStop);
@@ -28,7 +28,7 @@ public class PlayerFallState : PlayerState
     public override void EnterState()
     {
         playerFall.Invoke();
-        animator.Play("Fall");
+        //animator.SetFloat("Vertical", RigidBody.velocity.y);
     }
 
     public override void ExitState()

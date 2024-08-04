@@ -34,7 +34,7 @@ public class PlayerJumpState : PlayerState
     public override void EnterState()
     {
         playerJump.Invoke();
-        animator.Play("jump");
+        animator.SetTrigger("Jump");
     }
 
     public override void ExitState()

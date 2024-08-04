@@ -280,8 +280,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2045511309}
-        m_TargetAssemblyTypeName: SpriteSelector, Assembly-CSharp
+      - m_Target: {fileID: 582800425}
+        m_TargetAssemblyTypeName: GodMenu, Assembly-CSharp
         m_MethodName: OnNext
         m_Mode: 1
         m_Arguments:
@@ -339,7 +339,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 66609398}
-  - component: {fileID: 66609401}
   - component: {fileID: 66609400}
   - component: {fileID: 66609399}
   m_Layer: 5
@@ -502,14 +501,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!222 &66609401
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 66609397}
-  m_CullTransparentMesh: 1
 --- !u!1 &166745684
 GameObject:
   m_ObjectHideFlags: 0
@@ -786,7 +777,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 477567585}
-  - component: {fileID: 477567584}
   - component: {fileID: 477567587}
   - component: {fileID: 477567586}
   m_Layer: 5
@@ -796,14 +786,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!222 &477567584
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 477567582}
-  m_CullTransparentMesh: 1
 --- !u!224 &477567585
 RectTransform:
   m_ObjectHideFlags: 0
@@ -966,13 +948,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 582800424}
+  - component: {fileID: 582800425}
   m_Layer: 0
   m_Name: GodMenu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &582800424
 Transform:
   m_ObjectHideFlags: 0
@@ -987,8 +970,50 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2045511308}
+  - {fileID: 847482339}
+  - {fileID: 598894773}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &582800425
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 582800423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 530e66c6c8e9f664e816fb0eae26e5b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gods:
+  - {fileID: 1561320795}
+  - {fileID: 1728726612}
+  - {fileID: 1583171791}
+  - {fileID: 2004647307}
+  - {fileID: 1400711251}
+  godView: {fileID: 24576816}
+  godname: {fileID: 705721116}
+  stat1: {fileID: 477567586}
+  stat2: {fileID: 66609399}
+  stat3: {fileID: 1922533122}
+  stat4: {fileID: 1013599797}
+  confirmButton: {fileID: 1192511294}
+  viewSprites:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  symbolSprites:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  selected: {fileID: 765304133}
+  previous: {fileID: 1213538004}
+  next: {fileID: 1295413399}
 --- !u!1 &591712390
 GameObject:
   m_ObjectHideFlags: 0
@@ -1008,7 +1033,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &591712391
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1135,14 +1160,14 @@ Transform:
   m_GameObject: {fileID: 598894772}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 227.55804, y: 143.93848, z: 180.20505}
+  m_LocalPosition: {x: -168.16882, y: -19.317886, z: 175.06476}
   m_LocalScale: {x: 0.90205055, y: 0.90205055, z: 0.90205055}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1295413400}
   - {fileID: 765304132}
   - {fileID: 1213538003}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 582800424}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &623731473
 GameObject:
@@ -1292,7 +1317,7 @@ GameObject:
   - component: {fileID: 705721117}
   - component: {fileID: 705721116}
   m_Layer: 5
-  m_Name: Description
+  m_Name: GodName
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1781,13 +1806,13 @@ Transform:
   m_GameObject: {fileID: 847482338}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 308.76505, y: 199.29962, z: 10.140297}
+  m_LocalPosition: {x: -86.96182, y: 36.04326, z: 5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1344494313}
   - {fileID: 725753192}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 582800424}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1013599795
 GameObject:
@@ -1798,7 +1823,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1013599796}
-  - component: {fileID: 1013599799}
   - component: {fileID: 1013599798}
   - component: {fileID: 1013599797}
   m_Layer: 5
@@ -1961,14 +1985,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!222 &1013599799
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1013599795}
-  m_CullTransparentMesh: 1
 --- !u!1 &1040428983
 GameObject:
   m_ObjectHideFlags: 0
@@ -2318,13 +2334,13 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2045511307}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
+      - m_Target: {fileID: 582800425}
+        m_TargetAssemblyTypeName: GodMenu, Assembly-CSharp
+        m_MethodName: OnConfirmSelection
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -2573,8 +2589,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2045511309}
-        m_TargetAssemblyTypeName: SpriteSelector, Assembly-CSharp
+      - m_Target: {fileID: 582800425}
+        m_TargetAssemblyTypeName: GodMenu, Assembly-CSharp
         m_MethodName: OnPrevious
         m_Mode: 1
         m_Arguments:
@@ -3583,7 +3599,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1922533121}
-  - component: {fileID: 1922533124}
   - component: {fileID: 1922533123}
   - component: {fileID: 1922533122}
   m_Layer: 5
@@ -3746,14 +3761,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!222 &1922533124
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1922533120}
-  m_CullTransparentMesh: 1
 --- !u!1 &2003264894
 GameObject:
   m_ObjectHideFlags: 0
@@ -3953,7 +3960,6 @@ GameObject:
   - component: {fileID: 2045511312}
   - component: {fileID: 2045511311}
   - component: {fileID: 2045511310}
-  - component: {fileID: 2045511309}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -3985,46 +3991,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &2045511309
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2045511307}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 530e66c6c8e9f664e816fb0eae26e5b5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gods:
-  - {fileID: 1561320795}
-  - {fileID: 1728726612}
-  - {fileID: 1583171791}
-  - {fileID: 2004647307}
-  - {fileID: 1400711251}
-  godView: {fileID: 24576816}
-  descriptionText: {fileID: 0}
-  stat1: {fileID: 0}
-  stat2: {fileID: 0}
-  stat3: {fileID: 0}
-  stat4: {fileID: 0}
-  confirmButton: {fileID: 1192511294}
-  viewSprites:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  symbolSprites:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  selected: {fileID: 765304133}
-  previous: {fileID: 1213538004}
-  next: {fileID: 1295413399}
 --- !u!114 &2045511310
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4264,8 +4230,6 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 842761703}
-  - {fileID: 847482339}
-  - {fileID: 598894773}
   - {fileID: 639348784}
   - {fileID: 582800424}
   - {fileID: 591712394}

@@ -86,6 +86,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
             Fall();
         } 
         HealthChecks();
+        AnimationParams();
     }
 
     public void ResetPlayer()
@@ -95,6 +96,14 @@ public class PlayerManager : MonoBehaviour, IDamageable
         invincible = false;
         RigidBody.velocity = Vector3.zero;
     }
+    void AnimationParams()
+    {
+        Animator.SetFloat("Vertical", RigidBody.velocity.y);
+        Animator.SetFloat("Forward", RigidBody.velocity.x);
+        Animator.SetBool("isStanding", IsStanding);
+        Animator.SetInteger("Hp", hp);
+    }
+
     #endregion
 
     #region Health

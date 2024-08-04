@@ -1,25 +1,24 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GodMenu : MonoBehaviour
-{
+{ 
     public List<GodBase> gods;
     public Image godView;
-    public Text descriptionText;
-    public Text stat1;
-    public Text stat2;
-    public Text stat3;
-    public Text stat4;
+    //public TextMeshPro descriptionText;
+    public TextMeshPro godname;
+    public TextMeshPro stat1;
+    public TextMeshPro stat2;
+    public TextMeshPro stat3;
+    public TextMeshPro stat4;
     public Button confirmButton;
 
-    public List<Sprite> viewSprites;
+    public List<Sprite> viewSprites, symbolSprites;
     //public List<string> descriptions;
-    public List<Sprite> symbolSprites;
 
-    //public GameObject selectedObject;
-    //public GameObject previousObject;
-    //public GameObject nextObject;
     public SpriteRenderer selected;
     public SpriteRenderer previous;
     public SpriteRenderer next;
@@ -38,10 +37,6 @@ public class GodMenu : MonoBehaviour
             viewSprites.Add(gods[i].Profile);
             symbolSprites.Add(gods[i].Symbol);
         }
-
-        //selected = selectedObject.GetComponent<SpriteRenderer>();
-        //previous = previousObject.GetComponent<SpriteRenderer>();
-        //next = nextObject.GetComponent<SpriteRenderer>();
     }
     private void Update()
     {
@@ -71,25 +66,30 @@ public class GodMenu : MonoBehaviour
         {
             GodBase god = gods[currentIndex];
 
-            godView.sprite = god.Profile;//godView.sprite = viewSprites[currentIndex];
-            //descriptionText.text = god.description;//descriptionText.text = descriptions[currentIndex];
-            selected.sprite = god.Symbol;//symbolSprites[currentIndex];
+            godView.sprite = god.Profile;
+            //descriptionText.text = god.description;
+            selected.sprite = god.Symbol;
             stat1.text = god.stat1;
             stat2.text = god.stat2;
             stat3.text = god.stat3;
             stat4.text = god.stat4;
+            godname.text = god.name;
 
         }
         int prevIndex = (currentIndex - 1 + viewSprites.Count) % viewSprites.Count;
-        previous.sprite = gods[prevIndex].Symbol;//symbolSprites[prevIndex];
+        previous.sprite = gods[prevIndex].Symbol;
         int nextIndex = (currentIndex + 1 + viewSprites.Count) % viewSprites.Count;
-        next.sprite = gods[nextIndex].Symbol;//symbolSprites[nextIndex];
+        next.sprite = gods[nextIndex].Symbol;
 
     }
 
     public void OnConfirmSelection()
     {
+        GameRunningState running = new(GameManager.instance.machine);
+
         GameManager.instance.god = gods[currentIndex];
-        GameManager.instance.machine.ChangeState();
+        GameManager.instance.machine.ChangeState(running);
+
+        SceneManager.LoadScene("AP1");
     }
 }

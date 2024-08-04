@@ -12,7 +12,6 @@ public class GameRunningState : GameState
 
     public override void EnterState()
     {
-        SceneManager.LoadScene("AP1");
     }
 
     public override void ExitState()

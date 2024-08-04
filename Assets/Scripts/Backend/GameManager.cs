@@ -64,9 +64,9 @@ public class GameManager : MonoBehaviour
     public void NewGame()
     {
         MainMenu main = FindObjectOfType<MainMenu>(true);
-        main.enabled = false;
+        main.gameObject.SetActive(false);
         GodMenu god = FindObjectOfType<GodMenu>(true);
-        god.enabled = true;
+        god.gameObject.SetActive(true);
     }
     public void ChooseGod()
     {

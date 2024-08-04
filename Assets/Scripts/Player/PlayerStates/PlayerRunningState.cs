@@ -5,12 +5,14 @@ public class PlayerRunningState : PlayerState
 {
     private Transform transform;
     private Rigidbody2D RigidBody;
-    private Animator animator;
+    //private Animator animator;
     private AudioManager audio;
     private float speed;
 
     private float timer = 0;
     private float animTriggerTime = 0.1f;
+
+    private Vector2 moveInput;
 
     public UnityEvent playerRun = new();
     public UnityEvent playerRunStop = new();
@@ -19,7 +21,7 @@ public class PlayerRunningState : PlayerState
     {
         transform = player.transform;
         speed = player.speed;
-        animator = player.Animator;
+        //animator = player.Animator;
         RigidBody = player.RigidBody;
         audio = AudioManager.instance;
 
@@ -30,7 +32,7 @@ public class PlayerRunningState : PlayerState
 
     public override void EnterState()
     {
-        animator.Play("Run");
+        //animator.Play("Run");
     }
     public override void ExitState()
     {
@@ -51,16 +53,40 @@ public class PlayerRunningState : PlayerState
             transform.localRotation = Quaternion.Euler(transform.localRotation.x, 0f, transform.rotation.z);
             RigidBody.velocity = new Vector2(speed, RigidBody.velocity.y);
         }
+        //if (!player.IsStanding) { animator.SetFloat("isRunning", 0); } 
+        //else { animator.SetFloat("isRunning", RigidBody.velocity.x); }
         timer += Time.deltaTime;
         if (timer > animTriggerTime)
         {
-            playerRun.Invoke(); 
+            playerRun.Invoke();
         }
-
+        CalculateImpactAngle();
     }
 
     public override void Update()
     {
         base.Update();
+        moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+    }
+
+    void CalculateImpactAngle()
+    {
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, moveInput, 1f, LayerMask.GetMask("Ground"));
+
+        if (hit.collider != null)
+        {
+            float angle = Vector2.Angle(hit.normal, Vector2.up);
+
+            if (angle > 45 && angle < 135)
+            {
+                // zeï
+                RigidBody.velocity = new Vector2(RigidBody.velocity.x, -2);
+            }
+            else
+            {
+                // zemì
+                RigidBody.velocity = new Vector2(moveInput.x * speed, RigidBody.velocity.y);
+            }
+        }
     }
 }
