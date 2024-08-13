@@ -20,7 +20,7 @@ public class PlayerRunningState : PlayerState
     public PlayerRunningState(PlayerManager player, PlayerStatemachine machine) : base(player, machine)
     {
         transform = player.transform;
-        speed = player.speed;
+        speed = player.Acceleration;
         //animator = player.Animator;
         RigidBody = player.RigidBody;
         audio = AudioManager.instance;
@@ -53,8 +53,6 @@ public class PlayerRunningState : PlayerState
             transform.localRotation = Quaternion.Euler(transform.localRotation.x, 0f, transform.rotation.z);
             RigidBody.velocity = new Vector2(speed, RigidBody.velocity.y);
         }
-        //if (!player.IsStanding) { animator.SetFloat("isRunning", 0); } 
-        //else { animator.SetFloat("isRunning", RigidBody.velocity.x); }
         timer += Time.deltaTime;
         if (timer > animTriggerTime)
         {

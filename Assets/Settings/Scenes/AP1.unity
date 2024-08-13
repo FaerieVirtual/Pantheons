@@ -1404,7 +1404,7 @@ Transform:
   m_GameObject: {fileID: 511955167}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 29.636978, y: 0.14946795, z: -10.040409}
+  m_LocalPosition: {x: 29.951218, y: 0.18924809, z: -10.040409}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1826,6 +1826,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2442991284209759815, guid: 4c1582fb8c2585e4180ac56ea5460f42, type: 3}
+      propertyPath: m_UsedByEffector
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3309851857386812716, guid: 4c1582fb8c2585e4180ac56ea5460f42, type: 3}
       propertyPath: Audio
       value: 
@@ -1833,6 +1837,14 @@ PrefabInstance:
     - target: {fileID: 3309851857386812716, guid: 4c1582fb8c2585e4180ac56ea5460f42, type: 3}
       propertyPath: audio
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3309851857386812716, guid: 4c1582fb8c2585e4180ac56ea5460f42, type: 3}
+      propertyPath: speed
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 3309851857386812716, guid: 4c1582fb8c2585e4180ac56ea5460f42, type: 3}
+      propertyPath: jumpForce
+      value: 14
       objectReference: {fileID: 0}
     - target: {fileID: 3309851857386812716, guid: 4c1582fb8c2585e4180ac56ea5460f42, type: 3}
       propertyPath: hpImages.Array.size
@@ -1870,9 +1882,25 @@ PrefabInstance:
       propertyPath: hpImages.Array.data[7]
       value: 
       objectReference: {fileID: 1939835233}
+    - target: {fileID: 7051533023139395572, guid: 4c1582fb8c2585e4180ac56ea5460f42, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 7231006712908300474, guid: 4c1582fb8c2585e4180ac56ea5460f42, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 7231006712908300474, guid: 4c1582fb8c2585e4180ac56ea5460f42, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 9195820129829134308, guid: 4c1582fb8c2585e4180ac56ea5460f42, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 9195820129829134308, guid: 4c1582fb8c2585e4180ac56ea5460f42, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

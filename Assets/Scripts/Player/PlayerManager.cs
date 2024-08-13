@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -6,6 +5,7 @@ using UnityEngine.UI;
 public class PlayerManager : MonoBehaviour, IDamageable
 {
     public Rigidbody2D RigidBody => GetComponent<Rigidbody2D>();
+    public CapsuleCollider2D Collider => GetComponent<CapsuleCollider2D>();
     public Animator Animator => GetComponent<Animator>();
     private SceneLoader Loader => gameObject.AddComponent<SceneLoader>();
     public static PlayerManager instance;
@@ -54,7 +54,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
         ResetPlayer();
         RigidBody.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
-        Machine.Init(idleState);
+        //Machine.Init(idleState);
         #region  listeners
         UI ui = UI.instance;
         GameManager game = GameManager.instance;
@@ -71,20 +71,21 @@ public class PlayerManager : MonoBehaviour, IDamageable
     }
     private void Update()
     {
-        Machine.currentState.Update();
+        //Machine.currentState.Update();
+        GetInput();
         if (invincible) { Invincibility(); }
-        if (!alive) { movementDisable = true; }
         CheckForAttack();
+        time += Time.deltaTime;
     }
     private void FixedUpdate()
     {
-        Machine.currentState.PhysicsUpdate();
-        if (!movementDisable)
-        {
-            Move();
-            Jump();
-            Fall();
-        } 
+        //Machine.currentState.PhysicsUpdate();
+        HandleCollisions();
+        HandleY();
+        HandleX();
+        HandleGravity();
+
+        ApplyMovement();
         HealthChecks();
         AnimationParams();
     }
@@ -99,9 +100,10 @@ public class PlayerManager : MonoBehaviour, IDamageable
     void AnimationParams()
     {
         Animator.SetFloat("Vertical", RigidBody.velocity.y);
-        Animator.SetFloat("Forward", RigidBody.velocity.x);
+        //Animator.SetFloat("Forward", RigidBody.velocity.x);
         Animator.SetBool("isStanding", IsStanding);
         Animator.SetInteger("Hp", hp);
+        Animator.SetBool("isRunning", RigidBody.velocity.x != 0);
     }
 
     #endregion
@@ -126,7 +128,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     public void Die()
     {
-        Machine.ChangeState(deathState);    
+        Machine.ChangeState(deathState);
     }
     public void TakeDamage(int damage)
     {
@@ -194,37 +196,161 @@ public class PlayerManager : MonoBehaviour, IDamageable
     #endregion
 
     #region Movement
-    private LayerMask ground => LayerMask.GetMask("Ground");
-    private Transform standCheck => transform.GetChild(0);
-    public float speed;
-    public float jumpForce;
-    public bool movementDisable = false;
+    [Header("INPUT")]
+    public float VerticalDeadZoneThreshold = .1f;
+    public float HorizontalDeadZoneThreshold = .1f;
 
-    public bool IsStanding => Physics2D.OverlapCircle(standCheck.position, 0.5f, ground);
+    [Header("MOVEMENT")]
+    public float MaxSpeed = 14;
+    public float Acceleration = 140;
+    public float GroundDeceleration = 80;
+    public float AirDeceleration = 50;
+    public float GroundingForce = -1f;
+    public float GrounderDistance = .1f;
 
-    public void Move()
+    [Header("JUMP")]
+    public float JumpPower = 22;
+    public float MaxJumpTime = 1.2f;
+    public float MaxFallSpeed = 30;
+    public float FallAcceleration = 40;
+    public float JumpEndEarlyGravityModifier = 3;
+    public float CoyoteTime = .15f;
+    public float JumpBuffer = .2f;
+    public float ApexSpeedModifier = 2f;
+    public float ApexTime = 1f;
+
+    private LayerMask player => LayerMask.GetMask("Player");
+    public bool movementDisable;
+    private Vector2 tempVelocity;
+
+    private bool JumpDown;
+    private bool JumpHeld;
+    private int MoveDirection;
+
+    private bool IsStanding;
+    private bool groundHit;
+    private bool ceilingHit;
+    private float time;
+
+    private bool jumpToConsume;
+    private bool bufferedJumpUsable;
+    private bool endedJumpEarly;
+    private bool coyoteUsable;
+    private float timeJumpPressed;
+    private float timeGroundLeft;
+    private float timeApexHit;
+    private float previousYVelocity;
+
+    private bool HasBufferedJump => bufferedJumpUsable && time < timeJumpPressed + JumpBuffer;
+    private bool HasCoyoteTime => coyoteUsable && !IsStanding && time < timeGroundLeft + CoyoteTime;
+
+    void GetInput()
     {
-        if ((Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.RightArrow)) && IsStanding && Machine.currentState != runningState)
+        JumpDown = Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown("Jump");
+        JumpHeld = Input.GetKey(KeyCode.Space) || Input.GetButton("Jump");
+
+        if (JumpDown)
         {
-            Machine.ChangeState(runningState);
+            jumpToConsume = true;
+            timeJumpPressed = time;
         }
-        if (!(Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.RightArrow)) && Machine.currentState == runningState) { Machine.ChangeState(idleState);  }
+
+        MoveDirection = Input.GetKey(KeyCode.RightArrow) ? 1 : Input.GetKey(KeyCode.LeftArrow) ? -1 : 0;
     }
-    public void Jump()
+    void HandleCollisions()
     {
-        if ((IsStanding || RigidBody.velocity.y > 0) && Input.GetKey(KeyCode.Space) && Machine.currentState != jumpState)
+        Physics2D.queriesStartInColliders = false;
+        Vector2 ColLeftDown = new(Collider.bounds.min.x, Collider.bounds.min.y);
+        Vector2 ColRightDown = new(Collider.bounds.max.x, Collider.bounds.min.y);
+        Vector2 ColLeftUp = new(Collider.bounds.min.x, Collider.bounds.max.y);
+        Vector2 ColRightUp = new(Collider.bounds.max.x, Collider.bounds.max.y);
+
+        bool groundHit = Physics2D.Raycast(ColLeftDown, Vector2.down, GrounderDistance, -player) || Physics2D.Raycast(ColRightDown, Vector2.down, GrounderDistance, -player);
+        bool ceilingHit = Physics2D.Raycast(ColLeftUp, Vector2.up, GrounderDistance, -player) || Physics2D.Raycast(ColRightUp, Vector2.up, GrounderDistance, -player);
+
+        if (ceilingHit) tempVelocity.y = Mathf.Min(0, tempVelocity.y);
+
+        if (!IsStanding && groundHit)
         {
-            Machine.ChangeState(jumpState);
+            IsStanding = true;
+            coyoteUsable = true;
+            bufferedJumpUsable = true;
+            endedJumpEarly = false;
         }
-        if (IsStanding && Machine.currentState == jumpState && !Input.GetKey(KeyCode.Space)) { Machine.ChangeState(idleState); }
+
+        if (IsStanding && !groundHit)
+        {
+            IsStanding = false;
+            timeGroundLeft = time;
+        }
     }
-    public void Fall()
+    void HandleY()
     {
-        if (RigidBody.velocity.y < 1 && Machine.currentState != fallState && !IsStanding)
+        if (!endedJumpEarly && !IsStanding && !JumpHeld && RigidBody.velocity.y > 0) { endedJumpEarly = true; }
+
+        if (!jumpToConsume && !HasBufferedJump) { return; }
+
+        if (IsStanding || HasCoyoteTime) { DoJump(); }
+
+        jumpToConsume = false;
+
+        void DoJump()
         {
-            Machine.ChangeState(fallState);
+            endedJumpEarly = false;
+            timeJumpPressed = 0;
+            bufferedJumpUsable = false;
+            coyoteUsable = false;
+            tempVelocity.y = JumpPower;
         }
-        if (IsStanding && Machine.currentState == fallState) { Machine.ChangeState(idleState); }
+    }
+
+    void HandleX()
+    {
+        float angle = MoveDirection == 1 ? 0f : MoveDirection == -1 ? 180f : transform.localRotation.y;
+        transform.localRotation = Quaternion.Euler(transform.localRotation.x, angle, transform.rotation.z);
+
+        if (MoveDirection == 0 && RigidBody.velocity.x > HorizontalDeadZoneThreshold)
+        {
+            var deceleration = IsStanding ? GroundDeceleration : AirDeceleration;
+
+            tempVelocity.x = Mathf.MoveTowards(tempVelocity.x, 0, deceleration * Time.fixedDeltaTime);
+        }
+        else
+        {
+            tempVelocity.x = Mathf.MoveTowards(tempVelocity.x, MoveDirection * MaxSpeed, Acceleration * Time.fixedDeltaTime);
+        }
+        tempVelocity.x = RigidBody.velocity.x > MaxSpeed ? MaxSpeed : RigidBody.velocity.x < -MaxSpeed ? MaxSpeed : tempVelocity.x;
+    }
+
+    private void HandleGravity()
+    {
+        if (IsStanding && tempVelocity.y <= VerticalDeadZoneThreshold)
+        {
+            tempVelocity.y = GroundingForce;
+        }
+        else
+        {
+            var inAirGravity = FallAcceleration;
+
+            if (endedJumpEarly && tempVelocity.y > 0)
+            {
+                inAirGravity *= JumpEndEarlyGravityModifier;
+            }
+            tempVelocity.y = Mathf.MoveTowards(tempVelocity.y, -MaxFallSpeed, inAirGravity * Time.fixedDeltaTime);
+        }
+
+        if (previousYVelocity > 0 && tempVelocity.y <= 0) { timeApexHit = time; }
+        if (time > timeApexHit + ApexTime)
+        {
+            tempVelocity.y = 0;
+            tempVelocity.x *= ApexSpeedModifier;
+        }
+        previousYVelocity = tempVelocity.y;
+    }
+
+    void ApplyMovement()
+    {
+        RigidBody.velocity = tempVelocity;
     }
     #endregion
 
@@ -268,3 +394,4 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public float mAtk;
     #endregion
 }
+

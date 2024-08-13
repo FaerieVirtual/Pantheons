@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class AudioManager : MonoBehaviour
@@ -7,6 +8,9 @@ public class AudioManager : MonoBehaviour
     public static AudioManager instance;
     private int areaTemp;
     private bool playThemes = true;
+
+    [Range(0, 1)] public float musicVolume;
+    private List<Sound> music = new();
 
     private void Awake()
     {
@@ -24,9 +28,10 @@ public class AudioManager : MonoBehaviour
             sound.source.volume = sound.volume;
             sound.source.loop = sound.loop;
             sound.source.pitch = sound.pitch;
-            if (sound.tag == null) { sound.source.tag = "Untagged"; }
-            if (sound.tag != null) { sound.source.tag = sound.tag; }
+            //if (sound.tag == null) { sound.source.tag = "Untagged"; }
+            //if (sound.tag != null) { sound.source.tag = sound.tag; }
         }
+        SortByTag();
     }
     private void Update()
     {
@@ -71,7 +76,22 @@ public class AudioManager : MonoBehaviour
             }
         }
     }
+    #region Options
+    private void SortByTag()
+    {
+        foreach (Sound sound in sounds)
+        {
+            if (sound.tag == "Theme" || sound.tag == "Music") { music.Add(sound); }
+        }
 
+    }
+
+    public void UpdateSoundOptions() 
+    {
+        music.ForEach(sound => { sound.source.volume = sound.source.volume * musicVolume; });
+    }
+    #endregion
+    #region Listener actions
     public void OnPlayerRun() { Play("Run"); }
     public void OnPlayerRunStop() { Stop("Run"); }
     public void OnPlayerAttack() { Play("Attack"); }
@@ -90,15 +110,16 @@ public class AudioManager : MonoBehaviour
         }
     }
     public void OnPlayerDeath() { Play("Death"); }
-    public void OnPause() 
+    public void OnPause()
     {
         playThemes = false;
         StopByTag("Theme");
         Play("Pause");
     }
-    public void OnResume() 
+    public void OnResume()
     {
         Play("Pause");
         playThemes = true;
     }
+    #endregion
 }

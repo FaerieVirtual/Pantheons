@@ -21,11 +21,11 @@ public class PlayerJumpState : PlayerState
     {
         this.player = player;
         this.machine = machine;
-        jumpForce = player.jumpForce;
+        jumpForce = player.JumpPower;
         RigidBody = player.RigidBody;
         animator = player.Animator;
         transform = player.transform;
-        speed = player.speed;
+        speed = player.Acceleration;
         audio = AudioManager.instance;
 
         playerJump.AddListener(audio.OnPlayerJump);
