@@ -1,5 +1,11 @@
+<<<<<<< Updated upstream
+=======
+using JetBrains.Annotations;
+using System.Collections;
+>>>>>>> Stashed changes
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PlayerManager : MonoBehaviour, IDamageable
@@ -7,9 +13,8 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public Rigidbody2D RigidBody => GetComponent<Rigidbody2D>();
     public CapsuleCollider2D Collider => GetComponent<CapsuleCollider2D>();
     public Animator Animator => GetComponent<Animator>();
-    private SceneLoader Loader => gameObject.AddComponent<SceneLoader>();
+    private ScenesManager Loader => gameObject.AddComponent<ScenesManager>();
     public static PlayerManager instance;
-    public AudioManager Audio;
 
     PlayerStatemachine Machine { get; set; } = new PlayerStatemachine();
 
@@ -42,7 +47,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
     }
     private void Start()
     {
-        Audio = AudioManager.instance;
         #region States
         runningState = new PlayerRunningState(this, Machine);
         fallState = new PlayerFallState(this, Machine);
@@ -302,6 +306,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
             coyoteUsable = false;
             tempVelocity.y = JumpPower;
         }
+<<<<<<< Updated upstream
     }
 
     void HandleX()
@@ -351,6 +356,16 @@ public class PlayerManager : MonoBehaviour, IDamageable
     void ApplyMovement()
     {
         RigidBody.velocity = tempVelocity;
+=======
+        if (IsStanding && Machine.currentState == fallState) { Machine.ChangeState(idleState); }
+        
+    }
+    public void RunSound() 
+    {
+        UnityEvent playerRun = new UnityEvent();
+        playerRun.AddListener(AudioManager.instance.OnPlayerRun);
+        playerRun.Invoke();
+>>>>>>> Stashed changes
     }
     #endregion
 

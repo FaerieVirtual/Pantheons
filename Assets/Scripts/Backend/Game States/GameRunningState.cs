@@ -12,6 +12,10 @@ public class GameRunningState : GameState
 
     public override void EnterState()
     {
+<<<<<<< Updated upstream
+=======
+        UnityEngine.SceneManagement.SceneManager.LoadScene("AP1");
+>>>>>>> Stashed changes
     }
 
     public override void ExitState()

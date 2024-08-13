@@ -6,14 +6,13 @@ using UnityEngine.SceneManagement;
 
 public class GameMenuState : GameState
 {
-    Scene main => SceneManager.GetSceneByName("MainMenu");
+    Scene main => UnityEngine.SceneManagement.SceneManager.GetSceneByName("MainMenu");
     public GameMenuState(GameStatemachine machine) : base(machine)
     {
         this.machine = machine;
     }
     public override void EnterState()
     {
-        GameManager.Area = 0;
     }
     public override void ExitState() 
     {

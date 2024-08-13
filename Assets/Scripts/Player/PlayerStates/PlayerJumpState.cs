@@ -33,8 +33,13 @@ public class PlayerJumpState : PlayerState
 
     public override void EnterState()
     {
+<<<<<<< Updated upstream
         playerJump.Invoke();
         animator.SetTrigger("Jump");
+=======
+        playerJump.Invoke(); 
+        animator.Play("jump");
+>>>>>>> Stashed changes
     }
 
     public override void ExitState()

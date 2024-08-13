@@ -1,13 +1,15 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class AudioManager : MonoBehaviour
 {
     public Sound[] sounds;
     public static AudioManager instance;
-    private int areaTemp;
-    private bool playThemes = true;
+    private string themeQueued;
+    private string themePlaying;
+    public bool themePause = false;
 
     [Range(0, 1)] public float musicVolume;
     private List<Sound> music = new();
@@ -28,14 +30,20 @@ public class AudioManager : MonoBehaviour
             sound.source.volume = sound.volume;
             sound.source.loop = sound.loop;
             sound.source.pitch = sound.pitch;
+<<<<<<< Updated upstream
             //if (sound.tag == null) { sound.source.tag = "Untagged"; }
             //if (sound.tag != null) { sound.source.tag = sound.tag; }
         }
         SortByTag();
+=======
+        }
+        themePlaying = "MainTheme";
+>>>>>>> Stashed changes
     }
     private void Update()
     {
-        PlayTheme(playThemes);
+        CheckForPause();
+        PlayTheme();
     }
 
     public void Play(string name)
@@ -43,36 +51,25 @@ public class AudioManager : MonoBehaviour
         Sound sound = Array.Find(sounds, sound => sound.name == name);
         if (!sound.source.isPlaying)
         {
+            if (sound.tag == "Theme")
+            {
+                Stop(tag: "Theme");
+            }
             sound.source.Play();
         }
     }
-    public void Stop(string name)
+    public void Stop(string name = null, string tag = null)
     {
-        Sound sound = Array.Find(sounds, sound => sound.name == name);
-        if (sound != null && sound.source.isPlaying) { sound.source.Stop(); }
-    }
-
-    public void PlayTheme(bool activate)
-    {
-        if (GameManager.Area != areaTemp)
+        if (name != null)
         {
-            StopByTag("Theme");
-            areaTemp = GameManager.Area;
+            Sound sound = Array.Find(sounds, sound => sound.name == name);
+            if (sound != null && sound.source.isPlaying) { sound.source.Stop(); }
         }
-        switch (areaTemp)
+        if (tag != null)
         {
-            case 0: Play("MainTheme"); break;
-            case 1: Play("DeathTheme"); break;
-            case 2: Play("APTheme"); break;
-        }
-    }
-    void StopByTag(string soundTag)
-    {
-        foreach (Sound sound in sounds)
-        {
-            if (sound.tag == soundTag)
-            {
-                Stop(sound.name);
+            foreach (Sound sound in sounds)
+            { 
+                if (sound.tag == tag && sound.source.isPlaying) { sound.source.Stop(); }
             }
         }
     }
@@ -84,6 +81,7 @@ public class AudioManager : MonoBehaviour
             if (sound.tag == "Theme" || sound.tag == "Music") { music.Add(sound); }
         }
 
+<<<<<<< Updated upstream
     }
 
     public void UpdateSoundOptions() 
@@ -92,8 +90,36 @@ public class AudioManager : MonoBehaviour
     }
     #endregion
     #region Listener actions
+=======
+    public void PlayTheme()
+    {
+        void ThemeQueue() 
+        { 
+            switch (SceneManager.GetActiveScene().buildIndex) 
+            {
+                case 0: themeQueued = "MainTheme"; break;
+                case 1: case 2: themeQueued = "APTheme"; break;
+            }
+        }
+        ThemeQueue();
+        if (themePlaying != themeQueued || themePause == true)
+        {
+            Stop("Theme");
+            themePlaying = themeQueued;
+        }
+        if (themePause == false) { Play(themeQueued); }   
+    }
+    public void CheckForPause()
+    {
+        GamePausedState paused = new GamePausedState(GameManager.instance.machine);
+        if (GameManager.instance.machine.currentState == paused && themePause == false) { themePause = true; }
+        if (GameManager.instance.machine.currentState != paused && themePause == true) { themePause = false; }
+    }
+
+
+>>>>>>> Stashed changes
     public void OnPlayerRun() { Play("Run"); }
-    public void OnPlayerRunStop() { Stop("Run"); }
+    //public void OnPlayerRunStop() { Stop("Run"); }
     public void OnPlayerAttack() { Play("Attack"); }
     public void OnPlayerFall() { Play("Fall"); }
     public void OnPlayerFallStop() { Stop("Fall"); }
@@ -110,6 +136,7 @@ public class AudioManager : MonoBehaviour
         }
     }
     public void OnPlayerDeath() { Play("Death"); }
+<<<<<<< Updated upstream
     public void OnPause()
     {
         playThemes = false;
@@ -122,4 +149,6 @@ public class AudioManager : MonoBehaviour
         playThemes = true;
     }
     #endregion
+=======
+>>>>>>> Stashed changes
 }

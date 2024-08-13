@@ -12,10 +12,13 @@ public class PlayerRunningState : PlayerState
     private float timer = 0;
     private float animTriggerTime = 0.1f;
 
+<<<<<<< Updated upstream
     private Vector2 moveInput;
 
     public UnityEvent playerRun = new();
     public UnityEvent playerRunStop = new();
+=======
+>>>>>>> Stashed changes
 
     public PlayerRunningState(PlayerManager player, PlayerStatemachine machine) : base(player, machine)
     {
@@ -24,9 +27,6 @@ public class PlayerRunningState : PlayerState
         //animator = player.Animator;
         RigidBody = player.RigidBody;
         audio = AudioManager.instance;
-
-        playerRun.AddListener(audio.OnPlayerRun);
-        playerRunStop.AddListener(audio.OnPlayerRunStop);
     }
 
 
@@ -36,7 +36,6 @@ public class PlayerRunningState : PlayerState
     }
     public override void ExitState()
     {
-        playerRunStop.Invoke();
         timer = 0;
     }
 
@@ -54,11 +53,14 @@ public class PlayerRunningState : PlayerState
             RigidBody.velocity = new Vector2(speed, RigidBody.velocity.y);
         }
         timer += Time.deltaTime;
+<<<<<<< Updated upstream
         if (timer > animTriggerTime)
         {
             playerRun.Invoke();
         }
         CalculateImpactAngle();
+=======
+>>>>>>> Stashed changes
     }
 
     public override void Update()

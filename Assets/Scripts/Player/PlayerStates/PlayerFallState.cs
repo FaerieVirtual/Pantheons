@@ -19,8 +19,12 @@ public class PlayerFallState : PlayerState
         this.player = player;
         this.machine = machine;
         RigidBody = player.RigidBody;
+<<<<<<< Updated upstream
         //animator = player.Animator;
         audio = player.Audio;
+=======
+        animator = player.Animator;
+>>>>>>> Stashed changes
         playerFall.AddListener(audio.OnPlayerFall);
         playerFallStop.AddListener(audio.OnPlayerFallStop);
     }

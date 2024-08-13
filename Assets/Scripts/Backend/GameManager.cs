@@ -46,13 +46,6 @@ public class GameManager : MonoBehaviour
         {
             machine.ChangeState(pausedState);
         }
-        switch (SceneManager.GetActiveScene().buildIndex)
-        {
-            case 0: Area = 0; break;
-            case 1: Area = 1; break;
-            case 2: Area = 2; break;
-            case 3: Area = 2; break;
-        }
     }
     private void FixedUpdate()
     {
@@ -61,12 +54,19 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region StateSwitches
-    public void NewGame()
+
+    public void LoadGame()
     {
         MainMenu main = FindObjectOfType<MainMenu>(true);
         main.gameObject.SetActive(false);
         GodMenu god = FindObjectOfType<GodMenu>(true);
+<<<<<<< Updated upstream
         god.gameObject.SetActive(true);
+=======
+        god.enabled = false;
+
+
+>>>>>>> Stashed changes
     }
     public void ChooseGod()
     {

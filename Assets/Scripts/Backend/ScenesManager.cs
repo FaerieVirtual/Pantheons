@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class SceneLoader : MonoBehaviour
+public class ScenesManager : MonoBehaviour
 {
     public int nextSceneIndex;
     public string mode;
@@ -38,15 +38,15 @@ public class SceneLoader : MonoBehaviour
     {
         AsyncOperation load = SceneManager.LoadSceneAsync(nextSceneIndex, LoadSceneMode.Additive);
         load.allowSceneActivation = false;
-        while (!load.isDone)
-        {
-            if (load.progress >= 0.9f)
-            {
-                break;
-            }
-            yield return null;
+        //while (!load.isDone)
+        //{
+        //    if (load.progress >= 0.9f)
+        //    {
+        //        break;
+        //    }
+        //    yield return null;
 
-        }
+        //}
         load.completed += (x) =>
         {
 
