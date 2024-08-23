@@ -943,7 +943,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &582800424
 Transform:
   m_ObjectHideFlags: 0
@@ -981,7 +981,7 @@ MonoBehaviour:
   - {fileID: 2004647307}
   - {fileID: 1400711251}
   godView: {fileID: 24576816}
-  godname: {fileID: 0}
+  godname: {fileID: 705721116}
   descriptionText: {fileID: 0}
   stat1: {fileID: 477567586}
   stat2: {fileID: 1262874699}
@@ -1022,7 +1022,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &591712391
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -13,20 +13,10 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public static PlayerManager instance;
     public AudioManager Audio;
 
-    //PlayerStatemachine Machine { get; set; } = new PlayerStatemachine();
-
     #region Events
     public UnityEvent playerRespawn;
     public UnityEvent playerHitDef;
     public UnityEvent playerAttack;
-    #endregion
-    #region States
-    //PlayerRunningState runningState;
-    //PlayerFallState fallState;
-    //PlayerIdleState idleState;
-    //PlayerJumpState jumpState;
-    //PlayerHurtState hurtState;
-    //PlayerDeathState deathState;
     #endregion
 
     #region General
@@ -45,18 +35,9 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private void Start()
     {
         Audio = AudioManager.instance;
-        #region States
-        //runningState = new PlayerRunningState(this, Machine);
-        //fallState = new PlayerFallState(this, Machine);
-        //jumpState = new PlayerJumpState(this, Machine);
-        //idleState = new PlayerIdleState(this, Machine);
-        //deathState = new PlayerDeathState(this, Machine);
-        //hurtState = new PlayerHurtState(this, Machine);
-        #endregion
 
         ResetPlayer();
         RigidBody.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
-        //Machine.Init(idleState);
         #region  listeners
         UI ui = UI.instance;
         GameManager game = GameManager.instance;
@@ -73,7 +54,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
     }
     private void Update()
     {
-        //Machine.currentState.Update();
         GetInput();
         if (invincible) { Invincibility(); }
         CheckForAttack();
@@ -81,7 +61,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
     }
     private void FixedUpdate()
     {
-        //Machine.currentState.PhysicsUpdate();
         HandleCollisions();
         HandleY();
         HandleX();
@@ -105,7 +84,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         //Animator.SetFloat("Forward", RigidBody.velocity.x);
         Animator.SetBool("isStanding", IsStanding);
         Animator.SetInteger("Hp", hp);
-        Animator.SetBool("isRunning", RigidBody.velocity.x != 0);
+        //Animator.SetBool("isRunning", RigidBody.velocity.x != 0);
     }
 
     #endregion
@@ -342,17 +321,18 @@ public class PlayerManager : MonoBehaviour, IDamageable
             tempVelocity.y = Mathf.MoveTowards(tempVelocity.y, -MaxFallSpeed, inAirGravity * Time.fixedDeltaTime);
         }
 
-        if (previousYVelocity > 0 && tempVelocity.y <= 0) { timeApexHit = time; }
-        if (time < timeApexHit + ApexTime)
-        {
-            tempVelocity.y = 0;
-            tempVelocity.x *= ApexSpeedModifier;
-        }
-        previousYVelocity = tempVelocity.y;
+        //if (previousYVelocity > 0 && tempVelocity.y <= 0) { timeApexHit = time; }
+        //if (time < timeApexHit + ApexTime)
+        //{
+        //    Debug.Log("trying to apex");
+        //    tempVelocity.y = 0;
+        //    tempVelocity.x *= ApexSpeedModifier;
+        //}
     }
 
     void ApplyMovement()
-    {
+    {        
+        previousYVelocity = tempVelocity.y;
         RigidBody.velocity = tempVelocity;
     }
 
