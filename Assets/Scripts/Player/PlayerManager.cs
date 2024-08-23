@@ -9,7 +9,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public Rigidbody2D RigidBody => GetComponent<Rigidbody2D>();
     public CapsuleCollider2D Collider => GetComponent<CapsuleCollider2D>();
     public Animator Animator => GetComponent<Animator>();
-    private ScenesManager Loader => gameObject.AddComponent<ScenesManager>();
+    private LevelManager Loader => gameObject.AddComponent<LevelManager>();
     public static PlayerManager instance;
     public AudioManager Audio;
 
