@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 using JetBrains.Annotations;
 using System.Collections;
-=======
->>>>>>> parent of 7a2af25 (13.8.24)
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -12,7 +9,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public Rigidbody2D RigidBody => GetComponent<Rigidbody2D>();
     public CapsuleCollider2D Collider => GetComponent<CapsuleCollider2D>();
     public Animator Animator => GetComponent<Animator>();
-    private SceneLoader Loader => gameObject.AddComponent<SceneLoader>();
+    private ScenesManager Loader => gameObject.AddComponent<ScenesManager>();
     public static PlayerManager instance;
     public AudioManager Audio;
 

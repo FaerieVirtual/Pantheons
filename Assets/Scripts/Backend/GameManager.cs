@@ -67,10 +67,7 @@ public class GameManager : MonoBehaviour
         main.gameObject.SetActive(false);
         GodMenu god = FindObjectOfType<GodMenu>(true);
         god.gameObject.SetActive(true);
-<<<<<<< HEAD
         god.enabled = false;
-=======
->>>>>>> parent of 7a2af25 (13.8.24)
     }
     public void ChooseGod()
     {

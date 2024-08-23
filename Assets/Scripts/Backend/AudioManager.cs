@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class AudioManager : MonoBehaviour
 {
@@ -32,11 +33,9 @@ public class AudioManager : MonoBehaviour
             //if (sound.tag != null) { sound.source.tag = sound.tag; }
         }
         SortByTag();
-<<<<<<< HEAD
         
-        themePlaying = "MainTheme";
-=======
->>>>>>> parent of 7a2af25 (13.8.24)
+        //themePlaying = "MainTheme";
+
     }
     private void Update()
     {
@@ -97,35 +96,32 @@ public class AudioManager : MonoBehaviour
     }
     #endregion
     #region Listener actions
-<<<<<<< HEAD
-    public void PlayTheme()
-    {
-        void ThemeQueue() 
-        { 
-            switch (SceneManager.GetActiveScene().buildIndex) 
-            {
-                case 0: themeQueued = "MainTheme"; break;
-                case 1: case 2: themeQueued = "APTheme"; break;
-            }
-        }
-        ThemeQueue();
-        if (themePlaying != themeQueued || themePause == true)
-        {
-            Stop("Theme");
-            themePlaying = themeQueued;
-        }
-        if (themePause == false) { Play(themeQueued); }   
-    }
-    public void CheckForPause()
-    {
-        GamePausedState paused = new GamePausedState(GameManager.instance.machine);
-        if (GameManager.instance.machine.currentState == paused && themePause == false) { themePause = true; }
-        if (GameManager.instance.machine.currentState != paused && themePause == true) { themePause = false; }
-    }
+    //public void PlayTheme()
+    //{
+    //    void ThemeQueue() 
+    //    { 
+    //        switch (SceneManager.GetActiveScene().buildIndex) 
+    //        {
+    //            case 0: themeQueued = "MainTheme"; break;
+    //            case 1: case 2: themeQueued = "APTheme"; break;
+    //        }
+    //    }
+    //    ThemeQueue();
+    //    if (themePlaying != themeQueued || themePause == true)
+    //    {
+    //        Stop("Theme");
+    //        themePlaying = themeQueued;
+    //    }
+    //    if (themePause == false) { Play(themeQueued); }   
+    //}
+    //public void CheckForPause()
+    //{
+    //    GamePausedState paused = new GamePausedState(GameManager.instance.machine);
+    //    if (GameManager.instance.machine.currentState == paused && themePause == false) { themePause = true; }
+    //    if (GameManager.instance.machine.currentState != paused && themePause == true) { themePause = false; }
+    //}
 
 
-=======
->>>>>>> parent of 7a2af25 (13.8.24)
     public void OnPlayerRun() { Play("Run"); }
     public void OnPlayerRunStop() { Stop("Run"); }
     public void OnPlayerAttack() { Play("Attack"); }
@@ -144,7 +140,6 @@ public class AudioManager : MonoBehaviour
         }
     }
     public void OnPlayerDeath() { Play("Death"); }
-<<<<<<< HEAD
     //public void OnPause()
     //{
     //    playThemes = false;
@@ -156,7 +151,6 @@ public class AudioManager : MonoBehaviour
     //    Play("Pause");
     //    playThemes = true;
     //}
-=======
     public void OnPause()
     {
         playThemes = false;
@@ -168,6 +162,5 @@ public class AudioManager : MonoBehaviour
         Play("Pause");
         playThemes = true;
     }
->>>>>>> parent of 7a2af25 (13.8.24)
     #endregion
 }

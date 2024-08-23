@@ -31,24 +31,18 @@
 //        playerJump.AddListener(audio.OnPlayerJump);
 //    }
 
-<<<<<<< HEAD
 //    public override void EnterState()
 //    {
-//<<<<<<< Updated upstream
 //        playerJump.Invoke();
 //        animator.SetTrigger("Jump");
-//=======
 //        playerJump.Invoke(); 
 //        animator.Play("jump");
-//>>>>>>> Stashed changes
 //    }
-=======
-    public override void EnterState()
-    {
-        playerJump.Invoke();
-        animator.SetTrigger("Jump");
-    }
->>>>>>> parent of 7a2af25 (13.8.24)
+    //public override void EnterState()
+    //{
+    //    playerJump.Invoke();
+    //    animator.SetTrigger("Jump");
+    //}
 
 //    public override void ExitState()
 //    {
