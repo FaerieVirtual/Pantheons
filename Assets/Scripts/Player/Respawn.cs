@@ -30,7 +30,7 @@ public class Respawn : MonoBehaviour
 
             if (player != null)
             {
-                player.respawnPointScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex;
+                player.respawnPointScene = SceneManager.GetActiveScene().buildIndex;
             }
         }
         if (!activated) 

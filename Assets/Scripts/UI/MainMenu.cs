@@ -5,16 +5,14 @@ using UnityEngine.SceneManagement;
 public class MainMenu : MonoBehaviour, IMenuBase
 {
     public UnityEvent gameLoad = new();
+    public UnityEvent gameNew = new();
     private void Start()
     {
+        gameNew.AddListener(GameManager.instance.NewGame);
     }
     public void NewGame()
     {
-        GodMenu god = FindObjectOfType<GodMenu>(true);
-        god.gameObject.SetActive(true);
-        MainMenu main = FindObjectOfType<MainMenu>(true);
-        main.gameObject.SetActive(false);
-
+        gameNew.Invoke();
     }
     public void LoadGame()
     {
@@ -28,6 +26,6 @@ public class MainMenu : MonoBehaviour, IMenuBase
 
     public void Quit()
     {
-        Application.Quit();
+        throw new System.NotImplementedException();
     }
 }

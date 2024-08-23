@@ -1,15 +1,13 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class AudioManager : MonoBehaviour
 {
     public Sound[] sounds;
     public static AudioManager instance;
-    private string themeQueued;
-    private string themePlaying;
-    public bool themePause = false;
+    private int areaTemp;
+    private bool playThemes = true;
 
     [Range(0, 1)] public float musicVolume;
     private List<Sound> music = new();
@@ -34,13 +32,15 @@ public class AudioManager : MonoBehaviour
             //if (sound.tag != null) { sound.source.tag = sound.tag; }
         }
         SortByTag();
+<<<<<<< HEAD
         
         themePlaying = "MainTheme";
+=======
+>>>>>>> parent of 7a2af25 (13.8.24)
     }
     private void Update()
     {
-        CheckForPause();
-        PlayTheme();
+        PlayTheme(playThemes);
     }
 
     public void Play(string name)
@@ -48,25 +48,36 @@ public class AudioManager : MonoBehaviour
         Sound sound = Array.Find(sounds, sound => sound.name == name);
         if (!sound.source.isPlaying)
         {
-            if (sound.tag == "Theme")
-            {
-                Stop(tag: "Theme");
-            }
             sound.source.Play();
         }
     }
-    public void Stop(string name = null, string tag = null)
+    public void Stop(string name)
     {
-        if (name != null)
+        Sound sound = Array.Find(sounds, sound => sound.name == name);
+        if (sound != null && sound.source.isPlaying) { sound.source.Stop(); }
+    }
+
+    public void PlayTheme(bool activate)
+    {
+        if (GameManager.Area != areaTemp)
         {
-            Sound sound = Array.Find(sounds, sound => sound.name == name);
-            if (sound != null && sound.source.isPlaying) { sound.source.Stop(); }
+            StopByTag("Theme");
+            areaTemp = GameManager.Area;
         }
-        if (tag != null)
+        switch (areaTemp)
         {
-            foreach (Sound sound in sounds)
-            { 
-                if (sound.tag == tag && sound.source.isPlaying) { sound.source.Stop(); }
+            case 0: Play("MainTheme"); break;
+            case 1: Play("DeathTheme"); break;
+            case 2: Play("APTheme"); break;
+        }
+    }
+    void StopByTag(string soundTag)
+    {
+        foreach (Sound sound in sounds)
+        {
+            if (sound.tag == soundTag)
+            {
+                Stop(sound.name);
             }
         }
     }
@@ -86,6 +97,7 @@ public class AudioManager : MonoBehaviour
     }
     #endregion
     #region Listener actions
+<<<<<<< HEAD
     public void PlayTheme()
     {
         void ThemeQueue() 
@@ -112,8 +124,10 @@ public class AudioManager : MonoBehaviour
     }
 
 
+=======
+>>>>>>> parent of 7a2af25 (13.8.24)
     public void OnPlayerRun() { Play("Run"); }
-    //public void OnPlayerRunStop() { Stop("Run"); }
+    public void OnPlayerRunStop() { Stop("Run"); }
     public void OnPlayerAttack() { Play("Attack"); }
     public void OnPlayerFall() { Play("Fall"); }
     public void OnPlayerFallStop() { Stop("Fall"); }
@@ -130,6 +144,7 @@ public class AudioManager : MonoBehaviour
         }
     }
     public void OnPlayerDeath() { Play("Death"); }
+<<<<<<< HEAD
     //public void OnPause()
     //{
     //    playThemes = false;
@@ -141,5 +156,18 @@ public class AudioManager : MonoBehaviour
     //    Play("Pause");
     //    playThemes = true;
     //}
+=======
+    public void OnPause()
+    {
+        playThemes = false;
+        StopByTag("Theme");
+        Play("Pause");
+    }
+    public void OnResume()
+    {
+        Play("Pause");
+        playThemes = true;
+    }
+>>>>>>> parent of 7a2af25 (13.8.24)
     #endregion
 }

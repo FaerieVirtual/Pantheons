@@ -10,7 +10,10 @@ public class GodMenu : MonoBehaviour
     public Image godView;
     //public TextMeshPro descriptionText;
     public TextMeshPro godname;
+<<<<<<< HEAD
     public Text descriptionText;
+=======
+>>>>>>> parent of 7a2af25 (13.8.24)
     public TextMeshPro stat1;
     public TextMeshPro stat2;
     public TextMeshPro stat3;
@@ -71,8 +74,11 @@ public class GodMenu : MonoBehaviour
             //descriptionText.text = god.description;
             selected.sprite = god.Symbol;
             stat1.text = god.stat1;
+<<<<<<< HEAD
             //descriptionText.text = god.description;//descriptionText.text = descriptions[currentIndex];
             selected.sprite = god.Symbol;
+=======
+>>>>>>> parent of 7a2af25 (13.8.24)
             stat2.text = god.stat2;
             stat3.text = god.stat3;
             stat4.text = god.stat4;
@@ -89,9 +95,12 @@ public class GodMenu : MonoBehaviour
     public void OnConfirmSelection()
     {
         GameRunningState running = new(GameManager.instance.machine);
+<<<<<<< HEAD
         GameManager.instance.god = gods[currentIndex];
         GodMenu god = FindObjectOfType<GodMenu>(true);
         god.gameObject.SetActive(false);
+=======
+>>>>>>> parent of 7a2af25 (13.8.24)
 
         GameManager.instance.god = gods[currentIndex];
         GameManager.instance.machine.ChangeState(running);

@@ -14,6 +14,7 @@
 //    public UnityEvent playerFall = new UnityEvent();
 //    public UnityEvent playerFallStop = new UnityEvent();
 
+<<<<<<< HEAD
 //    public PlayerFallState(PlayerManager player, PlayerStatemachine machine) : base(player, machine)
 //    {
 //        this.player = player;
@@ -28,6 +29,18 @@
 //        playerFall.AddListener(audio.OnPlayerFall);
 //        playerFallStop.AddListener(audio.OnPlayerFallStop);
 //    }
+=======
+    public PlayerFallState(PlayerManager player, PlayerStatemachine machine) : base(player, machine)
+    {
+        this.player = player;
+        this.machine = machine;
+        RigidBody = player.RigidBody;
+        //animator = player.Animator;
+        audio = player.Audio;
+        playerFall.AddListener(audio.OnPlayerFall);
+        playerFallStop.AddListener(audio.OnPlayerFallStop);
+    }
+>>>>>>> parent of 7a2af25 (13.8.24)
 
 //    public override void EnterState()
 //    {

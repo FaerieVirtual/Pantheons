@@ -12,6 +12,7 @@
 //    private float timer = 0;
 //    private float animTriggerTime = 0.1f;
 
+<<<<<<< HEAD
 //<<<<<<< Updated upstream
 //    private Vector2 moveInput;
 
@@ -38,6 +39,35 @@
 //    {
 //        timer = 0;
 //    }
+=======
+    private Vector2 moveInput;
+
+    public UnityEvent playerRun = new();
+    public UnityEvent playerRunStop = new();
+
+    public PlayerRunningState(PlayerManager player, PlayerStatemachine machine) : base(player, machine)
+    {
+        transform = player.transform;
+        speed = player.Acceleration;
+        //animator = player.Animator;
+        RigidBody = player.RigidBody;
+        audio = AudioManager.instance;
+
+        playerRun.AddListener(audio.OnPlayerRun);
+        playerRunStop.AddListener(audio.OnPlayerRunStop);
+    }
+
+
+    public override void EnterState()
+    {
+        //animator.Play("Run");
+    }
+    public override void ExitState()
+    {
+        playerRunStop.Invoke();
+        timer = 0;
+    }
+>>>>>>> parent of 7a2af25 (13.8.24)
 
 //    public override void PhysicsUpdate()
 //    {
@@ -47,6 +77,7 @@
 //            RigidBody.velocity = new Vector2(-speed, RigidBody.velocity.y);
 //        }
 
+<<<<<<< HEAD
 //        if (Input.GetKey(KeyCode.RightArrow))
 //        {
 //            transform.localRotation = Quaternion.Euler(transform.localRotation.x, 0f, transform.rotation.z);
@@ -62,6 +93,20 @@
 //=======
 //>>>>>>> Stashed changes
 //    }
+=======
+        if (Input.GetKey(KeyCode.RightArrow))
+        {
+            transform.localRotation = Quaternion.Euler(transform.localRotation.x, 0f, transform.rotation.z);
+            RigidBody.velocity = new Vector2(speed, RigidBody.velocity.y);
+        }
+        timer += Time.deltaTime;
+        if (timer > animTriggerTime)
+        {
+            playerRun.Invoke();
+        }
+        CalculateImpactAngle();
+    }
+>>>>>>> parent of 7a2af25 (13.8.24)
 
 //    public override void Update()
 //    {

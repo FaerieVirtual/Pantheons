@@ -31,6 +31,7 @@
 //        playerJump.AddListener(audio.OnPlayerJump);
 //    }
 
+<<<<<<< HEAD
 //    public override void EnterState()
 //    {
 //<<<<<<< Updated upstream
@@ -41,6 +42,13 @@
 //        animator.Play("jump");
 //>>>>>>> Stashed changes
 //    }
+=======
+    public override void EnterState()
+    {
+        playerJump.Invoke();
+        animator.SetTrigger("Jump");
+    }
+>>>>>>> parent of 7a2af25 (13.8.24)
 
 //    public override void ExitState()
 //    {

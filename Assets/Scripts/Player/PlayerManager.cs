@@ -1,8 +1,10 @@
+<<<<<<< HEAD
 using JetBrains.Annotations;
 using System.Collections;
+=======
+>>>>>>> parent of 7a2af25 (13.8.24)
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PlayerManager : MonoBehaviour, IDamageable
@@ -10,8 +12,9 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public Rigidbody2D RigidBody => GetComponent<Rigidbody2D>();
     public CapsuleCollider2D Collider => GetComponent<CapsuleCollider2D>();
     public Animator Animator => GetComponent<Animator>();
-    private ScenesManager Loader => gameObject.AddComponent<ScenesManager>();
+    private SceneLoader Loader => gameObject.AddComponent<SceneLoader>();
     public static PlayerManager instance;
+    public AudioManager Audio;
 
     //PlayerStatemachine Machine { get; set; } = new PlayerStatemachine();
 
@@ -44,6 +47,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     }
     private void Start()
     {
+        Audio = AudioManager.instance;
         #region States
         //runningState = new PlayerRunningState(this, Machine);
         //fallState = new PlayerFallState(this, Machine);
