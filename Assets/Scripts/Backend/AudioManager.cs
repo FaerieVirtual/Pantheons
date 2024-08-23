@@ -30,15 +30,12 @@ public class AudioManager : MonoBehaviour
             sound.source.volume = sound.volume;
             sound.source.loop = sound.loop;
             sound.source.pitch = sound.pitch;
-<<<<<<< Updated upstream
             //if (sound.tag == null) { sound.source.tag = "Untagged"; }
             //if (sound.tag != null) { sound.source.tag = sound.tag; }
         }
         SortByTag();
-=======
-        }
+        
         themePlaying = "MainTheme";
->>>>>>> Stashed changes
     }
     private void Update()
     {
@@ -81,7 +78,6 @@ public class AudioManager : MonoBehaviour
             if (sound.tag == "Theme" || sound.tag == "Music") { music.Add(sound); }
         }
 
-<<<<<<< Updated upstream
     }
 
     public void UpdateSoundOptions() 
@@ -90,7 +86,6 @@ public class AudioManager : MonoBehaviour
     }
     #endregion
     #region Listener actions
-=======
     public void PlayTheme()
     {
         void ThemeQueue() 
@@ -117,7 +112,6 @@ public class AudioManager : MonoBehaviour
     }
 
 
->>>>>>> Stashed changes
     public void OnPlayerRun() { Play("Run"); }
     //public void OnPlayerRunStop() { Stop("Run"); }
     public void OnPlayerAttack() { Play("Attack"); }
@@ -136,19 +130,16 @@ public class AudioManager : MonoBehaviour
         }
     }
     public void OnPlayerDeath() { Play("Death"); }
-<<<<<<< Updated upstream
-    public void OnPause()
-    {
-        playThemes = false;
-        StopByTag("Theme");
-        Play("Pause");
-    }
-    public void OnResume()
-    {
-        Play("Pause");
-        playThemes = true;
-    }
+    //public void OnPause()
+    //{
+    //    playThemes = false;
+    //    StopByTag("Theme");
+    //    Play("Pause");
+    //}
+    //public void OnResume()
+    //{
+    //    Play("Pause");
+    //    playThemes = true;
+    //}
     #endregion
-=======
->>>>>>> Stashed changes
 }

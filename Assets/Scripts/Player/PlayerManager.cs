@@ -1,8 +1,5 @@
-<<<<<<< Updated upstream
-=======
 using JetBrains.Annotations;
 using System.Collections;
->>>>>>> Stashed changes
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -16,7 +13,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private ScenesManager Loader => gameObject.AddComponent<ScenesManager>();
     public static PlayerManager instance;
 
-    PlayerStatemachine Machine { get; set; } = new PlayerStatemachine();
+    //PlayerStatemachine Machine { get; set; } = new PlayerStatemachine();
 
     #region Events
     public UnityEvent playerRespawn;
@@ -24,12 +21,12 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public UnityEvent playerAttack;
     #endregion
     #region States
-    PlayerRunningState runningState;
-    PlayerFallState fallState;
-    PlayerIdleState idleState;
-    PlayerJumpState jumpState;
-    PlayerHurtState hurtState;
-    PlayerDeathState deathState;
+    //PlayerRunningState runningState;
+    //PlayerFallState fallState;
+    //PlayerIdleState idleState;
+    //PlayerJumpState jumpState;
+    //PlayerHurtState hurtState;
+    //PlayerDeathState deathState;
     #endregion
 
     #region General
@@ -48,12 +45,12 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private void Start()
     {
         #region States
-        runningState = new PlayerRunningState(this, Machine);
-        fallState = new PlayerFallState(this, Machine);
-        jumpState = new PlayerJumpState(this, Machine);
-        idleState = new PlayerIdleState(this, Machine);
-        deathState = new PlayerDeathState(this, Machine);
-        hurtState = new PlayerHurtState(this, Machine);
+        //runningState = new PlayerRunningState(this, Machine);
+        //fallState = new PlayerFallState(this, Machine);
+        //jumpState = new PlayerJumpState(this, Machine);
+        //idleState = new PlayerIdleState(this, Machine);
+        //deathState = new PlayerDeathState(this, Machine);
+        //hurtState = new PlayerHurtState(this, Machine);
         #endregion
 
         ResetPlayer();
@@ -130,10 +127,11 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     public int respawnPointScene = 2;
 
+    //FIX
     public void Die()
     {
-        Machine.ChangeState(deathState);
     }
+    //FIX
     public void TakeDamage(int damage)
     {
         switch (invincible)
@@ -145,7 +143,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
                 if (def == 0)
                 {
                     hp -= damage;
-                    Machine.ChangeState(hurtState);
                 }
                 if (def != 0)
                 {
@@ -157,6 +154,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         }
         if (hp <= 0) { Die(); }
     }
+    //BROKEN -> TAKEDAMAGE
     public void Invincibility()
     {
         invincibleTimer += Time.deltaTime;
@@ -306,7 +304,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
             coyoteUsable = false;
             tempVelocity.y = JumpPower;
         }
-<<<<<<< Updated upstream
     }
 
     void HandleX()
@@ -345,7 +342,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         }
 
         if (previousYVelocity > 0 && tempVelocity.y <= 0) { timeApexHit = time; }
-        if (time > timeApexHit + ApexTime)
+        if (time < timeApexHit + ApexTime)
         {
             tempVelocity.y = 0;
             tempVelocity.x *= ApexSpeedModifier;
@@ -356,17 +353,8 @@ public class PlayerManager : MonoBehaviour, IDamageable
     void ApplyMovement()
     {
         RigidBody.velocity = tempVelocity;
-=======
-        if (IsStanding && Machine.currentState == fallState) { Machine.ChangeState(idleState); }
-        
     }
-    public void RunSound() 
-    {
-        UnityEvent playerRun = new UnityEvent();
-        playerRun.AddListener(AudioManager.instance.OnPlayerRun);
-        playerRun.Invoke();
->>>>>>> Stashed changes
-    }
+
     #endregion
 
     #region Attacking

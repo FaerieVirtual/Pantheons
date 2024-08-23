@@ -8,12 +8,9 @@ public class GodMenu : MonoBehaviour
 { 
     public List<GodBase> gods;
     public Image godView;
-<<<<<<< Updated upstream
     //public TextMeshPro descriptionText;
     public TextMeshPro godname;
-=======
     public Text descriptionText;
->>>>>>> Stashed changes
     public TextMeshPro stat1;
     public TextMeshPro stat2;
     public TextMeshPro stat3;
@@ -71,14 +68,11 @@ public class GodMenu : MonoBehaviour
             GodBase god = gods[currentIndex];
 
             godView.sprite = god.Profile;
-<<<<<<< Updated upstream
             //descriptionText.text = god.description;
             selected.sprite = god.Symbol;
             stat1.text = god.stat1;
-=======
             //descriptionText.text = god.description;//descriptionText.text = descriptions[currentIndex];
             selected.sprite = god.Symbol;
->>>>>>> Stashed changes
             stat2.text = god.stat2;
             stat3.text = god.stat3;
             stat4.text = god.stat4;
@@ -94,13 +88,10 @@ public class GodMenu : MonoBehaviour
 
     public void OnConfirmSelection()
     {
-<<<<<<< Updated upstream
         GameRunningState running = new(GameManager.instance.machine);
-=======
         GameManager.instance.god = gods[currentIndex];
         GodMenu god = FindObjectOfType<GodMenu>(true);
         god.gameObject.SetActive(false);
->>>>>>> Stashed changes
 
         GameManager.instance.god = gods[currentIndex];
         GameManager.instance.machine.ChangeState(running);

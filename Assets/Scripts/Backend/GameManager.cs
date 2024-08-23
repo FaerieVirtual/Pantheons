@@ -60,13 +60,8 @@ public class GameManager : MonoBehaviour
         MainMenu main = FindObjectOfType<MainMenu>(true);
         main.gameObject.SetActive(false);
         GodMenu god = FindObjectOfType<GodMenu>(true);
-<<<<<<< Updated upstream
         god.gameObject.SetActive(true);
-=======
         god.enabled = false;
-
-
->>>>>>> Stashed changes
     }
     public void ChooseGod()
     {
