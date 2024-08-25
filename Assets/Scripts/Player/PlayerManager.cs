@@ -20,14 +20,8 @@ public class PlayerManager : MonoBehaviour, IDamageable
     #region General
     private void Awake()
     {
-        if (instance != null)
-        {
-            Destroy(gameObject);
-        }
-        if (instance == null)
-        {
-            instance = this;
-        }
+        if (instance != null) { Destroy(gameObject); }
+        if (instance == null) { instance = this; }
         DontDestroyOnLoad(gameObject);
     }
     private void Start()
@@ -37,10 +31,10 @@ public class PlayerManager : MonoBehaviour, IDamageable
         ResetPlayer();
         RigidBody.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
         #region  listeners
-        UI ui = UI.instance;
+        //UI ui = UI.instance;
         GameManager game = GameManager.instance;
 
-        playerRespawn.AddListener(ui.OnPlayerRespawn);
+        //playerRespawn.AddListener(ui.OnPlayerRespawn);
 
         playerRespawn.AddListener(game.OnPlayerRespawn);
         playerHitDef.AddListener(game.OnPlayerHitDef);
@@ -52,19 +46,23 @@ public class PlayerManager : MonoBehaviour, IDamageable
     }
     private void Update()
     {
-        GetInput();
-        if (invincible) { Invincibility(); }
-        CheckForAttack();
+        GetMovementInput();
+        if (invincible) { HandleInvincibility(); }
         time += Time.deltaTime;
     }
     private void FixedUpdate()
     {
+        //Movement group
         HandleCollisions();
         HandleY();
         HandleX();
         HandleGravity();
-
         ApplyMovement();
+
+        //Attack group
+        HandleAttackInput();
+        HandleAttack();
+
         HealthChecks();
         AnimationParams();
     }
@@ -74,7 +72,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         alive = true;
         hp = maxHp;
         invincible = false;
-        RigidBody.velocity = Vector3.zero;
+        movementDisable = false;
     }
     void AnimationParams()
     {
@@ -88,60 +86,61 @@ public class PlayerManager : MonoBehaviour, IDamageable
     #endregion
 
     #region Health
+    [Header("HEALTH")]
     public int maxHp;
-    public int hp;
-    public int def;
     public int maxDef;
     public bool alive = true;
-
-    public bool invincible;
-    private float invincibleTimer;
     public float invincibleDuration;
 
+    private int hp;
+    private int def;
+    private bool invincible;
+    private float damageTakenTime;
+
+    [Header("HEALTH GRAPHICS")]
     private int hpDisplayed;
     public Image[] hpImages;
     public Sprite fullHeart;
     public Sprite emptyHeart;
 
-    public int respawnPointScene = 2;
+    public int respawnPointScene = 2; //do better
 
-    //FIX
     public void Die()
     {
+        movementDisable = true;
+        alive = false;
     }
-    //FIX
     public void TakeDamage(int damage)
     {
-        switch (invincible)
+        if (invincible) return;
+
+        if (def > 0)
         {
-            case true:
-                Animator.Play("Hurt NoEffect");
-                break;
-            case false:
-                if (def == 0)
-                {
-                    hp -= damage;
-                }
-                if (def != 0)
-                {
-                    def -= damage;
-                    playerHitDef.Invoke();
-                    Animator.Play("Hurt NoEffect");
-                }
-                break;
+            if (def <= damage)
+            {
+                damage -= def;
+                def = 0;
+            }
+            if (def > damage)
+            {
+                def -= damage;
+                damage = 0;
+            }
+        }
+        hp -= damage;
+        if (damage > 0 && hp > 0)
+        {
+            damageTakenTime = time;
         }
         if (hp <= 0) { Die(); }
     }
-    //BROKEN -> TAKEDAMAGE
-    public void Invincibility()
+    public void HandleInvincibility()
     {
-        invincibleTimer += Time.deltaTime;
-        if (invincibleTimer >= invincibleDuration)
+        if (damageTakenTime + invincibleDuration <= time)
         {
             invincible = false;
-            invincibleTimer = 0f;
+            damageTakenTime = 0;
         }
-
     }
     private void HealthChecks()
     {
@@ -169,7 +168,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public void Respawn()
     {
         ResetPlayer();
-        playerRespawn.Invoke();
+        //playerRespawn.Invoke();
         if (FindObjectOfType<Respawn>() != null) { FindObjectOfType<Respawn>().activated = true; }
     }
 
@@ -220,7 +219,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private bool HasBufferedJump => bufferedJumpUsable && time < timeJumpPressed + JumpBuffer;
     private bool HasCoyoteTime => coyoteUsable && !IsStanding && time < timeGroundLeft + CoyoteTime;
 
-    void GetInput()
+    void GetMovementInput()
     {
         JumpDown = Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown("Jump");
         JumpHeld = Input.GetKey(KeyCode.Space) || Input.GetButton("Jump");
@@ -340,43 +339,76 @@ public class PlayerManager : MonoBehaviour, IDamageable
     #endregion
 
     #region Attacking
-    public GameObject AttackHitboxSide;
-    private float attackTime = 0.25f;
-    private float attackTimer;
-    public static int damage = 1;
+    [Header("ATTACK")]
+    public float attackDelay = .2f;
+    public float attackReach;
+    public int damage = 1;
+    public float pushbackForce = 10;
+
+    private bool attackUsable;
+    private bool attackDisable;
+
+    private float attackTime;
+    private bool attackBuffer;
     private bool attacking;
 
-    private void CheckForAttack()
+    private void HandleAttackInput()
     {
-        if (Input.GetKeyDown(KeyCode.X))
+        if (Input.GetKeyDown(KeyCode.X) && !attackDisable)
         {
-            attacking = true;
-            Attack();
-        }
-        if (attacking)
-        {
-            attackTimer += Time.deltaTime;
-            if (attackTimer >= attackTime)
+            switch (attackUsable)
             {
-                attackTimer = 0;
-                attacking = false;
-                AttackHitboxSide.SetActive(attacking);
+                case true: attacking = true; break;
+                case false: attackBuffer = true; break;
+            }
+        }
+        if (time > attackTime + attackDelay)
+        {
+            attackUsable = true;
+            if (attackBuffer)
+            {
+                attacking = true;
             }
         }
     }
-    private void Attack()
+    private void HandleAttack()
     {
-        Animator.Play("Attack");
-        //Audio.Play("Attack");
-        transform.GetChild(1).gameObject.SetActive(attacking);
+        if (attacking)
+        {
+            attackTime = time;
+            attackUsable = false;
+
+            Vector2 boxOrigin = new(Collider.bounds.center.x + (Collider.bounds.max.x + attackReach) / 2 * MoveDirection, Collider.bounds.center.y);
+            Vector2 boxSize = new(attackReach / 2, Collider.bounds.max.y / 2);
+            Vector2 boxDirection = new(MoveDirection, 0);
+            LayerMask player = LayerMask.GetMask("Player");
+            Transform enemyTransform = null;
+
+            RaycastHit2D[] hitObjects = Physics2D.BoxCastAll(boxOrigin, boxSize, 0f, boxDirection, 0.1f, ~player);
+            foreach (RaycastHit2D hit in hitObjects)
+            {
+                if (hit.transform.gameObject.GetComponent<IDamageable>() != null)
+                {
+                    IDamageable damaged = hit.transform.gameObject.GetComponent<IDamageable>();
+                    damaged.TakeDamage(damage);
+                    if (hit.transform.CompareTag("Enemy")) enemyTransform = hit.transform;
+                }
+            }
+            if (enemyTransform != null)
+            {
+                Vector2 bounce = (transform.position - enemyTransform.position).normalized;
+                RigidBody.AddForce(bounce * pushbackForce, ForceMode2D.Impulse);
+            }
+        }
     }
+
 
 
     #endregion
 
     #region Magic
-    public float favor;
-    public float mAtk;
+    //public float favor;
+    //public float mAtk;
     #endregion
 }
 

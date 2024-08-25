@@ -100,7 +100,7 @@ public class EnemyBase : MonoBehaviour, IDamageable, IMoveable
         }
         if (collision.gameObject.CompareTag("PlayerAttackHitbox"))
         {
-            TakeDamage(PlayerManager.damage);
+            TakeDamage(1);
             Vector2 bounce = (collision.transform.position - transform.position).normalized;
             RigidBody.AddForce(bounce * 4, ForceMode2D.Impulse);
 
