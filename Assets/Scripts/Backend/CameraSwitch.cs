@@ -11,7 +11,7 @@ public class CameraSwitch : MonoBehaviour
         vcam = gameObject.GetComponent<CinemachineVirtualCamera>();
         vcam.Follow = GameObject.FindGameObjectWithTag("Player").transform;
     }
-    private void Update()
+    private void FixedUpdate()
     {
         if (vcam.Follow == null)
         {

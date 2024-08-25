@@ -18,7 +18,5 @@ public class Heavens : GodBase
         stat2 = "+ MATK";
         stat3 = "- HP";
         stat4 = "- ATK";
-
-        //description = "lorem ípsume et dolores. test one, test two, test Heavens, sample text, sample text.";
     }
 }

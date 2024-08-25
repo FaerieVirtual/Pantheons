@@ -11,14 +11,11 @@ public class Traveler : GodBase
         goldMultiplier = 0.8f;
         manaGainMultiplier = 0.7f;
     }
-
-    void Start()
+    private void Start()
     {
         stat1 = "+ DEF";
         stat2 = "+ HP";
         stat3 = "- GOLD";
         stat4 = "- MANA";
-
     }
-
 }

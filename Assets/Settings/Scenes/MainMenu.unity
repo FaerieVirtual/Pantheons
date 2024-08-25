@@ -974,12 +974,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 530e66c6c8e9f664e816fb0eae26e5b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gods:
-  - {fileID: 1561320795}
-  - {fileID: 1728726612}
-  - {fileID: 1583171791}
-  - {fileID: 2004647307}
-  - {fileID: 1400711251}
   godView: {fileID: 24576816}
   godname: {fileID: 705721116}
   descriptionText: {fileID: 0}
@@ -1003,6 +997,12 @@ MonoBehaviour:
   selected: {fileID: 1523971302}
   previous: {fileID: 89702105}
   next: {fileID: 1295413399}
+  gods:
+  - {fileID: 1561320795}
+  - {fileID: 1728726612}
+  - {fileID: 1583171791}
+  - {fileID: 2004647307}
+  - {fileID: 1400711251}
 --- !u!1 &591712390
 GameObject:
   m_ObjectHideFlags: 0

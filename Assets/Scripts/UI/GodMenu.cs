@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -6,7 +7,6 @@ using UnityEngine.UI;
 
 public class GodMenu : MonoBehaviour
 { 
-    public List<GodBase> gods;
     public Image godView;
     //public TextMeshPro descriptionText;
     public TextMeshPro godname;
@@ -17,7 +17,7 @@ public class GodMenu : MonoBehaviour
     public TextMeshPro stat4;
     public Button confirmButton;
 
-    public List<Sprite> viewSprites, symbolSprites;
+    public List<Sprite> viewSprites = new(), symbolSprites = new();
     //public List<string> descriptions;
 
     public SpriteRenderer selected;
@@ -26,18 +26,20 @@ public class GodMenu : MonoBehaviour
 
     private int currentIndex = 0;
 
+    public List<GodBase> gods;
+
     void Start()
     {
         confirmButton.onClick.AddListener(OnConfirmSelection);
         confirmButton.onClick.AddListener(GameManager.instance.ChooseGod);
-        UpdateSelection();
-        viewSprites = new List<Sprite>();
-        symbolSprites = new List<Sprite>();
+        //viewSprites = new List<Sprite>();
+        //symbolSprites = new List<Sprite>();
         for (int i = 0; i < gods.Count; i++)
         {
             viewSprites.Add(gods[i].Profile);
             symbolSprites.Add(gods[i].Symbol);
         }
+        UpdateSelection();
     }
     private void Update()
     {
@@ -88,11 +90,12 @@ public class GodMenu : MonoBehaviour
 
     public void OnConfirmSelection()
     {
-        GameRunningState running = new(GameManager.instance.machine);
         GameManager.instance.god = gods[currentIndex];
         GodMenu god = FindObjectOfType<GodMenu>(true);
+        //GameManager.instance.god = gods[currentIndex];       
         god.gameObject.SetActive(false);
-        GameManager.instance.god = gods[currentIndex];
+
+        GameRunningState running = new(GameManager.instance.machine);
         GameManager.instance.machine.ChangeState(running);
 
         SceneManager.LoadScene("AP1");

@@ -1,4 +1,6 @@
-﻿public class Keeper : GodBase
+﻿using UnityEngine;
+
+public class Keeper : GodBase
 {
     public Keeper()
     {

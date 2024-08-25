@@ -17,7 +17,5 @@ public class Harvest : GodBase
         stat2 = "+ GOLD";
         stat3 = "- FAVOR";
         stat4 = "- ATK";
-
-        //description = "test one, test two, lorem ípsum et dolores. test Harvest, sample text, sample text, sample text.";
     }
 }

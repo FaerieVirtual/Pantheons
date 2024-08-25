@@ -11,13 +11,11 @@ public class Crow : GodBase
         atkMultiplier = 0.9f;
         mAtkMultiplier = 0.8f;
     }
-
-    void Start()
+    private void Start()
     {
         stat1 = "+ GOLD";
         stat2 = "+ SPEED";
         stat3 = "- ATK";
         stat4 = "- MATK";
     }
-
 }
