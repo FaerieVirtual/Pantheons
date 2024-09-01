@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -42,9 +41,9 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private void FixedUpdate()
     {
         time += Time.deltaTime;
+        GetInput();
 
         //Movement
-        GetMovementInput();
         HandleCollisions();
         HandleY();
         HandleX();
@@ -54,7 +53,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         //Attack
         HandleAttackInput();
         HandleAttack();
-        
+
         //Health
         HealthChecks();
         HandleInvincibility();
@@ -69,9 +68,9 @@ public class PlayerManager : MonoBehaviour, IDamageable
         if (collision == null) return;
         if (collision.transform.CompareTag("Respawn"))
         {
-            if (respawnPoint != collision.gameObject) 
-            { 
-                respawnPoint = collision.gameObject; 
+            if (respawnPoint != collision.gameObject)
+            {
+                respawnPoint = collision.gameObject;
                 respawnPointOverlap = true;
             }
         }
@@ -82,6 +81,8 @@ public class PlayerManager : MonoBehaviour, IDamageable
     {
         alive = true;
         hp = maxHp;
+        def = maxDef;
+        mana = maxMana;
         invincible = false;
         movementDisable = false;
     }
@@ -92,6 +93,32 @@ public class PlayerManager : MonoBehaviour, IDamageable
         Animator.SetBool("isStanding", IsStanding);
         Animator.SetInteger("Hp", hp);
         //Animator.SetBool("isRunning", RigidBody.velocity.x != 0);
+    }
+
+    [Header("INPUT")]
+    public float VerticalDeadZoneThreshold = .1f;
+    public float HorizontalDeadZoneThreshold = .1f;
+
+    void GetInput()
+    {
+        JumpDown = Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown("Jump");
+        JumpHeld = Input.GetKey(KeyCode.Space) || Input.GetButton("Jump");
+
+        if (JumpDown)
+        {
+            jumpToConsume = true;
+            timeJumpPressed = time;
+        }
+
+        MoveDirection = Input.GetKey(KeyCode.RightArrow) ? 1 : Input.GetKey(KeyCode.LeftArrow) ? -1 : 0;
+
+        HealDown = Input.GetKeyDown(KeyCode.DownArrow);
+        HealHeld = Input.GetKey(KeyCode.DownArrow);
+
+        if (HealDown) timeDownPressed = time;
+        if (Input.GetKeyUp(KeyCode.DownArrow)) timeDownReleased = time;
+
+        if (Input.GetKey(KeyCode.O)) TakeDamage(1);
     }
 
     #endregion
@@ -177,10 +204,10 @@ public class PlayerManager : MonoBehaviour, IDamageable
                 if (i < hpDisplayed) { hpImages[i].enabled = true; }
                 else { hpImages[i].enabled = false; }
             }
-            for (int j = maxHp + 1;  j < hpImages.Length; j++) 
-            { 
+            for (int j = maxHp + 1; j < hpImages.Length; j++)
+            {
                 if (j < def) { hpImages[j].sprite = fullShield; }
-                else { hpImages[j].sprite= emptyShield; }
+                else { hpImages[j].sprite = emptyShield; }
 
                 if (j < defDisplayed) { hpImages[j].enabled = true; }
                 else { hpImages[j].enabled = false; }
@@ -203,7 +230,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
             IsSitting = true;
             movementDisable = true;
         }
-        if (IsSitting) 
+        if (IsSitting)
         {
             IsSitting = false;
             movementDisable = false;
@@ -212,12 +239,12 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     public void Respawn()
     {
-        if (respawnPointScene == null) return; 
+        if (respawnPointScene == null) return;
 
         Loader.LoadScene(respawnPointScene);
         GameObject[] objects = respawnPointScene.GetRootGameObjects();
-        foreach (GameObject obj in objects) 
-        { 
+        foreach (GameObject obj in objects)
+        {
             if (obj != null && obj.CompareTag("Respawn")) { respawnPoint = obj; }
         }
         transform.position = respawnPoint.transform.position;
@@ -229,10 +256,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
     #endregion
 
     #region Movement
-    [Header("INPUT")]
-    public float VerticalDeadZoneThreshold = .1f;
-    public float HorizontalDeadZoneThreshold = .1f;
-
     [Header("MOVEMENT")]
     public float MaxSpeed = 14;
     public float Acceleration = 140;
@@ -273,19 +296,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private bool HasBufferedJump => bufferedJumpUsable && time < timeJumpPressed + JumpBuffer;
     private bool HasCoyoteTime => coyoteUsable && !IsStanding && time < timeGroundLeft + CoyoteTime;
 
-    void GetMovementInput()
-    {
-        JumpDown = Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown("Jump");
-        JumpHeld = Input.GetKey(KeyCode.Space) || Input.GetButton("Jump");
-
-        if (JumpDown)
-        {
-            jumpToConsume = true;
-            timeJumpPressed = time;
-        }
-
-        MoveDirection = Input.GetKey(KeyCode.RightArrow) ? 1 : Input.GetKey(KeyCode.LeftArrow) ? -1 : 0;
-    }
     void HandleCollisions()
     {
         Physics2D.queriesStartInColliders = false;
@@ -460,9 +470,39 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     #endregion
 
+    #region Abilities
+    [Header("HEAL")]
+    public float healChargeTime = .7f;
+    private bool HealDown, HealHeld;
+    private float timeDownPressed, timeDownReleased;
+    public float healManaCost = 30;
+
+    public void Heal() 
+    { 
+        if (!(timeDownReleased - timeDownPressed >= healChargeTime)) return;
+        
+        if (hp == maxHp) return;
+
+        hp += 1;
+        mana -= healManaCost;
+    }
+
+    #endregion
+
     #region Magic
-    //public float favor;
-    //public float mAtk;
+    [Header("MAGIC")]
+    public float mana = 100;
+    public float maxMana = 100;
+    public float mAtk;
+
+    public void tmpRegainMana() 
+    { 
+        if (time >= timeDownReleased + 1 && mana != maxMana) 
+        {
+            mana += 10;
+        }
+    }
+
     #endregion
 }
 
