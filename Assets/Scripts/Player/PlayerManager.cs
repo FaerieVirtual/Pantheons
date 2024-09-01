@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -95,10 +96,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
         //Animator.SetBool("isRunning", RigidBody.velocity.x != 0);
     }
 
-    [Header("INPUT")]
-    public float VerticalDeadZoneThreshold = .1f;
-    public float HorizontalDeadZoneThreshold = .1f;
-
     void GetInput()
     {
         JumpDown = Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown("Jump");
@@ -147,10 +144,10 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public Sprite emptyShield;
 
     private GameObject respawnPoint;
-    [HideInInspector]
-    public Scene respawnPointScene;
+    [HideInInspector] public Scene respawnPointScene;
     private bool respawnPointOverlap;
     private bool IsSitting;
+    [HideInInspector] public bool canChangeScenes;
 
     public void Die()
     {
@@ -240,22 +237,30 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public void Respawn()
     {
         if (respawnPointScene == null) return;
+        if (!canChangeScenes)
+        {
+            Debug.LogError("Cannot change scenes. Respawn is impossible.");
+            return;
+        }
 
         Loader.LoadScene(respawnPointScene);
         GameObject[] objects = respawnPointScene.GetRootGameObjects();
         foreach (GameObject obj in objects)
         {
-            if (obj != null && obj.CompareTag("Respawn")) { respawnPoint = obj; }
+            if (obj != null && obj.CompareTag("Respawn")) respawnPoint = obj; 
         }
         transform.position = respawnPoint.transform.position;
         ResetPlayer();
         IsSitting = true;
-        //if (FindObjectOfType<Respawn>() != null) { FindObjectOfType<Respawn>().activated = true; }
     }
 
     #endregion
 
     #region Movement
+    [Header("INPUT")]
+    public float VerticalDeadZoneThreshold = .1f;
+    public float HorizontalDeadZoneThreshold = .1f;
+
     [Header("MOVEMENT")]
     public float MaxSpeed = 14;
     public float Acceleration = 140;
@@ -477,10 +482,10 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private float timeDownPressed, timeDownReleased;
     public float healManaCost = 30;
 
-    public void Heal() 
-    { 
+    public void Heal()
+    {
         if (!(timeDownReleased - timeDownPressed >= healChargeTime)) return;
-        
+
         if (hp == maxHp) return;
 
         hp += 1;
@@ -495,9 +500,9 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public float maxMana = 100;
     public float mAtk;
 
-    public void tmpRegainMana() 
-    { 
-        if (time >= timeDownReleased + 1 && mana != maxMana) 
+    public void tmpRegainMana()
+    {
+        if (time >= timeDownReleased + 1 && mana != maxMana)
         {
             mana += 10;
         }
