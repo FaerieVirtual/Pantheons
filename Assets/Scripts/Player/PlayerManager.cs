@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PlayerManager : MonoBehaviour, IDamageable
@@ -7,7 +9,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public Rigidbody2D RigidBody => GetComponent<Rigidbody2D>();
     public CapsuleCollider2D Collider => GetComponent<CapsuleCollider2D>();
     public Animator Animator => GetComponent<Animator>();
-    private LevelManager Loader => gameObject.AddComponent<LevelManager>();
+    private LevelManager Loader = new();
     public static PlayerManager instance;
     public AudioManager Audio;
 
@@ -31,40 +33,49 @@ public class PlayerManager : MonoBehaviour, IDamageable
         ResetPlayer();
         RigidBody.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
         #region  listeners
-        //UI ui = UI.instance;
         GameManager game = GameManager.instance;
-
-        //playerRespawn.AddListener(ui.OnPlayerRespawn);
 
         playerRespawn.AddListener(game.OnPlayerRespawn);
         playerHitDef.AddListener(game.OnPlayerHitDef);
-
-        playerRespawn.AddListener(Loader.OnPlayerRespawn);
-
-        //playerAttack.AddListener(Audio.OnPlayerAttack);
         #endregion
-    }
-    private void Update()
-    {
-        GetMovementInput();
-        if (invincible) { HandleInvincibility(); }
-        time += Time.deltaTime;
     }
     private void FixedUpdate()
     {
-        //Movement group
+        time += Time.deltaTime;
+
+        //Movement
+        GetMovementInput();
         HandleCollisions();
         HandleY();
         HandleX();
         HandleGravity();
         ApplyMovement();
 
-        //Attack group
+        //Attack
         HandleAttackInput();
         HandleAttack();
-
+        
+        //Health
         HealthChecks();
+        HandleInvincibility();
+        HandleRespawnPoint();
+
+
         AnimationParams();
+    }
+
+    private void OnCollisionStay(Collision collision)
+    {
+        if (collision == null) return;
+        if (collision.transform.CompareTag("Respawn"))
+        {
+            if (respawnPoint != collision.gameObject) 
+            { 
+                respawnPoint = collision.gameObject; 
+                respawnPointOverlap = true;
+            }
+        }
+        else { respawnPointOverlap = false; }
     }
 
     public void ResetPlayer()
@@ -103,7 +114,16 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public Sprite fullHeart;
     public Sprite emptyHeart;
 
-    public int respawnPointScene = 2; //do better
+    [Header("DEF GRAPHICS")]
+    private int defDisplayed;
+    public Sprite fullShield;
+    public Sprite emptyShield;
+
+    private GameObject respawnPoint;
+    [HideInInspector]
+    public Scene respawnPointScene;
+    private bool respawnPointOverlap;
+    private bool IsSitting;
 
     public void Die()
     {
@@ -134,7 +154,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         }
         if (hp <= 0) { Die(); }
     }
-    public void HandleInvincibility()
+    private void HandleInvincibility()
     {
         if (damageTakenTime + invincibleDuration <= time)
         {
@@ -157,6 +177,14 @@ public class PlayerManager : MonoBehaviour, IDamageable
                 if (i < hpDisplayed) { hpImages[i].enabled = true; }
                 else { hpImages[i].enabled = false; }
             }
+            for (int j = maxHp + 1;  j < hpImages.Length; j++) 
+            { 
+                if (j < def) { hpImages[j].sprite = fullShield; }
+                else { hpImages[j].sprite= emptyShield; }
+
+                if (j < defDisplayed) { hpImages[j].enabled = true; }
+                else { hpImages[j].enabled = false; }
+            }
         }
         void CheckForMaxValues()
         {
@@ -165,11 +193,37 @@ public class PlayerManager : MonoBehaviour, IDamageable
             if (def > maxDef) { def = maxDef; }
         }
     }
+    private void HandleRespawnPoint()
+    {
+        if (!Input.GetKeyUp(KeyCode.DownArrow)) return;
+        if (respawnPointOverlap && !IsSitting)
+        {
+            respawnPointScene = SceneManager.GetActiveScene();
+            Mathf.MoveTowards(transform.position.x, respawnPoint.transform.position.x, previousVelocity.x);
+            IsSitting = true;
+            movementDisable = true;
+        }
+        if (IsSitting) 
+        {
+            IsSitting = false;
+            movementDisable = false;
+        }
+    }
+
     public void Respawn()
     {
+        if (respawnPointScene == null) return; 
+
+        Loader.LoadScene(respawnPointScene);
+        GameObject[] objects = respawnPointScene.GetRootGameObjects();
+        foreach (GameObject obj in objects) 
+        { 
+            if (obj != null && obj.CompareTag("Respawn")) { respawnPoint = obj; }
+        }
+        transform.position = respawnPoint.transform.position;
         ResetPlayer();
-        //playerRespawn.Invoke();
-        if (FindObjectOfType<Respawn>() != null) { FindObjectOfType<Respawn>().activated = true; }
+        IsSitting = true;
+        //if (FindObjectOfType<Respawn>() != null) { FindObjectOfType<Respawn>().activated = true; }
     }
 
     #endregion

@@ -1,86 +1,24 @@
-using Cinemachine;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
 {
-    public int nextSceneIndex;
-    public string mode;
-    private GameObject player;
-    public void OnTriggerEnter2D(Collider2D collision)
+    private int nextSceneIndex;
+
+    public void LoadScene(Scene nextScene)
     {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            player = collision.gameObject;
-            LoadScene();
-        }
-    }
-    public void LoadScene()
-    {
-        mode = "load";
-        StartCoroutine(LoadSceneAsync(mode));
+        StartCoroutine(LoadSceneAsync(nextScene));
     }
 
-    public void OnPlayerRespawn()
+    private IEnumerator LoadSceneAsync(Scene nextScene)
     {
-        mode = "respawn";
-        player = GameObject.FindGameObjectWithTag("Player");
-        nextSceneIndex = player.GetComponent<PlayerManager>().respawnPointScene;
-        if (nextSceneIndex == SceneManager.GetActiveScene().buildIndex)
-        {
-            GameObject respawnPoint = GameObject.FindGameObjectWithTag("Respawn");
-            transform.position = respawnPoint.transform.position;
-        }
-        else { StartCoroutine(LoadSceneAsync(mode)); }
-    }
-    private IEnumerator LoadSceneAsync(string mode)
-    {
-        AsyncOperation load = SceneManager.LoadSceneAsync(nextSceneIndex, LoadSceneMode.Additive);
+        AsyncOperation load = SceneManager.LoadSceneAsync(nextScene.buildIndex, LoadSceneMode.Additive);
         load.allowSceneActivation = false;
-        //while (!load.isDone)
-        //{
-        //    if (load.progress >= 0.9f)
-        //    {
-        //        break;
-        //    }
-        //    yield return null;
-
-        //}
-        load.completed += (x) =>
-        {
-
-            SceneManager.MoveGameObjectToScene(player, SceneManager.GetSceneByBuildIndex(nextSceneIndex));
-            GameObject[] nextSceneObjects = SceneManager.GetSceneByBuildIndex(nextSceneIndex).GetRootGameObjects();
-            GameObject pointToMove = null;
-            CinemachineVirtualCamera virtualCamera = null;
-
-
-            for (int i = 0; i < nextSceneObjects.Length; i++)
-            {
-                if (nextSceneObjects[i].CompareTag("Respawn") && mode == "respawn")
-                {
-                    pointToMove = nextSceneObjects[i];
-                }
-                if (nextSceneObjects[i].name == $"{SceneManager.GetActiveScene().name} Entrance" && mode == "load")
-                {
-                    pointToMove = nextSceneObjects[i];
-                }
-                if (nextSceneObjects[i].CompareTag("Camera"))
-                {
-                    virtualCamera = nextSceneObjects[i].GetComponent<CinemachineVirtualCamera>();
-                }
-                if (nextSceneObjects[i].CompareTag("Player"))
-                {
-                    player = nextSceneObjects[i];
-                }
-            }
-            player.transform.position = pointToMove.transform.position;
-            //virtualCamera.Follow = player.transform;
-        };
-
+        load.completed += (x) => { SceneManager.MoveGameObjectToScene(PlayerManager.instance.gameObject, nextScene); };
         load.allowSceneActivation = true;
-        while (!load.isDone) { yield return null; }
+
+        yield return new WaitForSeconds(.2f); 
 
         int oldSceneIndex = SceneManager.GetActiveScene().buildIndex;
         SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(nextSceneIndex));
