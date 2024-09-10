@@ -13,6 +13,10 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public static PlayerManager instance;
     public AudioManager Audio;
 
+
+    //comment
+    //2 comment
+
     #region Events
     public UnityEvent playerRespawn;
     public UnityEvent playerHitDef;
