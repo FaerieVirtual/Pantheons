@@ -1,6 +1,4 @@
-using System;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -13,13 +11,11 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public static PlayerManager instance;
     public AudioManager Audio;
 
-    #region Events
-    public UnityEvent playerRespawn;
-    public UnityEvent playerHitDef;
-    public UnityEvent playerAttack;
-    #endregion
 
     #region General
+    //TODO
+    //simple statemachine based on simple bools, determining what action is the player currently executing and what actions cannot be executed at the same moment
+    //queue for buffered actions¨limited to one consequent action (could be timed, so the queue works only a moment before the current action is to end)
     private void Awake()
     {
         if (instance != null) { Destroy(gameObject); }
@@ -32,12 +28,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
         ResetPlayer();
         RigidBody.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
-        #region  listeners
-        GameManager game = GameManager.instance;
-
-        playerRespawn.AddListener(game.OnPlayerRespawn);
-        playerHitDef.AddListener(game.OnPlayerHitDef);
-        #endregion
     }
     private void FixedUpdate()
     {
@@ -52,30 +42,46 @@ public class PlayerManager : MonoBehaviour, IDamageable
         ApplyMovement();
 
         //Attack
-        HandleAttackInput();
         HandleAttack();
 
         //Health
         HealthChecks();
         HandleInvincibility();
         HandleRespawnPoint();
-
-
-        AnimationParams();
     }
+    #endregion
 
-    private void OnCollisionStay(Collision collision)
+    #region PlayerManagement
+    [Header("INPUT")]
+    public float VerticalDeadZoneThreshold = .1f; //Determines the minimum velocity for the character to move vertically
+    public float HorizontalDeadZoneThreshold = .1f; //Determines the minimum velocity for the character to move horizontaly
+    public float TapThreshold = .275f; //Determines the difference between a tap and a hold of a button in time
+    public float HoldThreshold = 1; //Determines after what point does the hold cut off and button resets
+
+    private float timeInteractDown;
+    private float timeInteractUp;
+
+    private void OnCollisionStay(Collision collision) //Handles interactible object detection
     {
         if (collision == null) return;
+
         if (collision.transform.CompareTag("Respawn"))
         {
             if (respawnPoint != collision.gameObject)
             {
                 respawnPoint = collision.gameObject;
-                respawnPointOverlap = true;
+                respawnPointOverlap = true; 
             }
         }
         else { respawnPointOverlap = false; }
+
+
+        if (collision.transform.TryGetComponent<IInteractible>(out var tmp))
+        {
+            if ((timeInteractUp - timeInteractDown > TapThreshold) || (!tmp.CanInteract)) return;
+            tmp.HandleInteraction();
+            //checks whether an object can be interacted with and then executes its interact function if the button was tapped
+        }
     }
 
     public void ResetPlayer()
@@ -87,37 +93,65 @@ public class PlayerManager : MonoBehaviour, IDamageable
         invincible = false;
         movementDisable = false;
     }
-    void AnimationParams()
-    {
-        Animator.SetFloat("Vertical", RigidBody.velocity.y);
-        //Animator.SetFloat("Forward", RigidBody.velocity.x);
-        Animator.SetBool("isStanding", IsStanding);
-        Animator.SetInteger("Hp", hp);
-        //Animator.SetBool("isRunning", RigidBody.velocity.x != 0);
-    }
 
     void GetInput()
     {
-        JumpDown = Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown("Jump");
-        JumpHeld = Input.GetKey(KeyCode.Space) || Input.GetButton("Jump");
+        if (Input.GetKey(KeyCode.O)) TakeDamage(1); //DEBUG COMMAND to take damage (for healing tests)
+        MoveInput();
+        InteractInput();
+        AttackInput();
 
-        if (JumpDown)
+        void MoveInput()
         {
-            jumpToConsume = true;
-            timeJumpPressed = time;
+            JumpDown = Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown("Jump");
+            JumpHeld = Input.GetKey(KeyCode.Space) || Input.GetButton("Jump");
+            if (JumpDown)
+            {
+                jumpToConsume = true;
+                timeJumpPressed = time;
+            }
+            MoveDirection = Input.GetKey(KeyCode.RightArrow) ? 1 : Input.GetKey(KeyCode.LeftArrow) ? -1 : 0;
+
+        }
+        void InteractInput()
+        {
+            bool Held = false; //Rules out pressing buttons while the button is already pressed
+            if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetButtonDown("InteractInput") && !Held)
+            {
+                timeInteractDown = time;
+                Held = true;
+            }
+            if (Input.GetKeyUp(KeyCode.DownArrow) || Input.GetButtonUp("InteractInput") && Held)
+            {
+                timeInteractUp = time;
+                Held = false;
+            }
+        }
+        void AttackInput()
+        {
+            if (Input.GetKeyDown(KeyCode.X) && !attackDisable)
+            {
+                switch (attackUsable) //checks whether attack action can be activated. If not, it puts it in the queue
+                {
+                    case true:
+                        //attacking = true;
+                        HandleAttack();
+                        break;
+                    case false: attackBuffer = true; break; //buffers the attack action
+                }
+            }
+            if (time > attackTime + attackDelay)
+            {
+                attackUsable = true;
+                if (attackBuffer) //executes the attack action whenever attack is usable if it's buffered
+                {
+                    //attacking = true;
+                    HandleAttack();
+                }
+            }
         }
 
-        MoveDirection = Input.GetKey(KeyCode.RightArrow) ? 1 : Input.GetKey(KeyCode.LeftArrow) ? -1 : 0;
-
-        HealDown = Input.GetKeyDown(KeyCode.DownArrow);
-        HealHeld = Input.GetKey(KeyCode.DownArrow);
-
-        if (HealDown) timeDownPressed = time;
-        if (Input.GetKeyUp(KeyCode.DownArrow)) timeDownReleased = time;
-
-        if (Input.GetKey(KeyCode.O)) TakeDamage(1);
     }
-
     #endregion
 
     #region Health
@@ -247,7 +281,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         GameObject[] objects = respawnPointScene.GetRootGameObjects();
         foreach (GameObject obj in objects)
         {
-            if (obj != null && obj.CompareTag("Respawn")) respawnPoint = obj; 
+            if (obj != null && obj.CompareTag("Respawn")) respawnPoint = obj;
         }
         transform.position = respawnPoint.transform.position;
         ResetPlayer();
@@ -257,10 +291,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
     #endregion
 
     #region Movement
-    [Header("INPUT")]
-    public float VerticalDeadZoneThreshold = .1f;
-    public float HorizontalDeadZoneThreshold = .1f;
-
     [Header("MOVEMENT")]
     public float MaxSpeed = 14;
     public float Acceleration = 140;
@@ -348,7 +378,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
             tempVelocity.y = JumpPower;
         }
     }
-
     void HandleX()
     {
         if (MoveDirection != 0 && (MoveDirection == 1 && transform.localRotation.y != 0) || (MoveDirection == -1 && transform.localRotation.y != 180))
@@ -369,7 +398,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
         }
         tempVelocity.x = Mathf.Clamp(tempVelocity.x, -MaxSpeed, MaxSpeed);
     }
-
     private void HandleGravity()
     {
         if (IsStanding && tempVelocity.y <= VerticalDeadZoneThreshold)
@@ -397,7 +425,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
             IsJumping = false;
         }
     }
-
     void ApplyMovement()
     {
         previousVelocity = tempVelocity;
@@ -409,66 +436,45 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     #region Attacking
     [Header("ATTACK")]
-    public float attackDelay = .2f;
-    public float attackReach;
+    public float attackDelay = .2f; //determines the time interval before attack can be used again
+    public float attackReach; //determines how far the attack reaches (in case of adding other weapons)
     public int damage = 1;
-    public float pushbackForce = 10;
+    public float pushbackForce = 10; //by what force will the character be pushed back from the direction of the attack
 
-    private bool attackUsable;
-    private bool attackDisable;
+    private bool attackUsable; //checks whether attack isn't blocked by other actions
+    private bool attackDisable; //debug switch to disable attacks 
 
-    private float attackTime;
-    private bool attackBuffer;
-    private bool attacking;
+    private float attackTime; //the time when attack action happened
+    private bool attackBuffer; //queues another attack if the button was pressed, but the player is doing another action
+    //private bool attacking; //This is never used, but I'm keeping it here in the case I need it when blocking other actions and abilites during attack
 
-    private void HandleAttackInput()
-    {
-        if (Input.GetKeyDown(KeyCode.X) && !attackDisable)
-        {
-            switch (attackUsable)
-            {
-                case true: attacking = true; break;
-                case false: attackBuffer = true; break;
-            }
-        }
-        if (time > attackTime + attackDelay)
-        {
-            attackUsable = true;
-            if (attackBuffer)
-            {
-                attacking = true;
-            }
-        }
-    }
     private void HandleAttack()
     {
-        if (attacking)
+        attackTime = time;
+        attackUsable = false;
+
+        Vector2 boxOrigin = new(Collider.bounds.center.x + (Collider.bounds.max.x + attackReach) / 2 * MoveDirection, Collider.bounds.center.y);
+        Vector2 boxSize = new(attackReach / 2, Collider.bounds.max.y / 2);
+        Vector2 boxDirection = new(MoveDirection, 0);
+        LayerMask player = LayerMask.GetMask("Player");
+        Transform enemyTransform = null;
+
+        RaycastHit2D[] hitObjects = Physics2D.BoxCastAll(boxOrigin, boxSize, 0f, boxDirection, 0.1f, ~player);
+        foreach (RaycastHit2D hit in hitObjects)
         {
-            attackTime = time;
-            attackUsable = false;
-
-            Vector2 boxOrigin = new(Collider.bounds.center.x + (Collider.bounds.max.x + attackReach) / 2 * MoveDirection, Collider.bounds.center.y);
-            Vector2 boxSize = new(attackReach / 2, Collider.bounds.max.y / 2);
-            Vector2 boxDirection = new(MoveDirection, 0);
-            LayerMask player = LayerMask.GetMask("Player");
-            Transform enemyTransform = null;
-
-            RaycastHit2D[] hitObjects = Physics2D.BoxCastAll(boxOrigin, boxSize, 0f, boxDirection, 0.1f, ~player);
-            foreach (RaycastHit2D hit in hitObjects)
+            if (hit.transform.gameObject.GetComponent<IDamageable>() != null)
             {
-                if (hit.transform.gameObject.GetComponent<IDamageable>() != null)
-                {
-                    IDamageable damaged = hit.transform.gameObject.GetComponent<IDamageable>();
-                    damaged.TakeDamage(damage);
-                    if (hit.transform.CompareTag("Enemy")) enemyTransform = hit.transform;
-                }
-            }
-            if (enemyTransform != null)
-            {
-                Vector2 bounce = (transform.position - enemyTransform.position).normalized;
-                RigidBody.AddForce(bounce * pushbackForce, ForceMode2D.Impulse);
+                IDamageable damaged = hit.transform.gameObject.GetComponent<IDamageable>();
+                damaged.TakeDamage(damage);
+                if (hit.transform.CompareTag("Enemy")) enemyTransform = hit.transform;
             }
         }
+        if (enemyTransform != null)
+        {
+            Vector2 bounce = (transform.position - enemyTransform.position).normalized;
+            RigidBody.AddForce(bounce * pushbackForce, ForceMode2D.Impulse);
+        }
+
     }
 
 
@@ -478,13 +484,11 @@ public class PlayerManager : MonoBehaviour, IDamageable
     #region Abilities
     [Header("HEAL")]
     public float healChargeTime = .7f;
-    private bool HealDown, HealHeld;
-    private float timeDownPressed, timeDownReleased;
     public float healManaCost = 30;
 
     public void Heal()
     {
-        if (!(timeDownReleased - timeDownPressed >= healChargeTime)) return;
+        if (!(timeInteractUp - timeInteractDown < healChargeTime)) return;
 
         if (hp == maxHp) return;
 
@@ -502,7 +506,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     public void tmpRegainMana()
     {
-        if (time >= timeDownReleased + 1 && mana != maxMana)
+        if (time >= timeInteractUp + 1 && mana != maxMana)
         {
             mana += 10;
         }
