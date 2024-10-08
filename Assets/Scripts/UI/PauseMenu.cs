@@ -2,7 +2,7 @@ using System.ComponentModel;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class PauseMenu : MonoBehaviour, IMenuBase
+public class PauseMenu : MonoBehaviour
 {
     private GameRunningState running = new(GameManager.instance.machine);
 

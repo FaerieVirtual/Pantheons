@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RespawnMenu : MonoBehaviour, IMenuBase
+public class RespawnMenu : MonoBehaviour
 {
     public static RespawnMenu instance;
     public void Options()

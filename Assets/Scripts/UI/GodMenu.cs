@@ -8,9 +8,8 @@ using UnityEngine.UI;
 public class GodMenu : MonoBehaviour
 { 
     public Image godView;
-    //public TextMeshPro descriptionText;
+    public TextMeshPro descriptionText;
     public TextMeshPro godname;
-    public Text descriptionText;
     public TextMeshPro stat1;
     public TextMeshPro stat2;
     public TextMeshPro stat3;
@@ -18,7 +17,7 @@ public class GodMenu : MonoBehaviour
     public Button confirmButton;
 
     public List<Sprite> viewSprites = new(), symbolSprites = new();
-    //public List<string> descriptions;
+    public List<string> descriptions;
 
     public SpriteRenderer selected;
     public SpriteRenderer previous;
@@ -70,10 +69,10 @@ public class GodMenu : MonoBehaviour
             GodBase god = gods[currentIndex];
 
             godView.sprite = god.Profile;
-            //descriptionText.text = god.description;
+            descriptionText.text = god.description;
             selected.sprite = god.Symbol;
             stat1.text = god.stat1;
-            //descriptionText.text = god.description;//descriptionText.text = descriptions[currentIndex];
+            descriptionText.text = god.description;
             selected.sprite = god.Symbol;
             stat2.text = god.stat2;
             stat3.text = god.stat3;
@@ -91,9 +90,6 @@ public class GodMenu : MonoBehaviour
     public void OnConfirmSelection()
     {
         GameManager.instance.god = gods[currentIndex];
-        GodMenu god = FindObjectOfType<GodMenu>(true);
-        //GameManager.instance.god = gods[currentIndex];       
-        god.gameObject.SetActive(false);
 
         GameRunningState running = new(GameManager.instance.machine);
         GameManager.instance.machine.ChangeState(running);

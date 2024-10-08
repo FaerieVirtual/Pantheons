@@ -1,22 +1,23 @@
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
-public class MainMenu : MonoBehaviour, IMenuBase
+public class MainMenu : MonoBehaviour
 {
-    public UnityEvent gameLoad = new();
-    public UnityEvent gameNew = new();
+private LevelManager levelManager;
     private void Start()
     {
-        gameNew.AddListener(GameManager.instance.NewGame);
+        levelManager = new LevelManager();
     }
     public void NewGame()
     {
-        gameNew.Invoke();
+
+        Scene godmenu = SceneManager.GetSceneByName("GodMenu");
+        levelManager.LoadScene(godmenu);
     }
     public void LoadGame()
     {
-        throw new System.NotImplementedException();
+        Scene loadmenu = SceneManager.GetSceneByName("LoadMenu");
+        levelManager.LoadScene(loadmenu);
     }
 
     public void Options()
