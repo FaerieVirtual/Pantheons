@@ -10,7 +10,7 @@ public class GodBase : MonoBehaviour
     public Sprite Profile, Symbol;
 
     //[HideInInspector]
-    //public string description;
+    public string description;
 
     [HideInInspector]
     public string stat1, stat2, stat3, stat4;

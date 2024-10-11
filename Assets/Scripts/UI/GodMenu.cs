@@ -1,12 +1,11 @@
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GodMenu : MonoBehaviour
-{ 
+{
     public Image godView;
     public TextMeshPro descriptionText;
     public TextMeshPro godname;
@@ -16,7 +15,7 @@ public class GodMenu : MonoBehaviour
     public TextMeshPro stat4;
     public Button confirmButton;
 
-    public List<Sprite> viewSprites = new(), symbolSprites = new();
+    public List<Sprite> viewSprites = new();//, symbolSprites = new();
     public List<string> descriptions;
 
     public SpriteRenderer selected;
@@ -26,6 +25,7 @@ public class GodMenu : MonoBehaviour
     private int currentIndex = 0;
 
     public List<GodBase> gods;
+    private LevelManager levelManager;
 
     void Start()
     {
@@ -36,18 +36,16 @@ public class GodMenu : MonoBehaviour
         for (int i = 0; i < gods.Count; i++)
         {
             viewSprites.Add(gods[i].Profile);
-            symbolSprites.Add(gods[i].Symbol);
+            //symbolSprites.Add(gods[i].Symbol);
         }
         UpdateSelection();
     }
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKey(KeyCode.Return))
-        {
-            OnConfirmSelection();
-        }
-        if (Input.GetKeyDown(KeyCode.RightArrow)) { OnNext(); }
-        if (Input.GetKeyDown(KeyCode.LeftArrow)) { OnPrevious(); }
+        if (Input.GetKey(KeyCode.DownArrow) || Input.GetButton("Confirm")) OnConfirmSelection();
+        if (Input.GetKey(KeyCode.RightArrow) || Input.GetButton("MoveRight"))  OnNext(); 
+        if (Input.GetKey(KeyCode.LeftArrow) || Input.GetButton("MoveLeft")) OnPrevious();
+        if (Input.GetKey(KeyCode.Escape)) Return();
     }
 
     public void OnNext()
@@ -70,30 +68,33 @@ public class GodMenu : MonoBehaviour
 
             godView.sprite = god.Profile;
             descriptionText.text = god.description;
-            selected.sprite = god.Symbol;
-            stat1.text = god.stat1;
+            //selected.sprite = god.Symbol;
             descriptionText.text = god.description;
             selected.sprite = god.Symbol;
+            stat1.text = god.stat1;
             stat2.text = god.stat2;
             stat3.text = god.stat3;
             stat4.text = god.stat4;
             godname.text = god.name;
 
         }
-        int prevIndex = (currentIndex - 1 + viewSprites.Count) % viewSprites.Count;
-        previous.sprite = gods[prevIndex].Symbol;
-        int nextIndex = (currentIndex + 1 + viewSprites.Count) % viewSprites.Count;
-        next.sprite = gods[nextIndex].Symbol;
+        //int prevIndex = (currentIndex - 1 + viewSprites.Count) % viewSprites.Count;
+        //previous.sprite = gods[prevIndex].Symbol;
+        //int nextIndex = (currentIndex + 1 + viewSprites.Count) % viewSprites.Count;
+        //next.sprite = gods[nextIndex].Symbol;
 
     }
 
     public void OnConfirmSelection()
     {
         GameManager.instance.god = gods[currentIndex];
-
-        GameRunningState running = new(GameManager.instance.machine);
-        GameManager.instance.machine.ChangeState(running);
-
-        SceneManager.LoadScene("AP1");
+        Scene scene = SceneManager.GetSceneByName("AP1");
+        levelManager.LoadScene(scene);
+    }
+    
+    public void Return() 
+    {
+        Scene scene = SceneManager.GetSceneByName("MainMenu");
+        levelManager.LoadScene(scene);
     }
 }

@@ -27,6 +27,6 @@ private LevelManager levelManager;
 
     public void Quit()
     {
-        throw new System.NotImplementedException();
+        Application.Quit();
     }
 }

@@ -445,6 +445,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Profile: {fileID: 21300000, guid: 3d27c2f5fab9d0342b298f6a48d367b5, type: 3}
   Symbol: {fileID: -2081245629, guid: 132358e9bf26b60458b731bf001e31db, type: 3}
+  description: 
   stat1: 
   stat2: 
   stat3: 
@@ -698,6 +699,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Profile: {fileID: 21300000, guid: 084b563ad75f6c345a14e03a144bfa55, type: 3}
   Symbol: {fileID: -150716834, guid: 132358e9bf26b60458b731bf001e31db, type: 3}
+  description: 
   stat1: 
   stat2: 
   stat3: 
@@ -710,6 +712,69 @@ MonoBehaviour:
   goldMultiplier: 1.4
   itemMultiplier: 1
   speedMultiplier: 1.2
+--- !u!1 &207564152
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 207564154}
+  - component: {fileID: 207564153}
+  m_Layer: 0
+  m_Name: MenuManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &207564153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 207564152}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 530e66c6c8e9f664e816fb0eae26e5b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  godView: {fileID: 89996276}
+  descriptionText: {fileID: 1438099402}
+  godname: {fileID: 166815501}
+  stat1: {fileID: 68882475}
+  stat2: {fileID: 256634414}
+  stat3: {fileID: 1538912629}
+  stat4: {fileID: 1196054524}
+  confirmButton: {fileID: 1711129823}
+  viewSprites: []
+  descriptions: []
+  selected: {fileID: 0}
+  previous: {fileID: 0}
+  next: {fileID: 0}
+  gods:
+  - {fileID: 1119011470}
+  - {fileID: 715573557}
+  - {fileID: 180689428}
+  - {fileID: 1558144756}
+  - {fileID: 153893402}
+--- !u!4 &207564154
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 207564152}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 369.052, y: 187.72882, z: 85.60488}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &256634411
 GameObject:
   m_ObjectHideFlags: 0
@@ -975,6 +1040,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Profile: {fileID: 21300000, guid: edd5020508b1fdd4089302f84af35c35, type: 3}
   Symbol: {fileID: -763091385, guid: 132358e9bf26b60458b731bf001e31db, type: 3}
+  description: 
   stat1: 
   stat2: 
   stat3: 
@@ -1069,7 +1135,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1724432761}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: GodMenu, Assembly-CSharp
         m_MethodName: OnNext
         m_Mode: 1
@@ -1240,6 +1306,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Profile: {fileID: 21300000, guid: 299724463a0d150409195d5ccdca4a00, type: 3}
   Symbol: {fileID: 566335295, guid: 132358e9bf26b60458b731bf001e31db, type: 3}
+  description: 
   stat1: 
   stat2: 
   stat3: 
@@ -1726,7 +1793,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1724432761}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: GodMenu, Assembly-CSharp
         m_MethodName: OnPrevious
         m_Mode: 1
@@ -2497,6 +2564,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Profile: {fileID: 21300000, guid: 74a6c33742167fa48b189780a517fdd9, type: 3}
   Symbol: {fileID: 362099136, guid: 132358e9bf26b60458b731bf001e31db, type: 3}
+  description: 
   stat1: 
   stat2: 
   stat3: 
@@ -2572,7 +2640,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1724432761}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: GodMenu, Assembly-CSharp
         m_MethodName: OnConfirmSelection
         m_Mode: 1
@@ -2650,7 +2718,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1724432762}
-  - component: {fileID: 1724432761}
   m_Layer: 0
   m_Name: GodMenu
   m_TagString: Untagged
@@ -2658,47 +2725,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1724432761
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1724432760}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 530e66c6c8e9f664e816fb0eae26e5b5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  godView: {fileID: 89996276}
-  godname: {fileID: 166815501}
-  descriptionText: {fileID: 0}
-  stat1: {fileID: 0}
-  stat2: {fileID: 0}
-  stat3: {fileID: 0}
-  stat4: {fileID: 0}
-  confirmButton: {fileID: 1711129823}
-  viewSprites:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  symbolSprites:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  selected: {fileID: 0}
-  previous: {fileID: 0}
-  next: {fileID: 0}
-  gods:
-  - {fileID: 1119011470}
-  - {fileID: 715573557}
-  - {fileID: 180689428}
-  - {fileID: 1558144756}
-  - {fileID: 153893402}
 --- !u!4 &1724432762
 Transform:
   m_ObjectHideFlags: 0
@@ -2724,3 +2750,4 @@ SceneRoots:
   - {fileID: 84436869}
   - {fileID: 1724432762}
   - {fileID: 1125301187}
+  - {fileID: 207564154}
