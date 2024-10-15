@@ -340,7 +340,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 591712395}
+      - m_Target: {fileID: 877314167}
         m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
         m_MethodName: Quit
         m_Mode: 1
@@ -424,8 +424,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.0034219, y: -0.00024924}
-  m_SizeDelta: {x: 1455.4, y: 799.74}
+  m_AnchoredPosition: {x: -0.6352, y: 1.8586}
+  m_SizeDelta: {x: 957.7472, y: 475.3115}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &319415334
 MonoBehaviour:
@@ -1081,7 +1081,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 591712395}
+      - m_Target: {fileID: 877314167}
         m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
         m_MethodName: Options
         m_Mode: 1
@@ -1517,7 +1517,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 591712395}
+      - m_Target: {fileID: 877314167}
         m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
         m_MethodName: LoadGame
         m_Mode: 1
@@ -1601,7 +1601,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -163.79999, y: 133.7}
+  m_AnchoredPosition: {x: -163.79996, y: 133.7}
   m_SizeDelta: {x: -677.95715, y: -398.48135}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1828531551
@@ -1852,7 +1852,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 591712395}
+      - m_Target: {fileID: 877314167}
         m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
         m_MethodName: NewGame
         m_Mode: 1

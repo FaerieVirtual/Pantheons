@@ -15,7 +15,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     #region General
     //TODO
     //simple statemachine based on simple bools, determining what action is the player currently executing and what actions cannot be executed at the same moment
-    //queue for buffered actions¨limited to one consequent action (could be timed, so the queue works only a moment before the current action is to end)
+    //queue for buffered actions limited to one consequent action (could be timed, so the queue works only a moment before the current action is to end)
     private void Awake()
     {
         if (instance != null) { Destroy(gameObject); }
