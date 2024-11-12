@@ -6,14 +6,14 @@ public class LoadMenu : MonoBehaviour
     LevelManager levelManager = new();
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape)) Return();
+        if (Input.GetKeyDown(KeyCode.Escape)) Back();
     }
     public void LoadSaveFile(int index)
     {
-        throw new System.NotImplementedException();
+        GameManager.instance.Load();
     }
 
-    public void Return()
+    public void Back()
     {
         Scene mainmenu = SceneManager.GetSceneByName("MainMenu");
         levelManager.LoadScene(mainmenu);

@@ -1,17 +1,19 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public class AudioManager : MonoBehaviour
 {
     public Sound[] sounds;
+    public List<Sound> playingSFX;
     public static AudioManager instance;
-    private int areaTemp;
-    private bool playThemes = true;
+
+    private bool musicActive = true;
+    private bool sfxActive = true;
 
     [Range(0, 1)] public float musicVolume;
-    private List<Sound> music = new();
+    [Range(0, 1)] public float sfxVolume;
 
     private void Awake()
     {
@@ -29,74 +31,101 @@ public class AudioManager : MonoBehaviour
             sound.source.volume = sound.volume;
             sound.source.loop = sound.loop;
             sound.source.pitch = sound.pitch;
-            //if (sound.tag == null) { sound.source.tag = "Untagged"; }
-            //if (sound.tag != null) { sound.source.tag = sound.tag; }
         }
-        SortByTag();
-        
-        //themePlaying = "MainTheme";
-
     }
     private void Update()
     {
-        PlayTheme(playThemes);
+        MusicPlayer(musicActive);
+        SfxPlayer(sfxActive);
     }
 
-    public void Play(string name)
+    public void Play(string name, float volume, float delay = 0)
     {
-        Sound sound = Array.Find(sounds, sound => sound.name == name);
-        if (!sound.source.isPlaying)
-        {
-            sound.source.Play();
-        }
+        Sound sound = Array.Find(sounds, sound => sound.name.ToLower() == name.ToLower());
+        if (sound == null || sound.source.isPlaying) return;
+
+        sound.source.volume *= volume;
+
+        if (delay == 0) { sound.source.Play(); }
+        else { sound.source.PlayDelayed(delay); }
     }
     public void Stop(string name)
     {
-        Sound sound = Array.Find(sounds, sound => sound.name == name);
-        if (sound != null && sound.source.isPlaying) { sound.source.Stop(); }
+        Sound sound = Array.Find(sounds, sound => sound.name.ToLower() == name.ToLower());
+        if (sound != null && sound.source.isPlaying) sound.source.Stop();
     }
 
-    public void PlayTheme(bool activate)
+    public void MusicPlayer(bool active)
     {
-        if (GameManager.Area != areaTemp)
+        var musicMap = new Dictionary<string, string>
         {
-            StopByTag("Theme");
-            areaTemp = GameManager.Area;
+            { "Ancient Path", "At the beginning" },
+            { "Sword's Gully", "Ancestors' bated breath"},
+            { "Hangman's Grove", "The sound of Regret" },
+            { "Verdant Grottos", "Greener grass" }
+        };
+
+        if (!active)
+        {
+            foreach (var entry in musicMap) Stop(entry.Key);
+            return;
         }
-        switch (areaTemp)
+
+        foreach (var entry in musicMap)
         {
-            case 0: Play("MainTheme"); break;
-            case 1: Play("DeathTheme"); break;
-            case 2: Play("APTheme"); break;
+            Sound sound = Array.Find(sounds, sound => sound.name.ToLower() == entry.Key.ToLower());
+
+            if (!GameManager.Area.ToLower().Contains(entry.Key) && sound.source.isPlaying) Stop(entry.Key);
+            if (GameManager.Area.ToLower().Contains(entry.Key.ToLower()) && !sound.source.isPlaying) Play(entry.Value, musicVolume, 2);
         }
     }
-    void StopByTag(string soundTag)
+
+    public void SfxPlayer(bool active, string sfx = null, bool play = false)
     {
-        foreach (Sound sound in sounds)
+        void HandleSound(string sfx, bool play) 
         {
-            if (sound.tag == soundTag)
+            Sound sound = Array.Find(sounds, sound => sound.name.ToLower() == sfx.ToLower());
+            if (sound == null) 
             {
-                Stop(sound.name);
+                Console.WriteLine($"Error: Could not find sound {sfx}");
+                return;
+            }
+
+            if (!sound.source.isPlaying && play) 
+            { 
+                Play(sfx, sfxVolume);
+                playingSFX.Add(sound);
+            }
+            if (sound.source.isPlaying && !play) 
+            { 
+                Stop(sfx); 
+                playingSFX.Remove(sound);
             }
         }
-    }
-    #region Options
-    private void SortByTag()
-    {
-        foreach (Sound sound in sounds)
+
+        if (!active) 
         {
-            if (sound.tag == "Theme" || sound.tag == "Music") { music.Add(sound); }
+            foreach (Sound sound in playingSFX) 
+            { 
+                Stop(sound.name);
+                playingSFX.Remove(sound);
+            }
+            return;
         }
 
+        if (sfx != null) HandleSound(sfx, play); 
     }
-
-    public void UpdateSoundOptions() 
+    #region Options
+    public void UpdateSoundOptions(float musicVolumePref, float sfxVolumePref)
     {
-        music.ForEach(sound => { sound.source.volume = sound.source.volume * musicVolume; });
+        musicVolume = musicVolumePref;
+        if (musicVolume == 0) musicActive = false;
+        sfxVolume = sfxVolumePref;
+        if (sfxVolume == 0) sfxActive = false;
     }
     #endregion
     #region Listener actions
-    //public void PlayTheme()
+    //public void MusicPlayer()
     //{
     //    void ThemeQueue() 
     //    { 
@@ -122,45 +151,55 @@ public class AudioManager : MonoBehaviour
     //}
 
 
-    public void OnPlayerRun() { Play("Run"); }
+    public void OnPlayerRun() { Play("Run", sfxVolume); }
     public void OnPlayerRunStop() { Stop("Run"); }
-    public void OnPlayerAttack() { Play("Attack"); }
-    public void OnPlayerFall() { Play("Fall"); }
+    public void OnPlayerAttack() { Play("Attack", sfxVolume); }
+    public void OnPlayerFall() { Play("Fall", sfxVolume); }
     public void OnPlayerFallStop() { Stop("Fall"); }
-    public void OnPlayerJump() { Play("Jump"); }
+    public void OnPlayerJump() { Play("Jump", sfxVolume); }
     public void OnPlayerHit()
     {
         System.Random r = new();
         int option = r.Next(0, 3);
         switch (option)
         {
-            case 0: Play("Hurt1"); break;
-            case 1: Play("Hurt2"); break;
-            case 3: Play("Hurt3"); break;
+            case 0: Play("Hurt1", sfxVolume); break;
+            case 1: Play("Hurt2", sfxVolume); break;
+            case 2: Play("Hurt3", sfxVolume); break;
         }
     }
-    public void OnPlayerDeath() { Play("Death"); }
+    public void OnPlayerDeath() { Play("Death", sfxVolume); }
     //public void OnPause()
     //{
-    //    playThemes = false;
+    //    musicActive = false;
     //    StopByTag("Theme");
     //    Play("Pause");
     //}
     //public void OnResume()
     //{
     //    Play("Pause");
-    //    playThemes = true;
+    //    musicActive = true;
     //}
     public void OnPause()
     {
-        playThemes = false;
-        StopByTag("Theme");
-        Play("Pause");
+        //musicActive = false;
+        //StopByTag("Theme");
+        foreach (Sound sound in sounds)
+        {
+            if (sound.source.isPlaying) sound.source.Pause();
+        }
+        Play("PauseSFX", sfxVolume);
+        Play("Pause", musicVolume);
+
     }
     public void OnResume()
     {
-        Play("Pause");
-        playThemes = true;
+        Play("ResumeSFX", sfxVolume);
+        foreach (Sound sound in sounds)
+        {
+            sound.source.UnPause();
+        }
+        //musicActive = true;
     }
     #endregion
 }

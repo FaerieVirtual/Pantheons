@@ -513,5 +513,10 @@ public class PlayerManager : MonoBehaviour, IDamageable
     }
 
     #endregion
+
+    #region Inventory
+    
+
+    #endregion
 }
 

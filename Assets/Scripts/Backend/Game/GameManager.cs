@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -9,11 +12,12 @@ public class GameManager : MonoBehaviour
     public Transform lastRespawnPoint;
 
     public static GameManager instance;
-    public static int Area;
+    public int gameIndex;
+    public static string Area;
     // -2 - RespawnMenu -1 - GodMenu 0 - MainMenu 1 - AP
 
     public GameStatemachine machine = new GameStatemachine();
-    GameMenuState mainState;
+    GameMenuState menuState;
     GamePausedState pausedState;
     GameRunningState runningState;
 
@@ -30,14 +34,16 @@ public class GameManager : MonoBehaviour
         }
         DontDestroyOnLoad(gameObject);
 
-        mainState = new GameMenuState(machine);
+        menuState = new GameMenuState(machine);
         pausedState = new GamePausedState(machine);
         runningState = new GameRunningState(machine);
 
-        machine.Init(mainState);
+        machine.Init(menuState);
     }
+
     private void Start()
     {
+        SaveDicRefresh();
     }
     private void Update()
     {
@@ -46,13 +52,8 @@ public class GameManager : MonoBehaviour
         {
             machine.ChangeState(pausedState);
         }
-        switch (SceneManager.GetActiveScene().buildIndex)
-        {
-            case 0: Area = 0; break;
-            case 1: Area = 1; break;
-            case 2: Area = 2; break;
-            case 3: Area = 2; break;
-        }
+        Area = SceneManager.GetActiveScene().name;
+
     }
     private void FixedUpdate()
     {
@@ -60,6 +61,84 @@ public class GameManager : MonoBehaviour
     }
     #endregion
 
+    #region Save/Load & File management
+    GameStats gameStats;
+    PlayerStats playerStats;
+    PreviewStats previewStats;
+
+    private Dictionary<ScriptableObject, string> saveFileDic;
+    private void SaveDicRefresh() 
+    { 
+        saveFileDic = new Dictionary<ScriptableObject, string>()
+        {
+            {gameStats, $@"..\..\..\Saves\Save {gameIndex}\game"},
+            {playerStats, $@"..\..\..\Saves\Save {gameIndex}\player" },
+            {previewStats, $@"..\..\..\Saves\Save {gameIndex}\preview" }           
+        };
+    }
+
+    public void Save()
+    {
+        string folderPath = @"..\..\..\Saves";
+        string savePath = Path.Combine(folderPath, $"Save {gameIndex}");
+        if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath); 
+        if (!Directory.Exists(savePath)) Directory.CreateDirectory(savePath);
+
+        //string GameJSON = JsonUtility.ToJson(gameStats);
+        //string PlayerJSON = JsonUtility.ToJson(playerStats);
+        //string PreviewJSON = JsonUtility.ToJson(previewStats);
+        foreach (var entry in saveFileDic) 
+        { 
+            string JSON = JsonUtility.ToJson(entry.Key);
+            File.WriteAllText(entry.Value, JSON);
+        }
+        //File.WriteAllText(Path.Combine(savePath, "game"), GameJSON);
+        //File.WriteAllText(Path.Combine(savePath, "player"), PlayerJSON);
+        //File.WriteAllText(Path.Combine(savePath, "preview"), PreviewJSON);
+    }
+
+    public void Load(int saveIndex = 0)
+    {
+        string folderPath = Path.Combine(@"..\..\..\Saves", $"Save {saveIndex}");
+        if (saveIndex != gameIndex)
+        {
+            gameIndex = saveIndex;
+            SaveDicRefresh();
+        }
+        if (Directory.Exists(folderPath))
+        {
+            //foreach (var entry in saveFileDic) 
+            //{ 
+            //    if (Directory.Exists(entry.Value)) 
+            //    { 
+            //        string JSON = File.ReadAllText(entry.Value);
+            //        var type = entry.Key.GetType();
+            //        entry.Key = JsonUtility.FromJson<type>(JSON);
+            //    }
+            //}
+            if (Directory.Exists(Path.Combine(folderPath, "game")))
+            {
+                string GameJSON = File.ReadAllText(Path.Combine(folderPath, "game"));
+                gameStats = JsonUtility.FromJson<GameStats>(GameJSON);
+            }
+            else { Console.WriteLine("Error: Save corrupted: game not found"); }
+            if (Directory.Exists(Path.Combine(folderPath, "player")))
+            {
+                string PlayerJSON = File.ReadAllText(Path.Combine(folderPath, "player"));
+                playerStats = JsonUtility.FromJson<PlayerStats>(PlayerJSON);
+            }
+            else { Console.WriteLine("Error: Save corrupted: player not found"); }
+            if (Directory.Exists(Path.Combine(folderPath, "preview")))
+            {
+                string PreviewJSON = File.ReadAllText(Path.Combine(folderPath, "preview"));
+                previewStats = JsonUtility.FromJson<PreviewStats>(PreviewJSON);
+            }
+            else { Console.WriteLine("Error: Save corrupted: preview not found"); }
+        }
+        else { Console.WriteLine("Error: Save corrupted: folder not found."); }
+    }
+
+    #endregion
     #region StateSwitches
     public void NewGame()
     {
