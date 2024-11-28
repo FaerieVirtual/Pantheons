@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -87,11 +89,15 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public void ResetPlayer()
     {
         alive = true;
+        maxHp = baseHp + hpAdd;
         hp = maxHp;
+        maxDef = baseDef + defAdd;
         def = maxDef;
+        maxMana = baseMana + manaAdd;
         mana = maxMana;
         invincible = false;
         movementDisable = false;
+        maxCharms = baseCharms + unlockedCharms;
     }
 
     void GetInput()
@@ -157,7 +163,9 @@ public class PlayerManager : MonoBehaviour, IDamageable
     #region Health
     [Header("HEALTH")]
     public int maxHp;
+    private int baseHp;
     public int maxDef;
+    private int baseDef;
     public bool alive = true;
     public float invincibleDuration;
 
@@ -501,7 +509,8 @@ public class PlayerManager : MonoBehaviour, IDamageable
     #region Magic
     [Header("MAGIC")]
     public float mana = 100;
-    public float maxMana = 100;
+    public float maxMana;
+    private int baseMana = 100;
     public float mAtk;
 
     public void tmpRegainMana()
@@ -515,8 +524,23 @@ public class PlayerManager : MonoBehaviour, IDamageable
     #endregion
 
     #region Inventory
-    
+    public List<Item> inventory;
+    #region Charms
+    public int baseCharms = 3;
+    public int unlockedCharms = 0;
+    public int maxCharms;
+    public List<Charm> equippedCharms;
 
+    private int hpAdd;
+    private int defAdd;
+    private int manaAdd;
+
+    public void RemoveCharm() 
+    { 
+        
+    }
+
+    #endregion
     #endregion
 }
 

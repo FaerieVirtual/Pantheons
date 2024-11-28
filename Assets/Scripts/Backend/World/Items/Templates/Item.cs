@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-internal class Item : MonoBehaviour
+public class Item : MonoBehaviour
 {
     public new string name;
     public string description;
