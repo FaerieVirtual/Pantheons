@@ -16,8 +16,8 @@ internal class PlayerStats : ScriptableObject
     public bool doubleJump;
 
     [Header("Inventory")]
-    public List<Item> inventory;
-    public List<Charm> equippedCharms;
-    public List<Charm> unequippedCharms;
+    public List<IItem> inventory;
+    public List<ICharm> equippedCharms;
+    public List<ICharm> unequippedCharms;
 
 }

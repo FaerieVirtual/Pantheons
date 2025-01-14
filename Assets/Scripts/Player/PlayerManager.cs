@@ -89,15 +89,19 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public void ResetPlayer()
     {
         alive = true;
-        maxHp = baseHp + hpAdd;
+        ResetBoosts();
         hp = maxHp;
-        maxDef = baseDef + defAdd;
         def = maxDef;
-        maxMana = baseMana + manaAdd;
         mana = maxMana;
         invincible = false;
         movementDisable = false;
         maxCharms = baseCharms + unlockedCharms;
+    }
+    public void ResetBoosts() 
+    {
+        maxHp = baseHp + hpAdd;
+        maxDef = baseDef + defAdd;
+        maxMana = baseMana + manaAdd;
     }
 
     void GetInput()
@@ -169,8 +173,8 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public bool alive = true;
     public float invincibleDuration;
 
-    private int hp;
-    private int def;
+    public int hp;
+    public int def;
     private bool invincible;
     private float damageTakenTime;
 
@@ -199,7 +203,9 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public void TakeDamage(int damage)
     {
         if (invincible) return;
-
+        //Deathward deathward = new Deathward();
+        //if (equippedCharms.Contains(deathward)) damage = deathward.DeathSave(damage);
+            
         if (def > 0)
         {
             if (def <= damage)
@@ -524,22 +530,17 @@ public class PlayerManager : MonoBehaviour, IDamageable
     #endregion
 
     #region Inventory
-    public List<Item> inventory;
+    public List<IItem> inventory;
     #region Charms
     public int baseCharms = 3;
     public int unlockedCharms = 0;
     public int maxCharms;
-    public List<Charm> equippedCharms;
+    //public List<Charm> equippedCharms;
 
-    private int hpAdd;
-    private int defAdd;
-    private int manaAdd;
-
-    public void RemoveCharm() 
-    { 
-        
-    }
-
+    public int hpAdd;
+    public int defAdd;
+    public int manaAdd;
+    public int speedAdd;
     #endregion
     #endregion
 }
