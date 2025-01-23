@@ -1,23 +1,29 @@
+using Assets.Scripts.Backend.Game.Game_States;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
-private LevelManager levelManager;
+    private GameStatemachine machine;
+
     private void Start()
     {
-        levelManager = new LevelManager();
+        machine = GameManager.Instance.machine;
+
     }
     public void NewGame()
     {
-
-        Scene godmenu = SceneManager.GetSceneByName("GodMenu");
-        levelManager.LoadScene(godmenu);
+        //GameGodMenuState godMenuState = new(machine);
+        GameRunningState runningState = new(machine);
+        GameManager.Instance.machine.ChangeState(runningState);
     }
     public void LoadGame()
     {
-        Scene loadmenu = SceneManager.GetSceneByName("LoadMenu");
-        levelManager.LoadScene(loadmenu);
+        throw new System.NotImplementedException();
+
+        //GameLoadMenuState loadMenuState = new(machine);
+        //machine.ChangeState(loadMenuState);
     }
 
     public void Options()

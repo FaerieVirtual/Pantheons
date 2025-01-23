@@ -82,11 +82,11 @@ public class CharmMenu : MonoBehaviour
 
     //void OrganizeCharms() 
     //{
-    //    List<ICharm> tmpCharms = PlayerManager.instance.equippedCharms;
+    //    List<ICharm> tmpCharms = PlayerManager.Instance.equippedCharms;
 
     //    for (int k = 0; k < charms.Count; k++) 
     //    {
-    //        if (!PlayerManager.instance.equippedCharms.Contains(charms[k])) tmpCharms.Add(charms[k]);
+    //        if (!PlayerManager.Instance.equippedCharms.Contains(charms[k])) tmpCharms.Add(charms[k]);
     //    }
 
     //    int freeSlot = 0;

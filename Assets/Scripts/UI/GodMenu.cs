@@ -30,7 +30,6 @@ public class GodMenu : MonoBehaviour
     void Start()
     {
         confirmButton.onClick.AddListener(OnConfirmSelection);
-        confirmButton.onClick.AddListener(GameManager.instance.ChooseGod);
         //viewSprites = new List<Sprite>();
         //symbolSprites = new List<Sprite>();
         for (int i = 0; i < gods.Count; i++)
@@ -42,9 +41,9 @@ public class GodMenu : MonoBehaviour
     }
     private void Update()
     {
-        if (Input.GetKey(KeyCode.DownArrow) || Input.GetButton("Confirm")) OnConfirmSelection();
-        if (Input.GetKey(KeyCode.RightArrow) || Input.GetButton("MoveRight"))  OnNext(); 
-        if (Input.GetKey(KeyCode.LeftArrow) || Input.GetButton("MoveLeft")) OnPrevious();
+        if (Input.GetKey(KeyCode.DownArrow)) OnConfirmSelection(); //|| Input.GetButton("Confirm")) OnConfirmSelection();
+        if (Input.GetKey(KeyCode.RightArrow)) OnNext();//|| Input.GetButton("MoveRight"))  OnNext(); 
+        if (Input.GetKey(KeyCode.LeftArrow)) OnPrevious();//|| Input.GetButton("MoveLeft")) OnPrevious();
         if (Input.GetKey(KeyCode.Escape)) Return();
     }
 
@@ -68,7 +67,7 @@ public class GodMenu : MonoBehaviour
 
             godView.sprite = god.Profile;
             descriptionText.text = god.description;
-            //selected.sprite = god.Symbol;
+            selected.sprite = god.Symbol;
             descriptionText.text = god.description;
             selected.sprite = god.Symbol;
             stat1.text = god.stat1;
@@ -76,6 +75,7 @@ public class GodMenu : MonoBehaviour
             stat3.text = god.stat3;
             stat4.text = god.stat4;
             godname.text = god.name;
+            
 
         }
         //int prevIndex = (currentIndex - 1 + viewSprites.Count) % viewSprites.Count;
@@ -87,14 +87,13 @@ public class GodMenu : MonoBehaviour
 
     public void OnConfirmSelection()
     {
-        GameManager.instance.god = gods[currentIndex];
-        Scene scene = SceneManager.GetSceneByName("AP1");
-        levelManager.LoadScene(scene);
+        if (gods[currentIndex] != null) GameManager.Instance.god = gods[currentIndex];
+        GameRunningState runningState = new(GameManager.Instance.machine);
+        GameManager.Instance.machine.ChangeState(runningState);
     }
     
     public void Return() 
     {
-        Scene scene = SceneManager.GetSceneByName("MainMenu");
-        levelManager.LoadScene(scene);
+        levelManager.LoadScene("MainMenu");
     }
 }

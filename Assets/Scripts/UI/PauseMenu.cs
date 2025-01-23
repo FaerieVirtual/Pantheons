@@ -4,11 +4,10 @@ using UnityEngine;
 
 public class PauseMenu : MonoBehaviour
 {
-    private GameRunningState running = new(GameManager.instance.machine);
-
     public void Resume()
     {
-        GameManager.instance.machine.ChangeState(running);
+        GameRunningState running = new(GameManager.Instance.machine);
+        GameManager.Instance.machine.ChangeState(running);
     }
 
     public void Options()

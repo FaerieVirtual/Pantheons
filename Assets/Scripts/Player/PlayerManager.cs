@@ -9,7 +9,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public Rigidbody2D RigidBody => GetComponent<Rigidbody2D>();
     public CapsuleCollider2D Collider => GetComponent<CapsuleCollider2D>();
     public Animator Animator => GetComponent<Animator>();
-    private LevelManager Loader = new();
+    private LevelManager Loader;
     public static PlayerManager instance;
     public AudioManager Audio;
 
@@ -26,7 +26,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     }
     private void Start()
     {
-        Audio = AudioManager.instance;
+        Audio = AudioManager.Instance;
 
         ResetPlayer();
         RigidBody.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
@@ -126,12 +126,12 @@ public class PlayerManager : MonoBehaviour, IDamageable
         void InteractInput()
         {
             bool Held = false; //Rules out pressing buttons while the button is already pressed
-            if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetButtonDown("InteractInput") && !Held)
+            if (Input.GetKeyDown(KeyCode.DownArrow) && !Held)//Input.GetButtonDown("InteractInput") && !Held)
             {
                 timeInteractDown = time;
                 Held = true;
             }
-            if (Input.GetKeyUp(KeyCode.DownArrow) || Input.GetButtonUp("InteractInput") && Held)
+            if (Input.GetKeyUp(KeyCode.DownArrow) && Held)//Input.GetButtonUp("InteractInput") && Held)
             {
                 timeInteractUp = time;
                 Held = false;
@@ -190,7 +190,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public Sprite emptyShield;
 
     private GameObject respawnPoint;
-    [HideInInspector] public Scene respawnPointScene;
+    [HideInInspector] public int respawnSceneIndex;
     private bool respawnPointOverlap;
     private bool IsSitting;
     [HideInInspector] public bool canChangeScenes;
@@ -270,7 +270,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         if (!Input.GetKeyUp(KeyCode.DownArrow)) return;
         if (respawnPointOverlap && !IsSitting)
         {
-            respawnPointScene = SceneManager.GetActiveScene();
+            respawnSceneIndex = SceneManager.GetActiveScene().buildIndex;
             Mathf.MoveTowards(transform.position.x, respawnPoint.transform.position.x, previousVelocity.x);
             IsSitting = true;
             movementDisable = true;
@@ -284,15 +284,15 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     public void Respawn()
     {
-        if (respawnPointScene == null) return;
+        //if (respawnSceneIndex < 2) return;
         if (!canChangeScenes)
         {
             Debug.LogError("Cannot change scenes. Respawn is impossible.");
             return;
         }
 
-        Loader.LoadScene(respawnPointScene);
-        GameObject[] objects = respawnPointScene.GetRootGameObjects();
+        Loader.LoadScene(respawnSceneIndex);
+        GameObject[] objects = SceneManager.GetSceneByBuildIndex(respawnSceneIndex).GetRootGameObjects();
         foreach (GameObject obj in objects)
         {
             if (obj != null && obj.CompareTag("Respawn")) respawnPoint = obj;

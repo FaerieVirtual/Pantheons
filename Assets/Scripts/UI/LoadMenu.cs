@@ -10,12 +10,11 @@ public class LoadMenu : MonoBehaviour
     }
     public void LoadSaveFile(int index)
     {
-        GameManager.instance.Load();
+        //GameManager.Instance.Load();
     }
 
     public void Back()
     {
-        Scene mainmenu = SceneManager.GetSceneByName("MainMenu");
-        levelManager.LoadScene(mainmenu);
+        levelManager.LoadScene("MainMenu");
     }
 }
