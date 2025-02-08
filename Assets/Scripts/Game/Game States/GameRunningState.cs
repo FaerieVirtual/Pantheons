@@ -13,7 +13,7 @@ public class GameRunningState : GameState
     public override void EnterState()
     {
         GameManager.Instance.Area = "AP1";
-        GameManager.Instance.levelManager.LoadScene(2, false);
+        //GameManager.Instance.levelManager.LoadScene(2, false);
     }
 
     public override void ExitState()

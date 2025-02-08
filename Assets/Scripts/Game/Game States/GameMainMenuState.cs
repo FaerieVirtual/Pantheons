@@ -7,10 +7,10 @@ public class GameMainMenuState : GameState
     {
         this.machine = machine;
     }
-    public override void EnterState()
+    public override async void EnterState()
     {
         GameManager.Instance.Area = "MainMenu";
-        if (SceneManager.GetActiveScene().name != "MainMenu") levelManager.LoadScene("MainMenu", false);
+        if (SceneManager.GetActiveScene().name != "MainMenu") await LevelManager.LoadScene("MainMenu", false);
         //AudioManager.Instance.Play("");
     }
     public override void ExitState()

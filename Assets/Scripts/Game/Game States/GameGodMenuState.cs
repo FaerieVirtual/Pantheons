@@ -12,7 +12,7 @@ namespace Assets.Scripts.Backend.Game.Game_States
         public override void EnterState()
         {
             GameManager.Instance.Area = "GodMenu";
-            if (SceneManager.GetActiveScene().buildIndex != 1) levelManager.LoadScene(1, false);
+            //if (SceneManager.GetActiveScene().buildIndex != 1) levelManager.LoadScene(1, false);
         }
 
         public override void ExitState()

@@ -1,7 +1,7 @@
 ﻿
 internal interface IInteractible
 {
-    void HandleInteraction();
+    void Interaction();
     bool CanInteract { get; set; }
 }
 

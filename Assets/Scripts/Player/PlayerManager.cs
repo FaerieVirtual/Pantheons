@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -8,11 +7,11 @@ public class PlayerManager : MonoBehaviour, IDamageable
 {
     public Rigidbody2D RigidBody => GetComponent<Rigidbody2D>();
     public CapsuleCollider2D Collider => GetComponent<CapsuleCollider2D>();
-    public Animator Animator => GetComponent<Animator>();
+    private Animator Animator => GetComponent<Animator>();
     private LevelManager Loader;
     public static PlayerManager instance;
     public AudioManager Audio;
-
+    private Collision Collision;
 
     #region General
     //TODO
@@ -33,13 +32,12 @@ public class PlayerManager : MonoBehaviour, IDamageable
     }
     private void FixedUpdate()
     {
-        time += Time.deltaTime;
         GetInput();
 
         //Movement
         HandleCollisions();
-        HandleY();
-        HandleX();
+        //HandleY();
+        Move();
         HandleGravity();
         ApplyMovement();
 
@@ -57,33 +55,36 @@ public class PlayerManager : MonoBehaviour, IDamageable
     [Header("INPUT")]
     public float VerticalDeadZoneThreshold = .1f; //Determines the minimum velocity for the character to move vertically
     public float HorizontalDeadZoneThreshold = .1f; //Determines the minimum velocity for the character to move horizontaly
-    public float TapThreshold = .275f; //Determines the difference between a tap and a hold of a button in time
-    public float HoldThreshold = 1; //Determines after what point does the hold cut off and button resets
+    public float TapThreshold = .35f; //Determines the difference between a tap and a hold of a button in time
+    //public float HoldThreshold = 1; //Determines after what point does the hold cut off and button resets
 
-    private float timeInteractDown;
-    private float timeInteractUp;
+    private float timeDownArrowDown;
+    private float timeDownArrowUp;
+    private float timeSpaceUp;
+    private float timeSpaceDown;
 
-    private void OnCollisionStay(Collision collision) //Handles interactible object detection
+    private void OnCollisionStay(Collision collision)
     {
-        if (collision == null) return;
+        Collision = collision;
+        //if (collision == null) return;
 
-        if (collision.transform.CompareTag("Respawn"))
-        {
-            if (respawnPoint != collision.gameObject)
-            {
-                respawnPoint = collision.gameObject;
-                respawnPointOverlap = true; 
-            }
-        }
-        else { respawnPointOverlap = false; }
+        //if (collision.transform.CompareTag("Respawn"))
+        //{
+        //    if (respawnPoint != collision.gameObject)
+        //    {
+        //        respawnPoint = collision.gameObject;
+        //        respawnPointOverlap = true;
+        //    }
+        //}
+        //else { respawnPointOverlap = false; }
 
 
-        if (collision.transform.TryGetComponent<IInteractible>(out var tmp))
-        {
-            if ((timeInteractUp - timeInteractDown > TapThreshold) || (!tmp.CanInteract)) return;
-            tmp.HandleInteraction();
-            //checks whether an object can be interacted with and then executes its interact function if the button was tapped
-        }
+        //if (collision.transform.TryGetComponent<IInteractible>(out var tmp))
+        //{
+        //    if ((timeDownArrowUp - timeDownArrowDown > TapThreshold) || (!tmp.CanInteract)) return;
+        //    tmp.Interaction();
+        //    //checks whether an object can be interacted with and then executes its interact function if the button was tapped
+        //}
     }
 
     public void ResetPlayer()
@@ -97,7 +98,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         movementDisable = false;
         maxCharms = baseCharms + unlockedCharms;
     }
-    public void ResetBoosts() 
+    public void ResetBoosts()
     {
         maxHp = baseHp + hpAdd;
         maxDef = baseDef + defAdd;
@@ -108,35 +109,35 @@ public class PlayerManager : MonoBehaviour, IDamageable
     {
         if (Input.GetKey(KeyCode.O)) TakeDamage(1); //DEBUG COMMAND to take damage (for healing tests)
         MoveInput();
-        InteractInput();
+        //InteractInput();
         AttackInput();
 
         void MoveInput()
         {
-            JumpDown = Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown("Jump");
-            JumpHeld = Input.GetKey(KeyCode.Space) || Input.GetButton("Jump");
-            if (JumpDown)
+            if (Input.GetKeyDown(KeyCode.Space)) timeSpaceDown = Time.time;
+            if (Input.GetKey(KeyCode.Space) && Time.time - timeSpaceDown >= TapThreshold && Time.time - timeSpaceDown < MaxJumpTime)
             {
-                jumpToConsume = true;
-                timeJumpPressed = time;
+                if (!IsJumping) Jump();
+                if (IsJumping) JumpSustain();
             }
+            if (Input.GetKeyUp(KeyCode.Space) && Time.time - timeSpaceDown < TapThreshold) Jump();
+            if (Input.GetKeyUp(KeyCode.Space) && Time.time - timeSpaceDown >= TapThreshold && Time.time - timeSpaceDown < MaxJumpTime) endedJumpEarly = true;
             MoveDirection = Input.GetKey(KeyCode.RightArrow) ? 1 : Input.GetKey(KeyCode.LeftArrow) ? -1 : 0;
-
         }
-        void InteractInput()
-        {
-            bool Held = false; //Rules out pressing buttons while the button is already pressed
-            if (Input.GetKeyDown(KeyCode.DownArrow) && !Held)//Input.GetButtonDown("InteractInput") && !Held)
-            {
-                timeInteractDown = time;
-                Held = true;
-            }
-            if (Input.GetKeyUp(KeyCode.DownArrow) && Held)//Input.GetButtonUp("InteractInput") && Held)
-            {
-                timeInteractUp = time;
-                Held = false;
-            }
-        }
+        //void InteractInput()
+        //{
+        //    bool Held = false; //Rules out pressing buttons while the button is already pressed
+        //    if (Input.GetKeyDown(KeyCode.DownArrow) && !Held)//Input.GetButtonDown("InteractInput") && !Held)
+        //    {
+        //        timeDownArrowDown = time;
+        //        Held = true;
+        //    }
+        //    if (Input.GetKeyUp(KeyCode.DownArrow) && Held)//Input.GetButtonUp("InteractInput") && Held)
+        //    {
+        //        timeDownArrowUp = time;
+        //        Held = false;
+        //    }
+        //}
         void AttackInput()
         {
             if (Input.GetKeyDown(KeyCode.X) && !attackDisable)
@@ -150,7 +151,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
                     case false: attackBuffer = true; break; //buffers the attack action
                 }
             }
-            if (time > attackTime + attackDelay)
+            if (Time.time > attackTime + attackDelay)
             {
                 attackUsable = true;
                 if (attackBuffer) //executes the attack action whenever attack is usable if it's buffered
@@ -205,7 +206,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         if (invincible) return;
         //Deathward deathward = new Deathward();
         //if (equippedCharms.Contains(deathward)) damage = deathward.DeathSave(damage);
-            
+
         if (def > 0)
         {
             if (def <= damage)
@@ -222,13 +223,13 @@ public class PlayerManager : MonoBehaviour, IDamageable
         hp -= damage;
         if (damage > 0 && hp > 0)
         {
-            damageTakenTime = time;
+            damageTakenTime = Time.time;
         }
         if (hp <= 0) { Die(); }
     }
     private void HandleInvincibility()
     {
-        if (damageTakenTime + invincibleDuration <= time)
+        if (damageTakenTime + invincibleDuration <= Time.time)
         {
             invincible = false;
             damageTakenTime = 0;
@@ -291,7 +292,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
             return;
         }
 
-        Loader.LoadScene(respawnSceneIndex);
+        //Loader.LoadScene(respawnSceneIndex);
         GameObject[] objects = SceneManager.GetSceneByBuildIndex(respawnSceneIndex).GetRootGameObjects();
         foreach (GameObject obj in objects)
         {
@@ -321,14 +322,14 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public float JumpEndEarlyGravityModifier = 5f;
     public float CoyoteTime = .15f;
     public float JumpBuffer = .2f;
-    public float ApexSpeedBonus = 2f;
+    public float ApexSpeedModifier = 2f;
 
     private bool JumpDown, JumpHeld;
     private int MoveDirection;
 
     private bool IsStanding, groundHit, ceilingHit;
     private bool IsJumping;
-    private float time;
+    //private float time;
     private Vector2 tempVelocity;
     private LayerMask ground => LayerMask.GetMask("Ground");
     public bool movementDisable;
@@ -342,19 +343,17 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private float timeGroundLeft;
     private Vector2 previousVelocity;
 
-    private bool HasBufferedJump => bufferedJumpUsable && time < timeJumpPressed + JumpBuffer;
-    private bool HasCoyoteTime => coyoteUsable && !IsStanding && time < timeGroundLeft + CoyoteTime;
+    private bool HasBufferedJump => bufferedJumpUsable && Time.time < timeSpaceDown + JumpBuffer;
+    private bool HasCoyoteTime => coyoteUsable && !IsStanding && Time.time <= timeGroundLeft + CoyoteTime;
 
     void HandleCollisions()
     {
         Physics2D.queriesStartInColliders = false;
-        Vector2 ColLeftDown = new(Collider.bounds.min.x, Collider.bounds.min.y);
-        Vector2 ColRightDown = new(Collider.bounds.max.x, Collider.bounds.min.y);
-        Vector2 ColLeftUp = new(Collider.bounds.min.x, Collider.bounds.max.y);
-        Vector2 ColRightUp = new(Collider.bounds.max.x, Collider.bounds.max.y);
 
-        groundHit = Physics2D.Raycast(ColLeftDown, Vector2.down, GrounderDistance, ground) || Physics2D.Raycast(ColRightDown, Vector2.down, GrounderDistance, ground);
-        ceilingHit = Physics2D.Raycast(ColLeftUp, Vector2.up, GrounderDistance, ground) || Physics2D.Raycast(ColRightUp, Vector2.up, GrounderDistance, ground);
+        BoxCollider2D groundcheck = transform.GetChild(0).gameObject.GetComponent<BoxCollider2D>();
+        BoxCollider2D ceilingcheck = transform.GetChild(1).gameObject.GetComponent<BoxCollider2D>();
+        groundHit = groundcheck.IsTouchingLayers(ground); //Physics2D.Raycast(ColLeftDown, Vector2.down, GrounderDistance, ground) || Physics2D.Raycast(ColRightDown, Vector2.down, GrounderDistance, ground);
+        ceilingHit = ceilingcheck.IsTouchingLayers(ground); //Physics2D.Raycast(ColLeftUp, Vector2.up, GrounderDistance, ground) || Physics2D.Raycast(ColRightUp, Vector2.up, GrounderDistance, ground);
 
         if (ceilingHit) tempVelocity.y = Mathf.Min(0, tempVelocity.y);
 
@@ -363,36 +362,50 @@ public class PlayerManager : MonoBehaviour, IDamageable
             IsStanding = true;
             coyoteUsable = true;
             bufferedJumpUsable = true;
-            endedJumpEarly = false;
+            //endedJumpEarly = false;
         }
 
         if (IsStanding && !groundHit)
         {
             IsStanding = false;
-            timeGroundLeft = time;
+            timeGroundLeft = Time.time;
         }
+        Debug.Log(IsStanding);
     }
-    void HandleY()
+
+    private void Jump()
     {
-        if (!endedJumpEarly && !IsStanding && !JumpHeld && RigidBody.velocity.y > 0) { endedJumpEarly = true; }
-
-        if (!jumpToConsume && !HasBufferedJump) { return; }
-
-        if (IsStanding || HasCoyoteTime && !movementDisable) { DoJump(); }
-
-        jumpToConsume = false;
-
-        void DoJump()
+        if (!jumpToConsume && Time.time > timeJumpPressed + JumpBuffer) { jumpToConsume = true; }
+        if (IsStanding || HasCoyoteTime || HasBufferedJump)
         {
-            endedJumpEarly = false;
-            timeJumpPressed = 0;
-            bufferedJumpUsable = false;
+            jumpToConsume = false;
+            //timeJumpPressed = 0;
+            //bufferedJumpUsable = false;
             coyoteUsable = false;
             IsJumping = true;
             tempVelocity.y = JumpPower;
         }
     }
-    void HandleX()
+
+    private void JumpSustain()
+    {
+
+        //timeJumpPressed = 0;
+        //bufferedJumpUsable = false;
+        coyoteUsable = false;
+        IsJumping = true;
+        tempVelocity.y = JumpPower;
+
+        if (previousVelocity.y >= 0 && tempVelocity.y <= 0)
+        {
+            Debug.Log("trying to apex");
+            tempVelocity.x *= ApexSpeedModifier;
+            IsJumping = false;
+        }
+
+    }
+
+    void Move()
     {
         if (MoveDirection != 0 && (MoveDirection == 1 && transform.localRotation.y != 0) || (MoveDirection == -1 && transform.localRotation.y != 180))
         {
@@ -400,7 +413,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
             transform.localRotation = Quaternion.Euler(transform.localRotation.x, angle, transform.rotation.z);
         }
 
-        if (MoveDirection == 0 && RigidBody.velocity.x > HorizontalDeadZoneThreshold)
+        if (MoveDirection == 0)
         {
             var deceleration = IsStanding ? GroundDeceleration : AirDeceleration;
 
@@ -417,6 +430,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         if (IsStanding && tempVelocity.y <= VerticalDeadZoneThreshold)
         {
             tempVelocity.y = GroundingForce;
+            Debug.Log(GroundingForce);
         }
         else
         {
@@ -427,16 +441,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
                 inAirGravity *= JumpEndEarlyGravityModifier;
             }
             tempVelocity.y = Mathf.MoveTowards(tempVelocity.y, -MaxFallSpeed, inAirGravity * Time.fixedDeltaTime);
-        }
-
-        if (previousVelocity.y >= 0 && tempVelocity.y <= 0 && IsJumping)
-        { apexHit = true; }
-        if (apexHit)
-        {
-            Debug.Log("trying to apex");
-            tempVelocity.x *= ApexSpeedBonus;
-            apexHit = false;
-            IsJumping = false;
         }
     }
     void ApplyMovement()
@@ -464,7 +468,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     private void HandleAttack()
     {
-        attackTime = time;
+        attackTime = Time.time;
         attackUsable = false;
 
         Vector2 boxOrigin = new(Collider.bounds.center.x + (Collider.bounds.max.x + attackReach) / 2 * MoveDirection, Collider.bounds.center.y);
@@ -502,7 +506,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     public void Heal()
     {
-        if (!(timeInteractUp - timeInteractDown < healChargeTime)) return;
+        if (!(timeDownArrowUp - timeDownArrowDown < healChargeTime)) return;
 
         if (hp == maxHp) return;
 
@@ -521,7 +525,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     public void tmpRegainMana()
     {
-        if (time >= timeInteractUp + 1 && mana != maxMana)
+        if (Time.time >= timeDownArrowUp + 1 && mana != maxMana)
         {
             mana += 10;
         }

@@ -1,8 +1,7 @@
-using System;
 using System.Collections.Generic;
-using System.IO;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
@@ -13,6 +12,7 @@ public class GameManager : MonoBehaviour
     public Transform lastRespawnPoint;
 
     public static GameManager Instance;
+    public static EventSystem EventSystemInstance;
     public LevelManager levelManager;
     //public int gameIndex;
     public string Area;
@@ -25,14 +25,9 @@ public class GameManager : MonoBehaviour
     #region General
     private void Awake()
     {
-        if (Instance != null)
-        {
-            Destroy(gameObject);
-        }
-        if (Instance == null)
-        {
-            Instance = this;
-        }
+        if (Instance != null) Destroy(gameObject);
+        if (Instance == null) Instance = this;
+
         DontDestroyOnLoad(gameObject);
 
         levelManager = this.AddComponent<LevelManager>();

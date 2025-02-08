@@ -12,9 +12,9 @@ EditorBuildSettings:
     path: Assets/Scenes/AAMenus/GodMenu.unity
     guid: f1ab8e528ded86a42b811677ebdd895e
   - enabled: 1
-    path: Assets/Scenes/Ancient Path (DEMO)/AP1.unity
+    path: Assets/Scenes/Ancient Path (DEMO)/Demo1.unity
     guid: 9d1ba93484c7a1a41bba37521281e299
   - enabled: 1
-    path: Assets/Scenes/Ancient Path (DEMO)/AP2.unity
+    path: Assets/Scenes/Ancient Path (DEMO)/Demo2.unity
     guid: e768b205bd40bdd4291d2ccf5ec93584
   m_configObjects: {}

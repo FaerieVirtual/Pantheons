@@ -13,8 +13,8 @@ public class LoadMenu : MonoBehaviour
         //GameManager.Instance.Load();
     }
 
-    public void Back()
+    public async void Back()
     {
-        levelManager.LoadScene("MainMenu");
+        await LevelManager.LoadScene("MainMenu");
     }
 }
