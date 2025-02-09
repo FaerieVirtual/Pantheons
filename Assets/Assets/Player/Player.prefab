@@ -266,11 +266,11 @@ MonoBehaviour:
   VerticalDeadZoneThreshold: 0.1
   HorizontalDeadZoneThreshold: 0.1
   TapThreshold: 0.35
-  maxHp: 0
+  maxHp: 5
   maxDef: 0
   alive: 1
   invincibleDuration: 0
-  hp: 0
+  hp: 5
   def: 0
   hpImages: []
   fullHeart: {fileID: 21300000, guid: 28fe1c7928ae4894ba26299be7cbf8fe, type: 3}
@@ -279,14 +279,14 @@ MonoBehaviour:
   emptyShield: {fileID: 0}
   respawnSceneIndex: 0
   canChangeScenes: 0
-  MaxSpeed: 14
+  MaxSpeed: 12
   Acceleration: 140
   GroundDeceleration: 80
   AirDeceleration: 60
   GroundingForce: -1
   GrounderDistance: 0.1
-  JumpPower: 24
-  MaxJumpTime: 1.2
+  JumpPower: 18
+  JumpSustainPower: 16
   MaxFallSpeed: 30
   FallAcceleration: 40
   JumpEndEarlyGravityModifier: 5

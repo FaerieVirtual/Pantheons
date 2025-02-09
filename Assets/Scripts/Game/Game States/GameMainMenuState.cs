@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameMainMenuState : GameState
@@ -11,7 +12,6 @@ public class GameMainMenuState : GameState
     {
         GameManager.Instance.Area = "MainMenu";
         if (SceneManager.GetActiveScene().name != "MainMenu") await LevelManager.LoadScene("MainMenu", false);
-        //AudioManager.Instance.Play("");
     }
     public override void ExitState()
     {
