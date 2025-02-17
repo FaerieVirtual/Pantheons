@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
+﻿
+using System.Collections.Generic;
 
-public class Demo1 : Level
+public class Demo3 : Level
 {
-    public Demo1(GameStatemachine machine, string LevelID = "A1", string LevelScene = "Demo1") : base(machine, LevelID, LevelScene)
+    public Demo3(GameStatemachine machine, string LevelID = "A3", string LevelScene = "Demo3") : base(machine, LevelID, LevelScene)
     {
         this.machine = machine;
     }

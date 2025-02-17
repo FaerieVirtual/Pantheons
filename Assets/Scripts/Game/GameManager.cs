@@ -6,10 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    //public int goldMultiplier;
-
-    public GodBase god;
-    public Transform lastRespawnPoint;
+    public string RespawnSceneID;
 
     public static GameManager Instance;
     public static EventSystem EventSystemInstance;
@@ -20,7 +17,6 @@ public class GameManager : MonoBehaviour
     public GameStatemachine machine = new();
     GameMainMenuState menuState;
     GamePausedState pausedState;
-    GameRunningState runningState;
 
     #region General
     private void Awake()
@@ -33,23 +29,22 @@ public class GameManager : MonoBehaviour
         levelManager = this.AddComponent<LevelManager>();
         menuState = new GameMainMenuState(machine);
         pausedState = new GamePausedState(machine);
-        runningState = new GameRunningState(machine);
 
         machine.Init(menuState);
     }
 
-    private void Start()
-    {
-        //SaveDicRefresh();
-    }
+    //private void Start()
+    //{
+    //    //SaveDicRefresh();
+    //}
     private void Update()
     {
         machine.CurrentState.Update();
-        if (Input.GetKey(KeyCode.Escape) && machine.CurrentState != pausedState)
-        {
-            machine.ChangeState(pausedState);
-        }
-        Area = SceneManager.GetActiveScene().name;
+        //if (Input.GetKey(KeyCode.Escape) && machine.CurrentState != pausedState)
+        //{
+        //    machine.ChangeState(pausedState);
+        //}
+        //Area = SceneManager.GetActiveScene().name;
 
     }
     private void FixedUpdate()
@@ -135,16 +130,6 @@ public class GameManager : MonoBehaviour
     //    else { Console.WriteLine("Error: Save corrupted: folder not found."); }
     //}
 
-    #endregion
-    #region StateSwitches
-    public void NewGame()
-    {
-        MainMenu main = FindObjectOfType<MainMenu>(true);
-        main.gameObject.SetActive(false);
-        GodMenu god = FindObjectOfType<GodMenu>(true);
-        god.gameObject.SetActive(true);
-        god.enabled = false;
-    }
     #endregion
 
     #region Player Events

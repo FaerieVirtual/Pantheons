@@ -14,9 +14,7 @@ public class MainMenu : MonoBehaviour
     }
     public void NewGame()
     {
-        //GameGodMenuState godMenuState = new(machine);
-        Level demo1 = GameManager.Instance.levelManager.GetLevel("A1");
-        GameManager.Instance.machine.ChangeState(demo1);
+        GameManager.Instance.machine.ChangeState(GameManager.Instance.levelManager.GetLevel("A1"));
     }
     public void LoadGame()
     {

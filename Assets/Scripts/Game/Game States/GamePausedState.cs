@@ -7,8 +7,6 @@ using UnityEngine.Events;
 public class GamePausedState : GameState
 {
     private PauseMenu pauseMenu;
-    public UnityEvent pause;
-    public UnityEvent resume;
     public GamePausedState(GameStatemachine machine) : base(machine)
     {
         this.machine = machine;
@@ -16,9 +14,6 @@ public class GamePausedState : GameState
 
     public override void EnterState()
     {
-        pause.AddListener(AudioManager.Instance.OnPause);
-        resume.AddListener(AudioManager.Instance.OnResume);
-        pause.Invoke();
         Time.timeScale = 0;
         pauseMenu = Object.FindObjectOfType<PauseMenu>(true);
         pauseMenu.gameObject.SetActive(true);
@@ -26,7 +21,6 @@ public class GamePausedState : GameState
 
     public override void ExitState()
     {
-        resume.Invoke();
         Time.timeScale = 1;
         pauseMenu.gameObject.SetActive(false);
     }

@@ -17,4 +17,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Ancient Path (DEMO)/Demo2.unity
     guid: e768b205bd40bdd4291d2ccf5ec93584
+  - enabled: 1
+    path: Assets/Scenes/Ancient Path (DEMO)/Demo3.unity
+    guid: 79cbc446858ef95418dc028226ac6d88
+  - enabled: 1
+    path: Assets/Scenes/Ancient Path (DEMO)/Demo4.unity
+    guid: b03250b1b1f846242bdead7a396c27d3
   m_configObjects: {}

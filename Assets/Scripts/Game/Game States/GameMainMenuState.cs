@@ -11,7 +11,7 @@ public class GameMainMenuState : GameState
     public override async void EnterState()
     {
         GameManager.Instance.Area = "MainMenu";
-        if (SceneManager.GetActiveScene().name != "MainMenu") await LevelManager.LoadScene("MainMenu", false);
+        if (SceneManager.GetActiveScene().name != "MainMenu") await LevelManager.LoadScene("MainMenu");
     }
     public override void ExitState()
     {

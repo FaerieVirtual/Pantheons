@@ -8,15 +8,15 @@ public class PlayerManager : MonoBehaviour, IDamageable
 {
     public Rigidbody2D RigidBody => GetComponent<Rigidbody2D>();
     //public CapsuleCollider2D Collider => GetComponent<CapsuleCollider2D>();
-    public static PlayerManager instance;
+    public static PlayerManager Instance;
     public AudioManager Audio;
     private Collision Collision;
 
     #region General
     private void Awake()
     {
-        if (instance != null) { Destroy(gameObject); }
-        if (instance == null) { instance = this; }
+        if (Instance != null) { Destroy(gameObject); }
+        if (Instance == null) { Instance = this; }
         DontDestroyOnLoad(gameObject);
     }
     private void Start()
@@ -56,7 +56,8 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public float TapThreshold = .35f; //Determines the difference between a tap and a hold of a button in time
 
     private PlayerInput JumpInput;
-    //private PlayerInput InteractInput;
+    private PlayerInput InteractInput;
+    private PlayerInput PauseInput;
     //private PlayerInput AttackInput;
     private void OnCollisionStay(Collision collision)
     {
@@ -68,7 +69,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         alive = true;
         ResetBoosts();
         hp = maxHp;
-        def = maxDef;
+        //def = maxDef;
         mana = maxMana;
         invincible = false;
         movementDisable = false;
@@ -77,7 +78,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public void ResetBoosts()
     {
         maxHp = baseHp + hpAdd;
-        maxDef = baseDef + defAdd;
+        //maxDef = baseDef + defAdd;
         maxMana = baseMana + manaAdd;
     }
     private void SetInput()
@@ -86,17 +87,23 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
         JumpInput.OnDown.AddListener(Jump);
         JumpInput.OnHold.AddListener(JumpSustain);
-        JumpInput.OnUp.AddListener(() => endedJumpEarly = true);
+        JumpInput.OnUp.AddListener(() => endedJump = true);
         JumpInput.OnUp.AddListener(() => jumpSustainable = false);
         JumpInput.OnMaxReached.AddListener(() => jumpSustainable = false);
+        JumpInput.OnMaxReached.AddListener(() => endedJump = true);
 
-        //InteractInput = new(KeyCode.DownArrow, MaxJumpTime);
+        InteractInput = new(KeyCode.DownArrow, MaxJumpTime);
 
-        //InteractInput.OnDown.AddListener();
+        InteractInput.OnDown.AddListener(Interact);
+
+        PauseInput = new(KeyCode.Escape, 0.1f);
+
+        PauseInput.OnDown.AddListener(Pause);
     }
     private void UpdateInput()
     {
         JumpInput.Update();
+        InteractInput.Update();
         if (IsStanding && HasBufferedJump) { Jump(); }
         MoveDirection = Input.GetKey(KeyCode.RightArrow) ? 1 : Input.GetKey(KeyCode.LeftArrow) ? -1 : 0;
     }
@@ -106,16 +113,16 @@ public class PlayerManager : MonoBehaviour, IDamageable
     [Header("HEALTH")]
     public int maxHp = 5;
     private int baseHp;
-    [HideInInspector]
-    public int maxDef;
-    [HideInInspector]
-    private int baseDef;
+    //[HideInInspector]
+    //public int maxDef;
+    //[HideInInspector]
+    //private int baseDef;
     public bool alive = true;
     public float invincibleDuration;
 
     public int hp;
     [HideInInspector]
-    public int def;
+    //public int def;
     private bool invincible;
     private float damageTakenTime;
 
@@ -150,19 +157,19 @@ public class PlayerManager : MonoBehaviour, IDamageable
         //Deathward deathward = new Deathward();
         //if (equippedCharms.Contains(deathward)) damage = deathward.DeathSave(damage);
 
-        if (def > 0)
-        {
-            if (def <= damage)
-            {
-                damage -= def;
-                def = 0;
-            }
-            if (def > damage)
-            {
-                def -= damage;
-                damage = 0;
-            }
-        }
+        //if (def > 0)
+        //{
+        //    if (def <= damage)
+        //    {
+        //        damage -= def;
+        //        def = 0;
+        //    }
+        //    if (def > damage)
+        //    {
+        //        def -= damage;
+        //        damage = 0;
+        //    }
+        //}
         hp -= damage;
         if (damage > 0 && hp > 0)
         {
@@ -193,20 +200,20 @@ public class PlayerManager : MonoBehaviour, IDamageable
                 if (i < hpDisplayed) { hpImages[i].enabled = true; }
                 else { hpImages[i].enabled = false; }
             }
-            for (int j = maxHp + 1; j < hpImages.Length; j++)
-            {
-                if (j < def) { hpImages[j].sprite = fullShield; }
-                else { hpImages[j].sprite = emptyShield; }
+            //for (int j = maxHp + 1; j < hpImages.Length; j++)
+            //{
+            //    if (j < def) { hpImages[j].sprite = fullShield; }
+            //    else { hpImages[j].sprite = emptyShield; }
 
-                if (j < defDisplayed) { hpImages[j].enabled = true; }
-                else { hpImages[j].enabled = false; }
-            }
+            //    if (j < defDisplayed) { hpImages[j].enabled = true; }
+            //    else { hpImages[j].enabled = false; }
+            //}
         }
         void CheckForMaxValues()
         {
             if (hp > maxHp) { hp = maxHp; }
             hpDisplayed = maxHp;
-            if (def > maxDef) { def = maxDef; }
+            //if (def > maxDef) { def = maxDef; }
         }
     }
     //private void HandleRespawnPoint()
@@ -253,20 +260,20 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public float MaxSpeed = 12;
     public float Acceleration = 140;
     public float GroundDeceleration = 80;
-    public float AirDeceleration = 60;
+    public float AirDeceleration = 50;
     public float GroundingForce = -1f;
     public float GrounderDistance = .1f;
 
     [Header("JUMP")]
     public int JumpPower = 18;
     public int JumpSustainPower = 16;
-    public static float MaxJumpTime = 0.3f;
+    public float MaxJumpTime = 0.2f;
     public float MaxFallSpeed = 30;
     public float FallAcceleration = 40;
-    public float JumpEndEarlyGravityModifier = 5f;
+    public float JumpEndGModifier = 5f;
     public float CoyoteTime = .15f;
     public float JumpBuffer = .2f;
-    public float ApexSpeedModifier = 2f;
+    public float ApexSpeedModifier = 3f;
 
     private int MoveDirection;
     private bool groundHit, ceilingHit;
@@ -276,7 +283,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public bool movementDisable;
 
     private bool bufferedJumpUsable;
-    private bool endedJumpEarly;
+    private bool endedJump;
     private bool coyoteUsable;
     private bool jumpSustainable;
     private bool ApexHit;
@@ -301,7 +308,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
             coyoteUsable = true;
             bufferedJumpUsable = true;
             jumpSustainable = true;
-            endedJumpEarly = false;
+            endedJump = false;
         }
 
         if (IsStanding && !groundHit)
@@ -354,6 +361,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         if (!(ApexHit && (tempVelocity.x > MaxSpeed || tempVelocity.x < -MaxSpeed)))
         {
             tempVelocity.x = Mathf.Clamp(tempVelocity.x, -MaxSpeed, MaxSpeed);
+            ApexHit = false;
         }
     }
     private void HandleGravity()
@@ -366,7 +374,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         {
             var inAirGravity = FallAcceleration;
 
-            if (endedJumpEarly && tempVelocity.y > 0) inAirGravity *= JumpEndEarlyGravityModifier;
+            if (endedJump) inAirGravity *= JumpEndGModifier;
             if (ceilingHit) tempVelocity.y = Mathf.Min(0, tempVelocity.y);
 
             tempVelocity.y = Mathf.MoveTowards(tempVelocity.y, -MaxFallSpeed, inAirGravity * Time.fixedDeltaTime);
@@ -378,6 +386,20 @@ public class PlayerManager : MonoBehaviour, IDamageable
         RigidBody.velocity = tempVelocity;
     }
 
+    #endregion
+
+    #region Interact
+    private void Interact()
+    {
+        Collision.gameObject.GetComponent<IInteractible>()?.Interaction();
+    }
+    private void Pause()
+    {
+        GameStatemachine machine = GameManager.Instance.machine;
+        GamePausedState pausedState = new(machine);
+        if (machine.CurrentState != pausedState) machine.ChangeState(pausedState);
+        else machine.ChangeState(machine.PreviousState);
+    }
     #endregion
 
     #region Attacking

@@ -4,14 +4,11 @@ using UnityEngine;
 
 public class RespawnMenu : MonoBehaviour
 {
-    public static RespawnMenu instance;
-    public void Options()
+    public void Respawn() 
     {
-        throw new System.NotImplementedException();
+        
     }
-
-    public void Quit()
+    public void ReturnToMain()
     {
-        Application.Quit();
     }
 }

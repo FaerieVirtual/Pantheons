@@ -1,67 +1,90 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
 {
-    private static readonly GameStatemachine machine = GameManager.Instance.machine;
-    public Dictionary<string, Level> levels = new()
-    {
-        {"A1", new Demo1(machine) }
-    };
+    private GameStatemachine machine;
 
-    public static async Task LoadScene(int nextSceneIndex, bool movePlayer = true)
+    public Dictionary<string, Level> levels;
+    private void Start()
     {
-        int oldSceneIndex = SceneManager.GetActiveScene().buildIndex;
-        AsyncOperation load = SceneManager.LoadSceneAsync(nextSceneIndex, LoadSceneMode.Additive);
-        load.allowSceneActivation = false;
-        load.completed += (x) =>
-        {
-            if (movePlayer)
-            {
-                try { SceneManager.MoveGameObjectToScene(PlayerManager.instance.gameObject, SceneManager.GetSceneByBuildIndex(nextSceneIndex)); }
-                catch { Debug.Log("Moving the player failed."); }
-            }
-        };
-        load.allowSceneActivation = true;
-        while (!load.isDone) await Task.Yield();
-
-        SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(nextSceneIndex));
-        SceneManager.UnloadSceneAsync(SceneManager.GetSceneByBuildIndex(oldSceneIndex));
+        machine = GameManager.Instance.machine;
+        InitializeLevels();
     }
 
-    public static async Task LoadScene(string nextSceneName, bool movePlayer = true)
+    #region LoadScenes
+    public static async Task LoadScene(int nextSceneIndex)
     {
-        int nextSceneIndex = SceneManager.GetSceneByName(nextSceneName).buildIndex;
         int oldSceneIndex = SceneManager.GetActiveScene().buildIndex;
+        //string oldSceneName = SceneManager.GetSceneByBuildIndex(oldSceneIndex).name;
         AsyncOperation load = SceneManager.LoadSceneAsync(nextSceneIndex, LoadSceneMode.Additive);
+
         load.allowSceneActivation = false;
-        load.completed += (x) =>
-        {
-            if (movePlayer)
-            {
-                try { SceneManager.MoveGameObjectToScene(PlayerManager.instance.gameObject, SceneManager.GetSceneByBuildIndex(nextSceneIndex)); }
-                catch { Debug.Log("Moving the player failed."); }
-            }
-        };
+        while (load.progress < 0.9f) await Task.Yield();
         load.allowSceneActivation = true;
         while (!load.isDone) await Task.Yield();
 
         SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(nextSceneIndex));
-        SceneManager.UnloadSceneAsync(SceneManager.GetSceneByBuildIndex(oldSceneIndex));
+        SceneManager.UnloadSceneAsync(oldSceneIndex);
+    }
+
+    public static async Task LoadScene(string nextSceneName)
+    {
+        int nextSceneIndex = SceneUtility.GetBuildIndexByScenePath(nextSceneName);
+        await LoadScene(nextSceneIndex);
+    }
+
+    public static async Task LoadScene(int nextSceneIndex, LevelConnector connector) 
+    {
+        int oldSceneIndex = SceneManager.GetActiveScene().buildIndex;
+        AsyncOperation load = SceneManager.LoadSceneAsync(nextSceneIndex, LoadSceneMode.Additive);
+
+        load.allowSceneActivation = false;
+        while (load.progress < 0.9f) await Task.Yield();
+        load.allowSceneActivation = true;
+        while (!load.isDone) await Task.Yield();
+
+        SceneManager.MoveGameObjectToScene(PlayerManager.Instance.gameObject, SceneManager.GetSceneByBuildIndex(nextSceneIndex));
+        Transform playerTrans = PlayerManager.Instance.GetComponent<Transform>();
+
+        LevelConnector sisterconnector = FindObjectsOfType<LevelConnector>()
+            .FirstOrDefault(sisterconnector => connector.SisterConnectorID == sisterconnector.ConnectorID);
+        PlayerManager.Instance.GetComponent<Transform>().position = sisterconnector.GetSpawnpoint();
+
+        SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(nextSceneIndex));
+        SceneManager.UnloadSceneAsync(oldSceneIndex);
+    }
+    public static async Task LoadScene(string nextSceneName, LevelConnector connector) 
+    {
+        int nextSceneIndex = SceneUtility.GetBuildIndexByScenePath(nextSceneName);
+        await LoadScene(nextSceneIndex, connector);
+    }
+    #endregion
+
+    #region LevelManagement
+    private void InitializeLevels()
+    {
+        levels = new()
+        {
+            { "A1", new Demo1(machine) },
+            { "A2", new Demo2(machine) },
+            { "A3", new Demo3(machine) },
+            { "A4", new Demo4(machine) },
+        };
     }
 
     public Level GetLevel(string ID)
     {
-        try
-        {
-            return levels[ID];
-        }
-        catch 
+        try { return levels[ID]; }
+        catch
         {
             Debug.Log("Attempted to fetch a non-existing level.");
-            return null; 
+            return null;
         }
     }
+    #endregion
 }

@@ -29,7 +29,7 @@
     {
         if (equipped || !equippable) return false; //visual => fail to equip
 
-        PlayerManager player = PlayerManager.instance;
+        PlayerManager player = PlayerManager.Instance;
         player.hpAdd += hpAdd;
         player.defAdd += defAdd;
         player.manaAdd += manaAdd;
@@ -42,7 +42,7 @@
     public bool Unequip() 
     {
         if (!equipped || !equippable) return false; //should not happen, but better safe than sorry
-        PlayerManager player = PlayerManager.instance;
+        PlayerManager player = PlayerManager.Instance;
         player.hpAdd -= hpAdd;
         player.defAdd -= defAdd;
         player.manaAdd -= manaAdd;

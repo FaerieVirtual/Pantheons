@@ -8,12 +8,12 @@ public class CharmMenu : MonoBehaviour
     public int fullSlots = 0;
     private void Start()
     {
-        slots = new Slot<Charm>[PlayerManager.instance.maxCharms];
+        slots = new Slot<Charm>[PlayerManager.Instance.maxCharms];
         charms[0] = new Deathward();
     }
     private void Update()
     {
-        if (slots.Length < PlayerManager.instance.maxCharms - 1) { Array.Resize(ref slots, PlayerManager.instance.maxCharms); }
+        if (slots.Length < PlayerManager.Instance.maxCharms - 1) { Array.Resize(ref slots, PlayerManager.Instance.maxCharms); }
     }
     void EquipCharm(Charm charm)
     {
