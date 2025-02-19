@@ -1,5 +1,6 @@
 using Assets.Scripts.Player;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -427,17 +428,22 @@ public class PlayerManager : MonoBehaviour, IDamageable
     #endregion
 
     #region Inventory
-    public List<IItem> inventory;
-    #region Charms
-    public int baseCharms = 3;
-    public int unlockedCharms = 0;
-    public int maxCharms;
-    //public List<Charm> equippedCharms;
+    public List<Slot> inventory;
 
-    public int hpAdd;
-    public int defAdd;
-    public int manaAdd;
-    public int speedAdd;
+    public void AddItem(IItem item) 
+    {
+        inventory.First(slot => slot.IsEmpty).AddItem(item);
+    }
+    #region Charms
+    //public int baseCharms = 3;
+    //public int unlockedCharms = 0;
+    //public int maxCharms;
+    ////public List<Charm> equippedCharms;
+
+    //public int hpAdd;
+    //public int defAdd;
+    //public int manaAdd;
+    //public int speedAdd;
     #endregion
     #endregion
 }

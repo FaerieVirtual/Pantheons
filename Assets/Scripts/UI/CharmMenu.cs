@@ -3,17 +3,17 @@ using UnityEngine;
 
 public class CharmMenu : MonoBehaviour
 {
-    public Slot<Charm>[] slots;
+    public Slot[] slots;
     public Charm[] charms;
     public int fullSlots = 0;
     private void Start()
     {
-        slots = new Slot<Charm>[PlayerManager.Instance.maxCharms];
+        //slots = new Slot<Charm>[PlayerManager.Instance.maxCharms];
         charms[0] = new Deathward();
     }
     private void Update()
     {
-        if (slots.Length < PlayerManager.Instance.maxCharms - 1) { Array.Resize(ref slots, PlayerManager.Instance.maxCharms); }
+        //if (slots.Length < PlayerManager.Instance.maxCharms - 1) { Array.Resize(ref slots, PlayerManager.Instance.maxCharms); }
     }
     void EquipCharm(Charm charm)
     {
@@ -29,7 +29,7 @@ public class CharmMenu : MonoBehaviour
 
         for (int i = 0; i < slots.Length; i++)
         {
-            if (slots[i].isEmpty)
+            if (slots[i].IsEmpty)
             {
                 if (charm.slotsRequired == 1)
                 {
@@ -41,7 +41,7 @@ public class CharmMenu : MonoBehaviour
                     int freeSlots = 0;
                     for (int k = i; k == i + charm.slotsRequired - 1; k++)
                     {
-                        if (slots[k].isEmpty) freeSlots++;
+                        if (slots[k].IsEmpty) freeSlots++;
                     }
 
                     if (freeSlots == charm.slotsRequired)
@@ -49,7 +49,7 @@ public class CharmMenu : MonoBehaviour
                         slots[i].AddItem(charm);
                         for (int j = i + 1; j == i + charm.slotsRequired; j++)
                         {
-                            slots[freeSlot + j].isEmpty = false;
+                            //slots[freeSlot + j].isEmpty = false;
                         }
                         break;
                     }
@@ -73,7 +73,7 @@ public class CharmMenu : MonoBehaviour
             {
                 for (int j = i + 1; j < i + charm.slotsRequired; j++)
                 {
-                    if (slots[j].GetItem() == null) { slots[j].isEmpty = true; }
+                    //if (slots[j].GetItem() == null) { slots[j].isEmpty = true; }
                 }
             }
         }
@@ -107,12 +107,12 @@ public class CharmMenu : MonoBehaviour
 
     //    }
     //}
-    void ClearEquippedCharm()
-    {
-        foreach (Slot<Charm> slot in slots)
-        {
-            UnequipCharm(slot.GetItem());
-        }
-    }
+    //void ClearEquippedCharm()
+    //{
+    //    foreach (Slot slot in slots)
+    //    {
+    //        UnequipCharm(slot.GetItem());
+    //    }
+    //}
 }
 

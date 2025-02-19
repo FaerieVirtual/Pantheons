@@ -59,7 +59,7 @@ public class AudioManager : MonoBehaviour
         var musicMap = new Dictionary<string, string>
         {
             { "Ancient Path", "At the beginning" },
-            { "Sword's Gully", "Ancestors' bated breath"},
+            { "WeaponItem's Gully", "Ancestors' bated breath"},
             { "Hangman's Grove", "The sound of Regret" },
             { "Verdant Grottos", "Greener grass" }
         };

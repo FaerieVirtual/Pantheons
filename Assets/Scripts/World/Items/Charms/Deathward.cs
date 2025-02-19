@@ -5,8 +5,8 @@ internal class Deathward : Charm
 {
     public Deathward()
     {
-        name = "Deathward";
-        description = "Forestall a premature meeting with your god.";
+        Name = "Deathward";
+        Description = "Forestall a premature meeting with your god.";
         slotsRequired = 2;
 
         hpAdd = 1;

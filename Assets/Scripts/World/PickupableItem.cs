@@ -7,7 +7,7 @@ public class PickupableItem : MonoBehaviour, IInteractible
     public IItem item;
     private void Start()
     {
-        GetComponent<SpriteRenderer>().sprite = item.itemSprite;
+        GetComponent<SpriteRenderer>().sprite = item.ItemSprite;
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -28,7 +28,8 @@ public class PickupableItem : MonoBehaviour, IInteractible
     {
         if (CanInteract) 
         { 
-            
+            PlayerManager.Instance.AddItem(item);
+            GetComponent<SpriteRenderer>().enabled = false;
         }
     }
 }

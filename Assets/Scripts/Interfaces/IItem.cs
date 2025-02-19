@@ -2,13 +2,17 @@
 
 public interface IItem 
 {
-    public string name { get; set; }
-    public string description { get; set; }
-    public Sprite itemSprite { get; set; }
-    public int price { get; set; }
-    public int quantity { get; set; }
-    public bool consumable { get; set; }
-    public void ActivatedAbility() { }
-    public void PassiveAbility() { }
+    public string Name { get; set; }
+    public ItemType Type { get; set; }
+    public string Description { get; set; }
+    public Sprite ItemSprite { get; set; }
+    public int Price { get; set; }
 }
+public enum ItemType
+{
+    Consumable,
+    Sword,
+    Equipment
+}
+
 
