@@ -36,7 +36,7 @@
         player.speedAdd += speedAdd;
         equipped = true;
 
-        player.ResetBoosts();
+        //player.ResetBoosts();
         return true;
     }
     public bool Unequip() 
@@ -49,7 +49,7 @@
         player.speedAdd -= speedAdd;
         equipped = false;
 
-        player.ResetBoosts();
+        //player.ResetBoosts();
         return true;
     }
 }

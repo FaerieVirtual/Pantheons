@@ -9,8 +9,6 @@ public class Demo1 : Level
         this.machine = machine;
     }
 
-    public override HashSet<string> Flags { get => base.Flags; set => base.Flags = value; }
-
     public override void EnterState()
     {
         base.EnterState();

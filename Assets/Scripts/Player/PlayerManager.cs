@@ -1,16 +1,16 @@
 using Assets.Scripts.Player;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PlayerManager : MonoBehaviour, IDamageable
 {
     public Rigidbody2D RigidBody => GetComponent<Rigidbody2D>();
-    //public CapsuleCollider2D Collider => GetComponent<CapsuleCollider2D>();
     public static PlayerManager Instance;
-    public AudioManager Audio;
-    private Collision Collision;
+    //public AudioManager Audio;
+    //public Collision2D lastCollision;
 
     #region General
     private void Awake()
@@ -21,7 +21,8 @@ public class PlayerManager : MonoBehaviour, IDamageable
     }
     private void Start()
     {
-        Audio = AudioManager.Instance;
+        //Audio = AudioManager.Instance;
+        Interact = new();
         ResetPlayer();
         RigidBody.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
         SetInput();
@@ -30,7 +31,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
     {
         //Movement
         HandleCollisions();
-        //HandleY();
         Move();
         HandleGravity();
         ApplyMovement();
@@ -40,8 +40,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
         //Health
         HealthChecks();
-        //HandleInvincibility();
-        //HandleRespawnPoint();
+        HandleInvincibility();
     }
     private void Update() //Getting Player Input
     {
@@ -58,29 +57,24 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private PlayerInput JumpInput;
     private PlayerInput InteractInput;
     private PlayerInput PauseInput;
+    private PlayerInput DebugInput;
     //private PlayerInput AttackInput;
-    private void OnCollisionStay(Collision collision)
-    {
-        Collision = collision;
-    }
 
     public void ResetPlayer()
     {
         alive = true;
-        ResetBoosts();
+        //ResetBoosts();
         hp = maxHp;
-        //def = maxDef;
         mana = maxMana;
         invincible = false;
         movementDisable = false;
-        maxCharms = baseCharms + unlockedCharms;
+        //maxCharms = baseCharms + unlockedCharms;
     }
-    public void ResetBoosts()
-    {
-        maxHp = baseHp + hpAdd;
-        //maxDef = baseDef + defAdd;
-        maxMana = baseMana + manaAdd;
-    }
+    //public void ResetBoosts()
+    //{
+    //    maxHp = baseHp + hpAdd;
+    //    maxMana = baseMana + manaAdd;
+    //}
     private void SetInput()
     {
         JumpInput = new(KeyCode.Space, MaxJumpTime);
@@ -94,16 +88,22 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
         InteractInput = new(KeyCode.DownArrow, MaxJumpTime);
 
-        InteractInput.OnDown.AddListener(Interact);
+        InteractInput.OnDown.AddListener(Interact.Invoke);
 
         PauseInput = new(KeyCode.Escape, 0.1f);
 
         PauseInput.OnDown.AddListener(Pause);
+
+        DebugInput = new(KeyCode.O, 0.1f);
+
+        DebugInput.OnDown.AddListener(() => TakeDamage(1));
     }
     private void UpdateInput()
     {
         JumpInput.Update();
         InteractInput.Update();
+        PauseInput.Update();
+        DebugInput.Update();
         if (IsStanding && HasBufferedJump) { Jump(); }
         MoveDirection = Input.GetKey(KeyCode.RightArrow) ? 1 : Input.GetKey(KeyCode.LeftArrow) ? -1 : 0;
     }
@@ -112,17 +112,11 @@ public class PlayerManager : MonoBehaviour, IDamageable
     #region Health
     [Header("HEALTH")]
     public int maxHp = 5;
-    private int baseHp;
-    //[HideInInspector]
-    //public int maxDef;
-    //[HideInInspector]
-    //private int baseDef;
+    //private int baseHp = 5;
     public bool alive = true;
-    public float invincibleDuration;
-
     public int hp;
-    [HideInInspector]
-    //public int def;
+
+    public float invincibleDuration;
     private bool invincible;
     private float damageTakenTime;
 
@@ -132,30 +126,19 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public Sprite fullHeart;
     public Sprite emptyHeart;
 
-    [HideInInspector]
-    [Header("DEF GRAPHICS")]
-    private int defDisplayed;
-    [HideInInspector]
-    public Sprite fullShield;
-    [HideInInspector]
-    public Sprite emptyShield;
-
-    private GameObject respawnPoint;
-    [HideInInspector] public int respawnSceneIndex;
-    private bool respawnPointOverlap;
-    private bool IsSitting;
     [HideInInspector] public bool canChangeScenes;
 
     public void Die()
     {
         movementDisable = true;
         alive = false;
+
+        GameRespawningState respawningState = new(GameManager.Instance.machine);
+        GameManager.Instance.machine.ChangeState(respawningState);
     }
     public void TakeDamage(int damage)
     {
         if (invincible) return;
-        //Deathward deathward = new Deathward();
-        //if (equippedCharms.Contains(deathward)) damage = deathward.DeathSave(damage);
 
         //if (def > 0)
         //{
@@ -174,22 +157,23 @@ public class PlayerManager : MonoBehaviour, IDamageable
         if (damage > 0 && hp > 0)
         {
             damageTakenTime = Time.time;
+            invincible = true;
+            GameManager.Instance.slowdown = true;
         }
-        if (hp <= 0) { Die(); }
     }
-    //private void HandleInvincibility()
-    //{
-    //    if (damageTakenTime + invincibleDuration <= Time.time)
-    //    {
-    //        invincible = false;
-    //        damageTakenTime = 0;
-    //    }
-    //}
+    private void HandleInvincibility()
+    {
+        if (damageTakenTime + invincibleDuration <= Time.time)
+        {
+            invincible = false;
+            damageTakenTime = 0;
+        }
+    }
     private void HealthChecks()
     {
         CheckForHpGraphics();
         CheckForMaxValues();
-
+        if (hp <= 0) { Die(); }
         void CheckForHpGraphics()
         {
             for (int i = 0; i < hpImages.Length; i++)
@@ -213,46 +197,8 @@ public class PlayerManager : MonoBehaviour, IDamageable
         {
             if (hp > maxHp) { hp = maxHp; }
             hpDisplayed = maxHp;
-            //if (def > maxDef) { def = maxDef; }
         }
     }
-    //private void HandleRespawnPoint()
-    //{
-    //    if (!Input.GetKeyUp(KeyCode.DownArrow)) return;
-    //    if (respawnPointOverlap && !IsSitting)
-    //    {
-    //        respawnSceneIndex = SceneManager.GetActiveScene().buildIndex;
-    //        Mathf.MoveTowards(transform.position.x, respawnPoint.transform.position.x, previousVelocity.x);
-    //        IsSitting = true;
-    //        movementDisable = true;
-    //    }
-    //    if (IsSitting)
-    //    {
-    //        IsSitting = false;
-    //        movementDisable = false;
-    //    }
-    //}
-
-    public void Respawn()
-    {
-        //if (respawnSceneIndex < 2) return;
-        if (!canChangeScenes)
-        {
-            Debug.LogError("Cannot change scenes. Respawn is impossible.");
-            return;
-        }
-
-        //Loader.LoadScene(respawnSceneIndex);
-        GameObject[] objects = SceneManager.GetSceneByBuildIndex(respawnSceneIndex).GetRootGameObjects();
-        foreach (GameObject obj in objects)
-        {
-            if (obj != null && obj.CompareTag("Respawn")) respawnPoint = obj;
-        }
-        transform.position = respawnPoint.transform.position;
-        ResetPlayer();
-        IsSitting = true;
-    }
-
     #endregion
 
     #region Movement
@@ -389,15 +335,12 @@ public class PlayerManager : MonoBehaviour, IDamageable
     #endregion
 
     #region Interact
-    private void Interact()
-    {
-        Collision.gameObject.GetComponent<IInteractible>()?.Interaction();
-    }
+    public UnityEvent Interact;
     private void Pause()
     {
         GameStatemachine machine = GameManager.Instance.machine;
         GamePausedState pausedState = new(machine);
-        if (machine.CurrentState != pausedState) machine.ChangeState(pausedState);
+        if (machine.CurrentState is Level) machine.ChangeState(pausedState);
         else machine.ChangeState(machine.PreviousState);
     }
     #endregion

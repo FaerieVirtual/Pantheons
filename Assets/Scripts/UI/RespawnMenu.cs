@@ -1,14 +1,18 @@
-using System.Collections;
-using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class RespawnMenu : MonoBehaviour
 {
+    GameStatemachine machine;
+    private void Start()
+    {
+        machine = GameManager.Instance.machine;
+    }
     public void Respawn() 
     {
-        
-    }
-    public void ReturnToMain()
-    {
+        Level level = GameManager.Instance.levelManager.levels.Values.FirstOrDefault(level => level.HasFlag("RespawnLevel"));
+        PlayerManager.Instance.ResetPlayer();
+        machine.ChangeState(level);
     }
 }

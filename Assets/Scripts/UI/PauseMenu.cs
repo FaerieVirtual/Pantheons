@@ -19,12 +19,6 @@ public class PauseMenu : MonoBehaviour
         throw new System.NotImplementedException();
     }
 
-    public void ReturnToMain() 
-    {
-        GameMainMenuState mainstate = new(machine);
-        machine.ChangeState(mainstate);
-    }
-
     public void Quit()
     {
         Application.Quit();

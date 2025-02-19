@@ -7,7 +7,7 @@ public class Level : GameState
 {
     public string LevelID { get; private set; }
     public string LevelScene { get; private set; }
-    public virtual HashSet<string> Flags { get; set; }
+    public virtual HashSet<string> Flags { get; set; } = new HashSet<string>();
 
     public Level(GameStatemachine machine, string LevelID, string LevelScene) : base(machine)
     {
@@ -28,6 +28,13 @@ public class Level : GameState
                 await LevelManager.LoadScene(LevelScene, connector);
             }
             else await LevelManager.LoadScene(LevelScene);
+        }
+        if (machine.PreviousState is GameRespawningState) //MovePlayer on Respawn
+        {
+            SceneManager.MoveGameObjectToScene(PlayerManager.Instance.gameObject, SceneManager.GetSceneByName(LevelScene));
+            Respawn respawn = Object.FindFirstObjectByType<Respawn>();
+
+            PlayerManager.Instance.transform.position = respawn.GetRespawnpoint();
         }
     }
     public void SetFlag(string flag) => Flags.Add(flag);

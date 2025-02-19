@@ -27,5 +27,6 @@ public class GamePausedState : GameState
 
     public override void Update()
     {
+        base.Update();
     }
 }

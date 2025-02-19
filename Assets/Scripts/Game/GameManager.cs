@@ -2,21 +2,19 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     public string RespawnSceneID;
 
     public static GameManager Instance;
-    public static EventSystem EventSystemInstance;
+    //public static EventSystem EventSystemInstance;
     public LevelManager levelManager;
     //public int gameIndex;
     public string Area;
 
     public GameStatemachine machine = new();
-    GameMainMenuState menuState;
-    GamePausedState pausedState;
+    private GameMainMenuState menuState;
 
     #region General
     private void Awake()
@@ -28,7 +26,6 @@ public class GameManager : MonoBehaviour
 
         levelManager = this.AddComponent<LevelManager>();
         menuState = new GameMainMenuState(machine);
-        pausedState = new GamePausedState(machine);
 
         machine.Init(menuState);
     }
@@ -40,12 +37,6 @@ public class GameManager : MonoBehaviour
     private void Update()
     {
         machine.CurrentState.Update();
-        //if (Input.GetKey(KeyCode.Escape) && machine.CurrentState != pausedState)
-        //{
-        //    machine.ChangeState(pausedState);
-        //}
-        //Area = SceneManager.GetActiveScene().name;
-
     }
     private void FixedUpdate()
     {
@@ -133,28 +124,13 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region Player Events
-    private bool slowdown;
+    [HideInInspector]
+    public bool slowdown;
     private float slowdownTimer;
-    private float slowdownDuration = 1f;
-    public void OnPlayerDeath()
-    {
-        Time.timeScale = 0;
-    }
-    public void OnPlayerRespawn()
-    {
-        Time.timeScale = 1;
-    }
-    public void OnPlayerHit()
-    {
-        slowdown = true;
-    }
-    public void OnPlayerHitDef()
-    {
-        slowdown = true;
-    }
+    private float slowdownDuration = 0.5f;
     private void Slowdown()
     {
-        Time.timeScale = 0.3f;
+        Time.timeScale = 0.5f;
 
         slowdownTimer += Time.unscaledDeltaTime;
         if (slowdownTimer >= slowdownDuration)
