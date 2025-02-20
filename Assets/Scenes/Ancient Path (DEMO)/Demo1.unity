@@ -9080,11 +9080,35 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5678529484309977025, guid: 4c1582fb8c2585e4180ac56ea5460f42, type: 3}
       propertyPath: JumpPower
-      value: 20
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 5678529484309977025, guid: 4c1582fb8c2585e4180ac56ea5460f42, type: 3}
+      propertyPath: CoyoteTime
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5678529484309977025, guid: 4c1582fb8c2585e4180ac56ea5460f42, type: 3}
+      propertyPath: MaxJumpTime
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5678529484309977025, guid: 4c1582fb8c2585e4180ac56ea5460f42, type: 3}
+      propertyPath: MaxFallSpeed
+      value: 60
       objectReference: {fileID: 0}
     - target: {fileID: 5678529484309977025, guid: 4c1582fb8c2585e4180ac56ea5460f42, type: 3}
       propertyPath: AirDeceleration
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 5678529484309977025, guid: 4c1582fb8c2585e4180ac56ea5460f42, type: 3}
+      propertyPath: FallAcceleration
       value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 5678529484309977025, guid: 4c1582fb8c2585e4180ac56ea5460f42, type: 3}
+      propertyPath: JumpEndGModifier
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5678529484309977025, guid: 4c1582fb8c2585e4180ac56ea5460f42, type: 3}
+      propertyPath: JumpSustainPower
+      value: 18
       objectReference: {fileID: 0}
     - target: {fileID: 5678529484309977025, guid: 4c1582fb8c2585e4180ac56ea5460f42, type: 3}
       propertyPath: hpImages.Array.size
@@ -16370,7 +16394,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2038021596
 RectTransform:
   m_ObjectHideFlags: 0

@@ -1,9 +1,7 @@
 using Assets.Scripts.Player;
-using System.Collections.Generic;
-using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PlayerManager : MonoBehaviour, IDamageable
@@ -59,11 +57,11 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private PlayerInput InteractInput;
     private PlayerInput PauseInput;
     private PlayerInput DebugInput;
+    private PlayerInput HealInput;
     //private PlayerInput AttackInput;
 
     public void ResetPlayer()
     {
-        alive = true;
         //ResetBoosts();
         hp = maxHp;
         mana = maxMana;
@@ -79,25 +77,23 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private void SetInput()
     {
         JumpInput = new(KeyCode.Space, MaxJumpTime);
-
         JumpInput.OnDown.AddListener(Jump);
         JumpInput.OnHold.AddListener(JumpSustain);
-        JumpInput.OnUp.AddListener(() => endedJump = true);
         JumpInput.OnUp.AddListener(() => jumpSustainable = false);
-        JumpInput.OnMaxReached.AddListener(() => jumpSustainable = false);
+        JumpInput.OnUp.AddListener(() => endedJump = true);
         JumpInput.OnMaxReached.AddListener(() => endedJump = true);
 
         InteractInput = new(KeyCode.DownArrow, MaxJumpTime);
-
         InteractInput.OnDown.AddListener(Interact.Invoke);
 
         PauseInput = new(KeyCode.Escape, 0.1f);
-
         PauseInput.OnDown.AddListener(Pause);
 
         DebugInput = new(KeyCode.O, 0.1f);
-
         DebugInput.OnDown.AddListener(() => TakeDamage(1));
+
+        HealInput = new(KeyCode.A, healChargeTime);
+        HealInput.OnMaxReached.AddListener(HealAbility);
     }
     private void UpdateInput()
     {
@@ -105,7 +101,8 @@ public class PlayerManager : MonoBehaviour, IDamageable
         InteractInput.Update();
         PauseInput.Update();
         DebugInput.Update();
-        if (IsStanding && HasBufferedJump) { Jump(); }
+        HealInput.Update();
+        //if (IsStanding && HasBufferedJump) { Jump(); }
         MoveDirection = Input.GetKey(KeyCode.RightArrow) ? 1 : Input.GetKey(KeyCode.LeftArrow) ? -1 : 0;
     }
     #endregion
@@ -114,7 +111,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     [Header("HEALTH")]
     public int maxHp = 5;
     //private int baseHp = 5;
-    public bool alive = true;
+    public bool Alive => hp > 0;
     public int hp;
 
     public float invincibleDuration;
@@ -127,12 +124,11 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public Sprite fullHeart;
     public Sprite emptyHeart;
 
-    [HideInInspector] public bool canChangeScenes;
+    //[HideInInspector] public bool canChangeScenes;
 
     public void Die()
     {
         movementDisable = true;
-        alive = false;
 
         GameRespawningState respawningState = new(GameManager.Instance.machine);
         GameManager.Instance.machine.ChangeState(respawningState);
@@ -199,28 +195,34 @@ public class PlayerManager : MonoBehaviour, IDamageable
             if (hp > maxHp) { hp = maxHp; }
             hpDisplayed = maxHp;
         }
+        
+    }
+    public void Heal(int healAmount) 
+    {
+        if (hp >= maxHp) return;
+        hp += healAmount;
     }
     #endregion
 
     #region Movement
     [Header("MOVEMENT")]
-    public float MaxSpeed = 12;
-    public float Acceleration = 140;
-    public float GroundDeceleration = 80;
-    public float AirDeceleration = 50;
-    public float GroundingForce = -1f;
-    public float GrounderDistance = .1f;
+    public float MaxSpeed ;
+    public float Acceleration;
+    public float GroundDeceleration;
+    public float AirDeceleration;
+    public float GroundingForce;
+    //public float GrounderDistance;
 
     [Header("JUMP")]
-    public int JumpPower = 18;
-    public int JumpSustainPower = 16;
-    public float MaxJumpTime = 0.2f;
-    public float MaxFallSpeed = 30;
-    public float FallAcceleration = 40;
-    public float JumpEndGModifier = 5f;
-    public float CoyoteTime = .15f;
-    public float JumpBuffer = .2f;
-    public float ApexSpeedModifier = 3f;
+    public int JumpPower;
+    public int JumpSustainPower;
+    public float MaxJumpTime;
+    public float MaxFallSpeed;
+    public float FallAcceleration;
+    public float JumpEndGModifier;
+    public float CoyoteTime;
+    public float JumpBuffer;
+    public float ApexSpeedModifier;
 
     private int MoveDirection;
     private bool groundHit, ceilingHit;
@@ -229,7 +231,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private LayerMask Ground => LayerMask.GetMask("Ground");
     public bool movementDisable;
 
-    private bool bufferedJumpUsable;
+    //private bool bufferedJumpUsable;
     private bool endedJump;
     private bool coyoteUsable;
     private bool jumpSustainable;
@@ -237,7 +239,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private float timeGroundLeft;
     //private Vector2 previousVelocity;
 
-    private bool HasBufferedJump => bufferedJumpUsable && Time.time < JumpInput.timePressed + JumpBuffer;
+    //private bool HasBufferedJump => bufferedJumpUsable && Time.time < JumpInput.timePressed + JumpBuffer;
     private bool HasCoyoteTime => coyoteUsable && !IsStanding && Time.time <= timeGroundLeft + CoyoteTime;
 
     void HandleCollisions()
@@ -253,15 +255,20 @@ public class PlayerManager : MonoBehaviour, IDamageable
         {
             IsStanding = true;
             coyoteUsable = true;
-            bufferedJumpUsable = true;
-            jumpSustainable = true;
+            //bufferedJumpUsable = true;
             endedJump = false;
+            jumpSustainable = true;
         }
 
         if (IsStanding && !groundHit)
         {
             IsStanding = false;
-            timeGroundLeft = Time.time;
+            //timeGroundLeft = Time.time;
+        }
+        if (ceilingHit) 
+        {
+            tempVelocity.y = Mathf.Min(0, tempVelocity.y);
+            jumpSustainable = false;
         }
     }
 
@@ -276,7 +283,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     }
     private void JumpSustain()
     {
-        if (ceilingHit || !jumpSustainable || JumpInput.timePressed + MaxJumpTime < Time.time) return;
+        if (!jumpSustainable || JumpInput.timePressed + MaxJumpTime < Time.time) return;
         coyoteUsable = false;
         IsJumping = true;
         if (tempVelocity.y <= JumpSustainPower) tempVelocity.y = JumpSustainPower;
@@ -303,6 +310,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         {
             tempVelocity.x *= ApexSpeedModifier;
             IsJumping = false;
+            endedJump = true;
             ApexHit = true;
         }
         if (!(ApexHit && (tempVelocity.x > MaxSpeed || tempVelocity.x < -MaxSpeed)))
@@ -322,7 +330,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
             var inAirGravity = FallAcceleration;
 
             if (endedJump) inAirGravity *= JumpEndGModifier;
-            if (ceilingHit) tempVelocity.y = Mathf.Min(0, tempVelocity.y);
 
             tempVelocity.y = Mathf.MoveTowards(tempVelocity.y, -MaxFallSpeed, inAirGravity * Time.fixedDeltaTime);
         }
@@ -395,25 +402,23 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     #region Abilities
     [Header("HEAL")]
-    public float healChargeTime = .7f;
+    public float healChargeTime = 1f;
     public float healManaCost = 30;
 
-    //public void Heal()
-    //{
-    //    if (!(timeDownArrowUp - timeDownArrowDown < healChargeTime)) return;
+    public void HealAbility()
+    {
+        if (hp >= maxHp) return;
 
-    //    if (hp == maxHp) return;
-
-    //    hp += 1;
-    //    mana -= healManaCost;
-    //}
+        Heal(1);
+        mana -= healManaCost;
+    }
 
     #endregion
 
     #region Magic
     [Header("MAGIC")]
     public float mana = 100;
-    public float maxMana;
+    public float maxMana = 100;
     private int baseMana = 100;
     public float mAtk;
 
@@ -428,12 +433,8 @@ public class PlayerManager : MonoBehaviour, IDamageable
     #endregion
 
     #region Inventory
-    public List<Slot> inventory;
+    public Inventory Inventory;
 
-    public void AddItem(IItem item) 
-    {
-        inventory.First(slot => slot.IsEmpty).AddItem(item);
-    }
     #region Charms
     //public int baseCharms = 3;
     //public int unlockedCharms = 0;

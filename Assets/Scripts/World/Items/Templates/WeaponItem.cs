@@ -6,5 +6,9 @@ public class WeaponItem : ItemBase
     public float reach;
 
     public new ItemType Type = ItemType.Sword;
+
+    public WeaponItem(string name, ItemType type, string description, Sprite itemSprite, int price) : base(name, type, description, itemSprite, price)
+    {
+    }
 }
 

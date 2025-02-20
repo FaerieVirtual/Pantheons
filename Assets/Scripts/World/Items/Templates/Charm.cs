@@ -29,6 +29,7 @@ public class Charm : IItem, ICharm
     public int speedAdd { get; set; }
     public Sprite ItemSprite { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
     public bool Consumable { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+    public ItemType Type { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
 
     public bool Equip()
     {

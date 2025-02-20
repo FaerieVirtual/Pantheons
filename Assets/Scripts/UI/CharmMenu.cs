@@ -68,7 +68,7 @@ public class CharmMenu : MonoBehaviour
 
         for (int i = 0; i < slots.Length; i++)
         {
-            if (slots[i].GetItem() == charm) slots[i].RemoveItem();
+            //if (slots[i].GetItem() == charm) slots[i].RemoveItem();
             if (charm.slotsRequired > 1)
             {
                 for (int j = i + 1; j < i + charm.slotsRequired; j++)

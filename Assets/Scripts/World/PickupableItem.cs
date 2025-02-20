@@ -5,6 +5,7 @@ public class PickupableItem : MonoBehaviour, IInteractible
 {
     public bool CanInteract { get; set; } = true;
     public IItem item;
+    public int itemAmount;
     private void Start()
     {
         GetComponent<SpriteRenderer>().sprite = item.ItemSprite;
@@ -28,7 +29,7 @@ public class PickupableItem : MonoBehaviour, IInteractible
     {
         if (CanInteract) 
         { 
-            PlayerManager.Instance.AddItem(item);
+            PlayerManager.Instance.Inventory.AddItem(item, itemAmount);
             GetComponent<SpriteRenderer>().enabled = false;
         }
     }

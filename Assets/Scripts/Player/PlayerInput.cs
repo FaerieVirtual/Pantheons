@@ -34,8 +34,8 @@ namespace Assets.Scripts.Player
             }
             if (Input.GetKeyUp(key))
             {
-                if (timePressed + maxTime < Time.time) { OnMaxReached.Invoke(); }
-                else { OnUp.Invoke(); }
+                if (timePressed + maxTime <= Time.time) { OnMaxReached.Invoke(); }
+                OnUp.Invoke(); 
             }
         }
     }
