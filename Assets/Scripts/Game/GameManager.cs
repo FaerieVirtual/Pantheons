@@ -38,10 +38,6 @@ public class GameManager : MonoBehaviour
     {
         machine.CurrentState.Update();
     }
-    private void FixedUpdate()
-    {
-        if (slowdown) { Slowdown(); }
-    }
     #endregion
 
     #region Save/Load & File management
@@ -123,22 +119,4 @@ public class GameManager : MonoBehaviour
 
     #endregion
 
-    #region Player Events
-    [HideInInspector]
-    public bool slowdown;
-    private float slowdownTimer;
-    private float slowdownDuration = 0.5f;
-    private void Slowdown()
-    {
-        Time.timeScale = 0.5f;
-
-        slowdownTimer += Time.unscaledDeltaTime;
-        if (slowdownTimer >= slowdownDuration)
-        {
-            slowdown = false;
-            Time.timeScale = 1.0f;
-            slowdownTimer = 0f;
-        }
-    }
-    #endregion
 }

@@ -14,7 +14,8 @@ namespace Assets.Scripts.Player
 
         public float timePressed = new();
         private float maxTime;
-
+        private float inputTimer;
+        private bool maxReached;
         public PlayerInput(KeyCode key, float maxTime)
         {
             this.key = key;
@@ -26,16 +27,23 @@ namespace Assets.Scripts.Player
             if (Input.GetKeyDown(key))
             {
                 timePressed = Time.time;
+                maxReached = false;
                 OnDown.Invoke();
             }
-            if (Input.GetKey(key) && timePressed + maxTime > Time.time) 
+            if (Input.GetKey(key) && inputTimer < maxTime && !maxReached /*timePressed + maxTime > Time.time*/) 
             {
                 OnHold.Invoke();
+                inputTimer += Time.unscaledDeltaTime;
             }
             if (Input.GetKeyUp(key))
             {
-                if (timePressed + maxTime <= Time.time) { OnMaxReached.Invoke(); }
-                OnUp.Invoke(); 
+                OnUp.Invoke();
+                inputTimer = 0;
+            }
+            if (inputTimer >= maxTime && !maxReached) 
+            { 
+                OnMaxReached.Invoke();
+                maxReached = true;
             }
         }
     }

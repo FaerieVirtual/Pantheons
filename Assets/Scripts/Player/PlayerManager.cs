@@ -1,5 +1,4 @@
 using Assets.Scripts.Player;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -80,8 +79,10 @@ public class PlayerManager : MonoBehaviour, IDamageable
         JumpInput.OnDown.AddListener(Jump);
         JumpInput.OnHold.AddListener(JumpSustain);
         JumpInput.OnUp.AddListener(() => jumpSustainable = false);
+        //JumpInput.OnMaxReached.AddListener(() => jumpSustainable = false);
+        //JumpInput.OnMaxReached.AddListener(() => Debug.Log("Max reached"));
         JumpInput.OnUp.AddListener(() => endedJump = true);
-        JumpInput.OnMaxReached.AddListener(() => endedJump = true);
+        //JumpInput.OnMaxReached.AddListener(() => endedJump = true);
 
         InteractInput = new(KeyCode.DownArrow, MaxJumpTime);
         InteractInput.OnDown.AddListener(Interact.Invoke);
@@ -90,6 +91,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         PauseInput.OnDown.AddListener(Pause);
 
         DebugInput = new(KeyCode.O, 0.1f);
+        DebugInput.OnDown.AddListener(() => Debug.Log("Getting debug input"));
         DebugInput.OnDown.AddListener(() => TakeDamage(1));
 
         HealInput = new(KeyCode.A, healChargeTime);
@@ -135,7 +137,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     }
     public void TakeDamage(int damage)
     {
-        if (invincible) return;
+        if (invincible) return; //Eventually add visual marker for user
 
         //if (def > 0)
         //{
@@ -150,19 +152,26 @@ public class PlayerManager : MonoBehaviour, IDamageable
         //        damage = 0;
         //    }
         //}
+        Debug.Log($"Previous Hp is {hp}");
         hp -= damage;
+        Debug.Log($"Taking damage {damage}");
+        Debug.Log($"Hp is {hp}");
         if (damage > 0 && hp > 0)
         {
             damageTakenTime = Time.time;
             invincible = true;
-            GameManager.Instance.slowdown = true;
         }
     }
     private void HandleInvincibility()
     {
-        if (damageTakenTime + invincibleDuration <= Time.time)
+        if (invincible && damageTakenTime + invincibleDuration > Time.unscaledTime)
+        {
+            Time.timeScale = 0.5f;
+        }
+        else
         {
             invincible = false;
+            Time.timeScale = 1.0f;
             damageTakenTime = 0;
         }
     }
@@ -195,10 +204,11 @@ public class PlayerManager : MonoBehaviour, IDamageable
             if (hp > maxHp) { hp = maxHp; }
             hpDisplayed = maxHp;
         }
-        
+
     }
-    public void Heal(int healAmount) 
+    public void Heal(int healAmount)
     {
+        Debug.Log($"Healing by {healAmount}");
         if (hp >= maxHp) return;
         hp += healAmount;
     }
@@ -206,12 +216,11 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     #region Movement
     [Header("MOVEMENT")]
-    public float MaxSpeed ;
+    public float MaxSpeed;
     public float Acceleration;
     public float GroundDeceleration;
     public float AirDeceleration;
     public float GroundingForce;
-    //public float GrounderDistance;
 
     [Header("JUMP")]
     public int JumpPower;
@@ -231,15 +240,12 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private LayerMask Ground => LayerMask.GetMask("Ground");
     public bool movementDisable;
 
-    //private bool bufferedJumpUsable;
     private bool endedJump;
     private bool coyoteUsable;
     private bool jumpSustainable;
     private bool ApexHit;
     private float timeGroundLeft;
-    //private Vector2 previousVelocity;
 
-    //private bool HasBufferedJump => bufferedJumpUsable && Time.time < JumpInput.timePressed + JumpBuffer;
     private bool HasCoyoteTime => coyoteUsable && !IsStanding && Time.time <= timeGroundLeft + CoyoteTime;
 
     void HandleCollisions()
@@ -255,17 +261,13 @@ public class PlayerManager : MonoBehaviour, IDamageable
         {
             IsStanding = true;
             coyoteUsable = true;
-            //bufferedJumpUsable = true;
-            endedJump = false;
-            jumpSustainable = true;
         }
-
         if (IsStanding && !groundHit)
         {
             IsStanding = false;
-            //timeGroundLeft = Time.time;
+            timeGroundLeft = Time.time;
         }
-        if (ceilingHit) 
+        if (ceilingHit)
         {
             tempVelocity.y = Mathf.Min(0, tempVelocity.y);
             jumpSustainable = false;
@@ -279,6 +281,8 @@ public class PlayerManager : MonoBehaviour, IDamageable
             coyoteUsable = false;
             IsJumping = true;
             tempVelocity.y = JumpPower;
+            endedJump = false;
+            jumpSustainable = true;
         }
     }
     private void JumpSustain()
@@ -328,7 +332,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
         else
         {
             var inAirGravity = FallAcceleration;
-
             if (endedJump) inAirGravity *= JumpEndGModifier;
 
             tempVelocity.y = Mathf.MoveTowards(tempVelocity.y, -MaxFallSpeed, inAirGravity * Time.fixedDeltaTime);
@@ -336,7 +339,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
     }
     void ApplyMovement()
     {
-        //previousVelocity = tempVelocity;
         RigidBody.velocity = tempVelocity;
     }
 
@@ -344,6 +346,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     #region Interact
     public UnityEvent Interact;
+
     private void Pause()
     {
         GameStatemachine machine = GameManager.Instance.machine;
@@ -351,6 +354,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         if (machine.CurrentState is Level) machine.ChangeState(pausedState);
         else machine.ChangeState(machine.PreviousState);
     }
+
     #endregion
 
     #region Attacking
