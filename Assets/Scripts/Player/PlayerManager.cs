@@ -1,4 +1,5 @@
 using Assets.Scripts.Player;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -7,8 +8,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
 {
     public Rigidbody2D RigidBody => GetComponent<Rigidbody2D>();
     public static PlayerManager Instance;
-    //public AudioManager Audio;
-    //public Collision2D lastCollision;
 
     #region General
     private void Awake()
@@ -19,11 +18,12 @@ public class PlayerManager : MonoBehaviour, IDamageable
     }
     private void Start()
     {
-        //Audio = AudioManager.Instance;
         Interact = new();
+
         ResetPlayer();
         RigidBody.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
         SetInput();
+        amulets = new EquipmentItem[3];
     }
     private void FixedUpdate() //Executing physics simulation
     {
@@ -39,6 +39,8 @@ public class PlayerManager : MonoBehaviour, IDamageable
         //Health
         HealthChecks();
         HandleInvincibility();
+
+        ManaCheck();
     }
     private void Update() //Getting Player Input
     {
@@ -57,13 +59,14 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private PlayerInput PauseInput;
     private PlayerInput DebugInput;
     private PlayerInput HealInput;
+    private PlayerInput InventoryInput;
     //private PlayerInput AttackInput;
 
     public void ResetPlayer()
     {
         //ResetBoosts();
         hp = maxHp;
-        mana = maxMana;
+        Mana = maxMana;
         invincible = false;
         movementDisable = false;
         //maxCharms = baseCharms + unlockedCharms;
@@ -79,10 +82,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         JumpInput.OnDown.AddListener(Jump);
         JumpInput.OnHold.AddListener(JumpSustain);
         JumpInput.OnUp.AddListener(() => jumpSustainable = false);
-        //JumpInput.OnMaxReached.AddListener(() => jumpSustainable = false);
-        //JumpInput.OnMaxReached.AddListener(() => Debug.Log("Max reached"));
         JumpInput.OnUp.AddListener(() => endedJump = true);
-        //JumpInput.OnMaxReached.AddListener(() => endedJump = true);
 
         InteractInput = new(KeyCode.DownArrow, MaxJumpTime);
         InteractInput.OnDown.AddListener(Interact.Invoke);
@@ -91,11 +91,13 @@ public class PlayerManager : MonoBehaviour, IDamageable
         PauseInput.OnDown.AddListener(Pause);
 
         DebugInput = new(KeyCode.O, 0.1f);
-        DebugInput.OnDown.AddListener(() => Debug.Log("Getting debug input"));
         DebugInput.OnDown.AddListener(() => TakeDamage(1));
 
         HealInput = new(KeyCode.A, healChargeTime);
         HealInput.OnMaxReached.AddListener(HealAbility);
+
+        InventoryInput = new(KeyCode.Tab, 0.1f);
+        InventoryInput.OnDown.AddListener(TriggerInventory);
     }
     private void UpdateInput()
     {
@@ -104,7 +106,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         PauseInput.Update();
         DebugInput.Update();
         HealInput.Update();
-        //if (IsStanding && HasBufferedJump) { Jump(); }
+        InventoryInput.Update();
         MoveDirection = Input.GetKey(KeyCode.RightArrow) ? 1 : Input.GetKey(KeyCode.LeftArrow) ? -1 : 0;
     }
     #endregion
@@ -125,8 +127,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public Image[] hpImages;
     public Sprite fullHeart;
     public Sprite emptyHeart;
-
-    //[HideInInspector] public bool canChangeScenes;
 
     public void Die()
     {
@@ -152,11 +152,8 @@ public class PlayerManager : MonoBehaviour, IDamageable
         //        damage = 0;
         //    }
         //}
-        Debug.Log($"Previous Hp is {hp}");
         hp -= damage;
-        Debug.Log($"Taking damage {damage}");
-        Debug.Log($"Hp is {hp}");
-        if (damage > 0 && hp > 0)
+        if (damage > 0)
         {
             damageTakenTime = Time.time;
             invincible = true;
@@ -164,11 +161,11 @@ public class PlayerManager : MonoBehaviour, IDamageable
     }
     private void HandleInvincibility()
     {
-        if (invincible && damageTakenTime + invincibleDuration > Time.unscaledTime)
+        if (invincible && damageTakenTime + invincibleDuration > Time.time)
         {
-            Time.timeScale = 0.5f;
+            Time.timeScale = 0.33f;
         }
-        else
+        else if (damageTakenTime + invincibleDuration < Time.time)
         {
             invincible = false;
             Time.timeScale = 1.0f;
@@ -208,7 +205,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
     }
     public void Heal(int healAmount)
     {
-        Debug.Log($"Healing by {healAmount}");
         if (hp >= maxHp) return;
         hp += healAmount;
     }
@@ -337,9 +333,14 @@ public class PlayerManager : MonoBehaviour, IDamageable
             tempVelocity.y = Mathf.MoveTowards(tempVelocity.y, -MaxFallSpeed, inAirGravity * Time.fixedDeltaTime);
         }
     }
-    void ApplyMovement()
+    private void ApplyMovement()
     {
         RigidBody.velocity = tempVelocity;
+    }
+
+    public void Stop()
+    {
+        tempVelocity = Vector2.zero;
     }
 
     #endregion
@@ -414,42 +415,71 @@ public class PlayerManager : MonoBehaviour, IDamageable
         if (hp >= maxHp) return;
 
         Heal(1);
-        mana -= healManaCost;
+        Mana -= healManaCost;
     }
 
     #endregion
 
     #region Magic
     [Header("MAGIC")]
-    public float mana = 100;
+    public float Mana = 100;
     public float maxMana = 100;
-    private int baseMana = 100;
+    //private int baseMana = 100;
     public float mAtk;
+    public TextMeshProUGUI ManaCounter;
+
+    public void ManaCheck() 
+    {
+        ManaCounter.text = Mana.ToString();
+    }
 
     //public void tmpRegainMana()
     //{
-    //    if (Time.time >= timeDownArrowUp + 1 && mana != maxMana)
+    //    if (Time.time >= timeDownArrowUp + 1 && Mana != maxMana)
     //    {
-    //        mana += 10;
+    //        Mana += 10;
     //    }
     //}
 
     #endregion
 
     #region Inventory
-    public Inventory Inventory;
+    public Inventory Inventory = new();
+    public ConsumableItem equippedConsumable;
+    public int ConsumableItemQuantity;
+    public WeaponItem equippedWeapon;
+    public EquipmentItem[] amulets;
+    public int Gold = 0;
+    
+    public void TriggerInventory()
+    {
+        InventoryMenu inventoryMenu = FindObjectOfType<InventoryMenu>(true);
+        if (inventoryMenu == null)
+        {
+            return;
+        }
+        if (!inventoryMenu.gameObject.activeSelf)
+        {
+            GameObject playerUI = FindObjectOfType<UI>(true).transform.GetChild(0).gameObject;
+            if (playerUI != null && playerUI.activeSelf) { playerUI.SetActive(false); }
 
-    #region Charms
-    //public int baseCharms = 3;
-    //public int unlockedCharms = 0;
-    //public int maxCharms;
-    ////public List<Charm> equippedCharms;
+            inventoryMenu.gameObject.SetActive(true);
+            inventoryMenu.UpdateMenu();
+        }
+        else
+        {
+            inventoryMenu.gameObject.SetActive(false);
 
-    //public int hpAdd;
-    //public int defAdd;
-    //public int manaAdd;
-    //public int speedAdd;
-    #endregion
+            GameObject playerUI = FindObjectOfType<UI>(true).transform.GetChild(0).gameObject;
+            if (playerUI != null && !playerUI.activeSelf) { playerUI.SetActive(true); }
+        }
+    }
+
+    public void Trade(IItem item)
+    {
+        Inventory.AddItem(item, 1);
+        Gold -= item.Price;
+    }
     #endregion
 }
 

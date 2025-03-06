@@ -5,10 +5,8 @@ public class WeaponItem : ItemBase
     public int damage;
     public float reach;
 
-    public new ItemType Type = ItemType.Sword;
-
-    public WeaponItem(string name, ItemType type, string description, Sprite itemSprite, int price) : base(name, type, description, itemSprite, price)
-    {
-    }
+    //public WeaponItem(string name, string description, Sprite itemSprite, int price) : base(name, ItemType.Sword, description, itemSprite, price)
+    //{
+    //}
 }
 

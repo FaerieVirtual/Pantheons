@@ -1,15 +1,15 @@
 ﻿using UnityEngine;
 
-public abstract class ItemBase : IItem
+public abstract class ItemBase : ScriptableObject, IItem
 {
-    public ItemBase(string name, ItemType type, string description, Sprite itemSprite, int price)
-    {
-        Name = name;
-        Type = type;
-        Description = description;
-        ItemSprite = itemSprite;
-        Price = price;
-    }
+    //public ItemBase(string name, ItemType type, string description, Sprite itemSprite, int price)
+    //{
+    //    Name = name;
+    //    Type = type;
+    //    Description = description;
+    //    ItemSprite = itemSprite;
+    //    Price = price;
+    //}
 
     public string Name { get; set; }
     public ItemType Type { get; set; }

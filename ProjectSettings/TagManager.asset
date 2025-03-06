@@ -6,10 +6,6 @@ TagManager:
   tags:
   - Enemy
   - Camera
-  - PlayerAttackHitbox
-  - Healthbar
-  - PauseMenu
-  - Theme
   layers:
   - Default
   - TransparentFX

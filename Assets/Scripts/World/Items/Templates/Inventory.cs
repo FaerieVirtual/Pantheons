@@ -1,18 +1,19 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class Inventory
 {
     public Dictionary<IItem, Slot> Items = new();
-
+    public bool IsEmpty => Items.Count < 1;
     public void AddItem(IItem item, int amount)
     {
         if (Items.TryGetValue(item, out var slot))
         {
-            slot.AddItem(item);
+            slot.AddItem(item, amount);
         }
         else
         {
-            Items[item] = new Slot();
+            Items[item] = Object.FindObjectOfType<InventoryMenu>(true).gameObject.AddComponent<Slot>();
             Items[item].AddItem(item, amount);
         }
     }

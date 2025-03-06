@@ -1,9 +1,8 @@
 ﻿using System.Linq;
 using UnityEngine;
 
-public class Respawn : MonoBehaviour, IInteractible
+public class Respawn : InteractibleObject
 {
-    public bool CanInteract { get; set; } = true;
     public Collider2D Collider { get; set; }
     private void Update()
     {
@@ -17,21 +16,7 @@ public class Respawn : MonoBehaviour, IInteractible
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.gameObject.GetComponent<PlayerManager>() != null)
-        {
-            collision.gameObject.GetComponent<PlayerManager>().Interact.AddListener(Interaction);
-        }
-    }
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if (collision.gameObject.GetComponent<PlayerManager>() != null)
-        {
-            collision.gameObject.GetComponent<PlayerManager>().Interact.RemoveListener(Interaction);
-        }
-    }
-    public void Interaction()
+    public override void Interaction()
     {
         if (CanInteract)
         {
