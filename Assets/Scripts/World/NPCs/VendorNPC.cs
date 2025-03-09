@@ -1,37 +1,45 @@
-﻿
-using System.Collections;
+﻿using System.Linq;
 using UnityEngine;
 
 public class VendorNPC : NPC
 {
-    public Inventory Inventory;
-    public GameObject inventoryObject;
+    private GameObject menuObject;
+    private void Start()
+    {
+        Data = GameManager.Instance.DataManager.NPCs[Name];
+        menuObject = FindObjectOfType<TradeMenu>(true).gameObject;
+    }
+    private void Update()
+    {
+        if (Data.Inventory.IsEmpty && Data.HasFlag("InventoryEmpty")) Data.SetFlag("InventoryEmpty");
+    }
     public override void Interaction()
     {
-        base.Interaction();
-    }
-    public virtual void OpenInventory() 
-    {
-        inventoryObject.SetActive(true);
-        WaitForInventoryClose();
-    }
-    public virtual void Trade(IItem item) 
-    {
-        if (PlayerManager.Instance.Gold < item.Price) return;
-        if (Inventory.HasItem(item)) Inventory.RemoveItem(item, 1);
-        PlayerManager.Instance.Trade(item);
-    }
-    public virtual void CloseInventory() 
-    {
-        inventoryObject.SetActive(false);
-    }
-    public void WaitForInventoryClose() 
-    {
-        StartCoroutine(WaitForInventoryCloseCoroutine());
-        IEnumerator WaitForInventoryCloseCoroutine() 
-        { 
-            yield return new WaitUntil(() => !inventoryObject.activeInHierarchy);
+        if (!CanInteract) return;
+        if (CurrentResponse == null)
+        {
+            CurrentResponse = GetResponse();
+            ResponseIndex = 0;
         }
+
+        string response = CurrentResponse.SplitResponse[ResponseIndex];
+        TextBox.text = response;
+        ResponseIndex++;
+        if (response == CurrentResponse.SplitResponse.Last())
+        {
+
+            if (response.Contains("#")) TextBox.text = "";
+            if (response.Contains("$")) OpenInventory();
+            if (response.Contains("!") && CurrentResponse.ExclusionFlag != null) Data.Flags.Add(CurrentResponse.ExclusionFlag);
+            CurrentResponse = null;
+        }
+    }
+    public virtual void OpenInventory()
+    {
+        menuObject.SetActive(true);
+        menuObject.GetComponent<TradeMenu>().traderData = Data;
+        menuObject.GetComponent<TradeMenu>().UpdateMenu();
+        FindObjectOfType<UI>().transform.GetChild(0).gameObject.SetActive(false);
     }
 }
 

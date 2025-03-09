@@ -224,10 +224,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9112316eb4a7a148bd2cd3d57abe995, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Item: {fileID: 0}
   Quantity: 0
   isLocked: 0
-  SlotID: 0
-  Button: {fileID: 0}
+  Button: {fileID: 1233502502980362790}
+  quantityText: {fileID: 4814729962312841723}
 --- !u!114 &4213549133429580410
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -282,7 +283,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.7438685, y: -0.75349134}
+  m_AnchoredPosition: {x: 0.82, y: -0.63}
   m_SizeDelta: {x: 81.22507, y: 71.3049}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3237496268458375238
@@ -322,8 +323,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4278190080
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -340,8 +341,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 90
+  m_fontSizeBase: 90
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -376,7 +377,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 2.0766335, y: -1.3887482, z: 0, w: 0}
+  m_margin: {x: 9.192566, y: -1.3887482, z: -4.0664673, w: -14.231949}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0

@@ -3,75 +3,67 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class InventoryMenu : MonoBehaviour
+public class InventoryMenu : ItemManagingMenu
 {
-    public List<Slot> slots;
+    public List<GraphicalSlot> slots;
     public TextMeshProUGUI itemName;
     public TextMeshProUGUI description;
     public TextMeshProUGUI CoinCount;
 
-    public Slot DisplaySlot;
-    private Slot selectedSlot;
-    public Slot swordSlot;
-    public Slot[] equipmentSlots = new Slot[3];
-    public Slot consumableSlot;
+    public GraphicalSlot DisplaySlot;
+    private GraphicalSlot selectedSlot;
+    public GraphicalSlot swordSlot;
+    public GraphicalSlot[] equipmentSlots;
+    public GraphicalSlot consumableSlot;
 
-    private void Start()
+    public override void UpdateMenu()
     {
-        GetComponent<Slot>().enabled = false;
-    }
-
-    private void Update()
-    {
-        if (CoinCount != null) { CoinCount.text = PlayerManager.Instance.Gold.ToString(); }
-    }
-
-    public void UpdateMenu()
-    {
-        foreach (Slot slot in slots)
+        foreach (GraphicalSlot slot in slots)
         {
             slot.RemoveItem(slot.Quantity);
         }
 
         if (!PlayerManager.Instance.Inventory.IsEmpty)
         {
-            List<Slot> playerInventory = PlayerManager.Instance.Inventory.GetAllItems();
+            List<AbstractSlot> playerInventory = PlayerManager.Instance.Inventory.GetAllItems();
             for (int i = 0; i < playerInventory.Count; i++)
             {
-                slots[i].AddItem(playerInventory[i].GetItem());
+                slots[i].AddItem(playerInventory[i].Item, playerInventory[i].Quantity);
                 slots[i].transform.GetChild(0).GetComponent<Image>().sprite = slots[i].Item.ItemSprite;
                 slots[i].transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = slots[i].Quantity.ToString();
             }
         }
         swordSlot.RemoveItem(swordSlot.Quantity);
-        swordSlot.AddItem(PlayerManager.Instance.equippedWeapon, 1);
+        if (!PlayerManager.Instance.equippedWeapon.IsEmpty) swordSlot.AddItem(PlayerManager.Instance.equippedWeapon.Item, 1);
 
         consumableSlot.RemoveItem(consumableSlot.Quantity);
-        consumableSlot.AddItem(PlayerManager.Instance.equippedConsumable, PlayerManager.Instance.ConsumableItemQuantity);
+        if (!PlayerManager.Instance.equippedConsumable.IsEmpty) consumableSlot.AddItem(PlayerManager.Instance.equippedConsumable.Item, PlayerManager.Instance.equippedConsumable.Quantity);
 
         for (int i = 0; i < equipmentSlots.Length; i++)
         {
             equipmentSlots[i].RemoveItem(equipmentSlots[i].Quantity);
-            equipmentSlots[i].AddItem(PlayerManager.Instance.amulets[i], 1);
+            if (equipmentSlots[i].IsEmpty && !PlayerManager.Instance.amulets[i].IsEmpty) equipmentSlots[i].AddItem(PlayerManager.Instance.amulets[i].Item, 1);
         }
         if (selectedSlot == null) 
         {
             DisplaySlot.Button.image.color = Color.clear;
             itemName.text = "";
             description.text = "";
-        } 
+        }
 
+        CoinCount.text = $"Gold: {PlayerManager.Instance.Gold}";
+
+        CoinCount.ForceMeshUpdate();
         itemName.ForceMeshUpdate();
         description.ForceMeshUpdate();
     }
 
-    public void SelectSlot(Slot slot)
+    public override void SelectSlot(GraphicalSlot slot)
     {
-        //Debug.Log($"slot: {selectedSlot}, empty: {selectedSlot.IsEmpty}, item: {selectedSlot.Item}, q: {selectedSlot.Quantity}");
         if (selectedSlot != null)
         {
             selectedSlot.Button.onClick.RemoveAllListeners();
-            Slot tmp = selectedSlot;
+            GraphicalSlot tmp = selectedSlot;
             selectedSlot.Button.onClick.AddListener(() => SelectSlot(tmp));
         }
         DisplaySlot.RemoveItem(DisplaySlot.Quantity);
@@ -81,32 +73,23 @@ public class InventoryMenu : MonoBehaviour
         DisplaySlot.AddItem(slot.Item);
 
         selectedSlot = slot;
-
-        //slot.Button.onClick.RemoveAllListeners();
-        //if (slot.SlotID == "Inventory")
-        //{
-        //    slot.Button.onClick.AddListener(EquipItem);
-        //}
-        //else
-        //{
-        //    slot.Button.onClick.AddListener(UnequipItem);
-        //}
     }
 
     public void EquipItem()
     {
         if (selectedSlot == null || selectedSlot.IsEmpty) return;
-        Slot slotToEquipTo = null;
+        GraphicalSlot slotToEquipTo = null;
         switch (selectedSlot.Item.Type)
         {
             case ItemType.Sword:
                 slotToEquipTo = swordSlot;
-                PlayerManager.Instance.equippedWeapon = (WeaponItem)selectedSlot.Item;
+                PlayerManager.Instance.equippedWeapon.Item = (WeaponItem)selectedSlot.Item;
                 break;
             case ItemType.Consumable:
                 slotToEquipTo = consumableSlot;
-                PlayerManager.Instance.equippedConsumable = (ConsumableItem)selectedSlot.Item;
-                PlayerManager.Instance.ConsumableItemQuantity = selectedSlot.Quantity;
+                PlayerManager.Instance.equippedConsumable.Item = (ConsumableItem)selectedSlot.Item;
+                PlayerManager.Instance.equippedConsumable.Quantity = selectedSlot.Quantity;
+
                 break;
             case ItemType.Equipment:
                 bool assigned = false;
@@ -127,33 +110,14 @@ public class InventoryMenu : MonoBehaviour
         if (!slotToEquipTo.IsEmpty && slotToEquipTo.Item != selectedSlot.Item)
         {
             PlayerManager.Instance.Inventory.AddItem(slotToEquipTo.Item, slotToEquipTo.Quantity);
+
             slotToEquipTo.RemoveItem(slotToEquipTo.Quantity);
         }
         slotToEquipTo.AddItem(selectedSlot.Item, selectedSlot.Quantity);
-        Debug.Log($"slot: {selectedSlot}, item: {selectedSlot.Item}, q: {selectedSlot.Quantity}");
         PlayerManager.Instance.Inventory.RemoveItem(selectedSlot.Item, selectedSlot.Quantity);
         selectedSlot.RemoveItem(selectedSlot.Quantity);
-        Debug.Log($"followup check: slot: {selectedSlot}, item: {selectedSlot.Item}, q: {selectedSlot.Quantity}");
 
         UpdateMenu();
     }
-    //public void UnequipItem()
-    //{
-    //    Slot slot = selectedSlot;
-    //    Debug.Log(slot);
-    //    PlayerManager.Instance.Inventory.AddItem(slot.Item, slot.Quantity);
-
-    //    switch (slot.SlotID)
-    //    {
-    //        case "SwordSlot": swordSlot.RemoveItem(swordSlot.Quantity); break;
-    //        case "ConsumableSlot": consumableSlot.RemoveItem(consumableSlot.Quantity); break;
-    //        case "AmuletSlot1": equipmentSlots[0].RemoveItem(equipmentSlots[0].Quantity); break;
-    //        case "AmuletSlot2": equipmentSlots[1].RemoveItem(equipmentSlots[1].Quantity); break;
-    //        case "AmuletSlot3": equipmentSlots[2].RemoveItem(equipmentSlots[2].Quantity); break;
-    //    }
-    //    slot.RemoveItem(slot.Quantity);
-    //    Debug.Log($"removing {slot.Item} from {slot} {slot.Quantity} times");
-    //    UpdateMenu();
-    //}
 }
 

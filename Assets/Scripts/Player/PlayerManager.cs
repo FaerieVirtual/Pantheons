@@ -1,4 +1,5 @@
 using Assets.Scripts.Player;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -23,7 +24,8 @@ public class PlayerManager : MonoBehaviour, IDamageable
         ResetPlayer();
         RigidBody.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
         SetInput();
-        amulets = new EquipmentItem[3];
+        amulets = new AbstractSlot[3];
+        for (int i = 0; i < amulets.Length; i++) amulets[i] = new();
     }
     private void FixedUpdate() //Executing physics simulation
     {
@@ -60,15 +62,17 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private PlayerInput DebugInput;
     private PlayerInput HealInput;
     private PlayerInput InventoryInput;
+    private PlayerInput ConsumableInput;
     //private PlayerInput AttackInput;
 
     public void ResetPlayer()
     {
         //ResetBoosts();
         hp = maxHp;
-        Mana = maxMana;
+        //Mana = maxMana;
         invincible = false;
         movementDisable = false;
+        //Gold = 0;
         //maxCharms = baseCharms + unlockedCharms;
     }
     //public void ResetBoosts()
@@ -98,6 +102,9 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
         InventoryInput = new(KeyCode.Tab, 0.1f);
         InventoryInput.OnDown.AddListener(TriggerInventory);
+
+        ConsumableInput = new(KeyCode.S, 0.1f);
+        ConsumableInput.OnDown.AddListener(ConsumeConsumableItem);
     }
     private void UpdateInput()
     {
@@ -107,6 +114,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         DebugInput.Update();
         HealInput.Update();
         InventoryInput.Update();
+        ConsumableInput.Update();
         MoveDirection = Input.GetKey(KeyCode.RightArrow) ? 1 : Input.GetKey(KeyCode.LeftArrow) ? -1 : 0;
     }
     #endregion
@@ -428,7 +436,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public float mAtk;
     public TextMeshProUGUI ManaCounter;
 
-    public void ManaCheck() 
+    public void ManaCheck()
     {
         ManaCounter.text = Mana.ToString();
     }
@@ -445,20 +453,35 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     #region Inventory
     public Inventory Inventory = new();
-    public ConsumableItem equippedConsumable;
-    public int ConsumableItemQuantity;
-    public WeaponItem equippedWeapon;
-    public EquipmentItem[] amulets;
+    public AbstractSlot equippedConsumable = new();
+    public AbstractSlot equippedWeapon = new();
+    public AbstractSlot[] amulets;
     public int Gold = 0;
-    
+
     public void TriggerInventory()
     {
         InventoryMenu inventoryMenu = FindObjectOfType<InventoryMenu>(true);
+        TradeMenu tradeMenu = FindObjectOfType<TradeMenu>(true);
         if (inventoryMenu == null)
         {
             return;
         }
-        if (!inventoryMenu.gameObject.activeSelf)
+
+        if (tradeMenu.gameObject.activeSelf)
+        {
+            tradeMenu.gameObject.SetActive(false);
+
+            GameObject playerUI = FindObjectOfType<UI>(true).transform.GetChild(0).gameObject;
+            if (playerUI != null && !playerUI.activeSelf) { playerUI.SetActive(true); }
+        }
+        else if (inventoryMenu.gameObject.activeSelf)
+        {
+            inventoryMenu.gameObject.SetActive(false);
+
+            GameObject playerUI = FindObjectOfType<UI>(true).transform.GetChild(0).gameObject;
+            if (playerUI != null && !playerUI.activeSelf) { playerUI.SetActive(true); }
+        }
+        else
         {
             GameObject playerUI = FindObjectOfType<UI>(true).transform.GetChild(0).gameObject;
             if (playerUI != null && playerUI.activeSelf) { playerUI.SetActive(false); }
@@ -466,19 +489,13 @@ public class PlayerManager : MonoBehaviour, IDamageable
             inventoryMenu.gameObject.SetActive(true);
             inventoryMenu.UpdateMenu();
         }
-        else
-        {
-            inventoryMenu.gameObject.SetActive(false);
-
-            GameObject playerUI = FindObjectOfType<UI>(true).transform.GetChild(0).gameObject;
-            if (playerUI != null && !playerUI.activeSelf) { playerUI.SetActive(true); }
-        }
     }
 
-    public void Trade(IItem item)
+    public void ConsumeConsumableItem() 
     {
-        Inventory.AddItem(item, 1);
-        Gold -= item.Price;
+        ConsumableItem consumable = (ConsumableItem)equippedConsumable.Item;
+        consumable.Consume();
+        equippedConsumable.RemoveItem(1);
     }
     #endregion
 }

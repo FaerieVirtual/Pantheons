@@ -2,40 +2,13 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Slot : MonoBehaviour
+public class AbstractSlot 
 {
-    public IItem Item;
+    public ItemBase Item;
     public int Quantity;
     public bool IsEmpty => Item == null || Quantity == 0;
-    public bool isLocked;
-    public string SlotID;
-    public Button Button;
-    private InventoryMenu menu;
-    private TextMeshProUGUI quantityText;
 
-    private void OnEnable()
-    {
-        Button = GetComponentInChildren<Button>(true);
-        menu = FindObjectOfType<InventoryMenu>(true);
-        quantityText = transform.GetChild(1).gameObject.GetComponent<TextMeshProUGUI>();//GetComponentInChildren<TextMeshProUGUI>(true);
-        if (isLocked) { Button.interactable = false; }
-        else
-        { Button.onClick.AddListener(() => menu.SelectSlot(this)); }
-    }
-    private void Update()
-    {
-        if (Quantity > 1) { quantityText.text = Quantity.ToString(); }
-        else { quantityText.text = ""; }
-        if (IsEmpty) { Button.gameObject.GetComponent<Image>().color = Color.clear; }
-        else
-        {
-            Button.gameObject.GetComponent<Image>().color = Color.white;
-            Button.gameObject.GetComponent<Image>().sprite = Item.ItemSprite;
-        }
-        if (IsEmpty) isLocked = true;
-    }
-
-    public void AddItem(IItem item, int amount = 1)
+    public void AddItem(ItemBase item, int amount = 1)
     {
         if (Item == null)
         {
@@ -58,7 +31,7 @@ public class Slot : MonoBehaviour
             }
         }
     }
-    public IItem GetItem() => Item;
+    public ItemBase GetItem() => Item;
 
     //public void Clear()
     //{

@@ -25,7 +25,7 @@
 //    private int currentIndex = 0;
 
 //    public List<GodBase> gods;
-//    private LevelManager levelManager;
+//    private LevelManager LevelManager;
 
 //    void Start()
 //    {
@@ -94,6 +94,6 @@
     
 //    public void Return() 
 //    {
-//        //levelManager.LoadScene("MainMenu");
+//        //LevelManager.LoadScene("MainMenu");
 //    }
 //}

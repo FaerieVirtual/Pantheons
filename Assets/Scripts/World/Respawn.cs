@@ -6,7 +6,7 @@ public class Respawn : InteractibleObject
     public Collider2D Collider { get; set; }
     private void Update()
     {
-        if (GameManager.Instance.machine.CurrentState == GameManager.Instance.levelManager.levels.Values.FirstOrDefault(level => level.HasFlag("RespawnLevel")))
+        if (GameManager.Instance.machine.CurrentState == GameManager.Instance.LevelManager.levels.Values.FirstOrDefault(level => level.HasFlag("RespawnLevel")))
         {
             GetFire().SetActive(true);
         }
@@ -21,7 +21,7 @@ public class Respawn : InteractibleObject
         if (CanInteract)
         {
             Level CurrentLevel = (Level)GameManager.Instance.machine.CurrentState;
-            foreach (var item in GameManager.Instance.levelManager.levels.Values)
+            foreach (var item in GameManager.Instance.LevelManager.levels.Values)
             {
                 if (item.HasFlag("RespawnLevel")) item.RemoveFlag("RespawnLevel");
             }

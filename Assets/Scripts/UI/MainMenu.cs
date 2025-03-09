@@ -14,7 +14,7 @@ public class MainMenu : MonoBehaviour
     }
     public void NewGame()
     {
-        GameManager.Instance.machine.ChangeState(GameManager.Instance.levelManager.GetLevel("A1"));
+        GameManager.Instance.machine.ChangeState(GameManager.Instance.LevelManager.GetLevel("A1"));
     }
     public void LoadGame()
     {

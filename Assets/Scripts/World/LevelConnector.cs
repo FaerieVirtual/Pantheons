@@ -13,7 +13,7 @@ public class LevelConnector : MonoBehaviour
         if (collision.gameObject.GetComponent<PlayerManager>() != null)
         {
             Triggered = true;
-            GameManager.Instance.machine.ChangeState(GameManager.Instance.levelManager.GetLevel(nextLevelID));
+            GameManager.Instance.machine.ChangeState(GameManager.Instance.LevelManager.GetLevel(nextLevelID));
         }
     }
 

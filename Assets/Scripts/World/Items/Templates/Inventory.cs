@@ -3,9 +3,9 @@ using UnityEngine;
 
 public class Inventory
 {
-    public Dictionary<IItem, Slot> Items = new();
+    public Dictionary<ItemBase, AbstractSlot> Items = new();
     public bool IsEmpty => Items.Count < 1;
-    public void AddItem(IItem item, int amount)
+    public void AddItem(ItemBase item, int amount)
     {
         if (Items.TryGetValue(item, out var slot))
         {
@@ -13,11 +13,11 @@ public class Inventory
         }
         else
         {
-            Items[item] = Object.FindObjectOfType<InventoryMenu>(true).gameObject.AddComponent<Slot>();
+            Items[item] = new AbstractSlot();
             Items[item].AddItem(item, amount);
         }
     }
-    public void RemoveItem(IItem item, int amount)
+    public void RemoveItem(ItemBase item, int amount)
     {
         if (Items.TryGetValue(item, out var slot))
         {
@@ -29,7 +29,7 @@ public class Inventory
         }
     }
 
-    public bool HasItem(IItem item)
+    public bool HasItem(ItemBase item)
     {
         if (Items.TryGetValue(item, out var slot))
         {
@@ -37,9 +37,9 @@ public class Inventory
         }
         else return false;
     }
-    public List<Slot> GetAllItems()
+    public List<AbstractSlot> GetAllItems()
     {
-        return new List<Slot>(Items.Values);
+        return new List<AbstractSlot>(Items.Values);
     }
 }
 

@@ -8,8 +8,8 @@ public class GameManager : MonoBehaviour
     public string RespawnSceneID;
 
     public static GameManager Instance;
-    //public static EventSystem EventSystemInstance;
-    public LevelManager levelManager;
+    public DataManager DataManager;
+    public LevelManager LevelManager;
     //public int gameIndex;
     public string Area;
 
@@ -24,7 +24,8 @@ public class GameManager : MonoBehaviour
 
         DontDestroyOnLoad(gameObject);
 
-        levelManager = this.AddComponent<LevelManager>();
+        LevelManager = this.AddComponent<LevelManager>();
+        DataManager = this.AddComponent<DataManager>();
         menuState = new GameMainMenuState(machine);
 
         machine.Init(menuState);

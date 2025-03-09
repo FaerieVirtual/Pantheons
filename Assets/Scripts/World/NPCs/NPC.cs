@@ -1,45 +1,66 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
-public class NPC : MonoBehaviour, IInteractible
+public class NPC : InteractibleObject
 {
     public string Name;
-    public HashSet<string> Flags = new();
-    public bool CanInteract { get; set; }
+    [HideInInspector] public NPCData Data;
+    [HideInInspector] public NPCResponse CurrentResponse;
+    [HideInInspector] public int ResponseIndex;
 
+    public TextMeshProUGUI TextBox;
 
-    public TextMeshPro TextBox;
-    public virtual void Interaction() { }
-    public bool HasFlag(string flag)
+    private void Start()
     {
-        return Flags.Contains(flag);
+        Data = GameManager.Instance.DataManager.NPCs[Name];
     }
-    public void SetFlag(string flag)
+
+    public override void Interaction()
     {
-        Flags.Add(flag);
-    }
-    public bool RemoveFlag(string flag)
-    {
-        if (Flags.Contains(flag))
-        {
-            Flags.Remove(flag);
-            return true;
+        if (!CanInteract) return;
+        if (CurrentResponse == null) 
+        { 
+            GetResponse(); 
+            ResponseIndex = 0;
+            Debug.Log($"Reseting CurrentResponse: {CurrentResponse}, index: {ResponseIndex}");
         }
-        else return false;
-    }
-    public void ClearFlags()
-    {
-        Flags.Clear();
-    }
-    public void WaitForInput()
-    {
-        IEnumerator WaitForInputCoroutine()
+
+        string response = CurrentResponse.SplitResponse[ResponseIndex];
+        TextBox.text = response;
+        ResponseIndex++;
+        Debug.Log($"response: {response}, index: {ResponseIndex}");
+        if (response == CurrentResponse.SplitResponse.Last())
         {
-            yield return new WaitUntil(() => Input.GetKeyUp(KeyCode.DownArrow));
+            Debug.Log("getting last response, setting current to null");
+            if (response.Contains("#")) TextBox.text = "";
+            if (response.Contains("!") && CurrentResponse.ExclusionFlag != null) Data.Flags.Add(CurrentResponse.ExclusionFlag);
+            CurrentResponse = null;
         }
-        StartCoroutine(WaitForInputCoroutine());
+    }
+    public async Task WaitForInput()
+    {
+        while (!Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            await Task.Yield();
+        }
+    }
+    public void UpdateData()
+    {
+        GameManager.Instance.DataManager.NPCs[Name] = Data;
+    }
+    public NPCResponse GetResponse()
+    {
+        foreach (NPCResponse r in Data.NPCResponses)
+        {
+            if ((r.TriggerFlag == null || Data.Flags.Contains(r.TriggerFlag)) && (r.ExclusionFlag == null || !Data.Flags.Contains(r.ExclusionFlag)))
+            {
+                return r;
+            }
+        }
+        return null;
     }
 
 }

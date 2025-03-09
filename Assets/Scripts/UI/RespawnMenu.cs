@@ -11,7 +11,7 @@ public class RespawnMenu : MonoBehaviour
     }
     public void Respawn() 
     {
-        Level level = GameManager.Instance.levelManager.levels.Values.FirstOrDefault(level => level.HasFlag("RespawnLevel"));
+        Level level = GameManager.Instance.LevelManager.levels.Values.FirstOrDefault(level => level.HasFlag("RespawnLevel"));
         PlayerManager.Instance.ResetPlayer();
         machine.ChangeState(level);
     }
