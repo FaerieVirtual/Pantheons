@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 377c81e83d31de548a63966b43e0fcec, type: 3}
+  m_Name: Nitril's Fang
+  m_EditorClassIdentifier: 
+  Name: Nitril's Fang
+  Type: 2
+  Description: A fang of a devout follower. On activation, your strikes will deal
+    1 more damage for 10 seconds in exchange for 40 mana.
+  ItemSprite: {fileID: -545380113026382421, guid: 4c4dc131d2c789e459cc64987d258654, type: 3}
+  Price: 80
+  chargeTime: 0.1
+  Duration: 10
+  DamageBoost: 1
+  ManaCost: 40

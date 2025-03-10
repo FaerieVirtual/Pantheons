@@ -4,9 +4,9 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "NPCData", menuName = "Data/NPCData")]
 public class NPCData : ScriptableObject
 {
-    [SerializeField] public HashSet<string> Flags = new();
-    [SerializeField] public Inventory Inventory = new();
-    [SerializeField] public List<NPCResponse> NPCResponses = new();
+    public HashSet<string> Flags = new();
+    public Inventory Inventory = new();
+    public List<NPCResponse> NPCResponses = new();
 
     public bool HasFlag(string flag)
     {

@@ -1,5 +1,5 @@
 using Assets.Scripts.Player;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -24,8 +24,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
         ResetPlayer();
         RigidBody.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
         SetInput();
-        amulets = new AbstractSlot[3];
-        for (int i = 0; i < amulets.Length; i++) amulets[i] = new();
     }
     private void FixedUpdate() //Executing physics simulation
     {
@@ -38,11 +36,9 @@ public class PlayerManager : MonoBehaviour, IDamageable
         //Attack
         //HandleAttack();
 
-        //Health
-        HealthChecks();
-        HandleInvincibility();
-
-        ManaCheck();
+        HealthCheck();
+        AttackCheck();
+        AbilityCheck();
     }
     private void Update() //Getting Player Input
     {
@@ -60,24 +56,25 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private PlayerInput InteractInput;
     private PlayerInput PauseInput;
     private PlayerInput DebugInput;
-    private PlayerInput HealInput;
     private PlayerInput InventoryInput;
     private PlayerInput ConsumableInput;
+    private PlayerInput Amulet1Input;
+    private PlayerInput Amulet2Input;
+    private PlayerInput Amulet3Input;
     //private PlayerInput AttackInput;
 
     public void ResetPlayer()
     {
         //ResetBoosts();
-        hp = maxHp;
-        //Mana = maxMana;
+        Hp = MaxHp;
+        Mana = MaxMana;
         invincible = false;
         movementDisable = false;
-        //Gold = 0;
-        //maxCharms = baseCharms + unlockedCharms;
+        Gold = 0;
     }
     //public void ResetBoosts()
     //{
-    //    maxHp = baseHp + hpAdd;
+    //    MaxHp = baseHp + hpAdd;
     //    maxMana = baseMana + manaAdd;
     //}
     private void SetInput()
@@ -97,14 +94,21 @@ public class PlayerManager : MonoBehaviour, IDamageable
         DebugInput = new(KeyCode.O, 0.1f);
         DebugInput.OnDown.AddListener(() => TakeDamage(1));
 
-        HealInput = new(KeyCode.A, healChargeTime);
-        HealInput.OnMaxReached.AddListener(HealAbility);
-
         InventoryInput = new(KeyCode.Tab, 0.1f);
         InventoryInput.OnDown.AddListener(TriggerInventory);
 
-        ConsumableInput = new(KeyCode.S, 0.1f);
+        ConsumableInput = new(KeyCode.A, 0.1f);
         ConsumableInput.OnDown.AddListener(ConsumeConsumableItem);
+
+        Amulet1Input = new(KeyCode.S, amulet1ChargeTime);
+        Amulet1Input.OnMaxReached.AddListener(() => AmuletAbility(0));
+
+        Amulet2Input = new(KeyCode.D, amulet2ChargeTime);
+        Amulet2Input.OnMaxReached.AddListener(() => AmuletAbility(1));
+
+        Amulet3Input = new(KeyCode.F, amulet3ChargeTime);
+        Amulet3Input.OnMaxReached.AddListener(() => AmuletAbility(2));
+
     }
     private void UpdateInput()
     {
@@ -112,23 +116,25 @@ public class PlayerManager : MonoBehaviour, IDamageable
         InteractInput.Update();
         PauseInput.Update();
         DebugInput.Update();
-        HealInput.Update();
         InventoryInput.Update();
         ConsumableInput.Update();
+        Amulet1Input.Update();
+        Amulet2Input.Update();
+        Amulet3Input.Update();
         MoveDirection = Input.GetKey(KeyCode.RightArrow) ? 1 : Input.GetKey(KeyCode.LeftArrow) ? -1 : 0;
     }
     #endregion
 
     #region Health
     [Header("HEALTH")]
-    public int maxHp = 5;
-    //private int baseHp = 5;
-    public bool Alive => hp > 0;
-    public int hp;
+    public int baseMaxHp;
+    [HideInInspector] public int boostedMaxHp;
+    [HideInInspector] public int MaxHp => baseMaxHp + boostedMaxHp;
+    public int Hp;
+    public bool Alive => Hp > 0;
 
     public float invincibleDuration;
     private bool invincible;
-    private float damageTakenTime;
 
     [Header("HEALTH GRAPHICS")]
     private int hpDisplayed;
@@ -143,78 +149,59 @@ public class PlayerManager : MonoBehaviour, IDamageable
         GameRespawningState respawningState = new(GameManager.Instance.machine);
         GameManager.Instance.machine.ChangeState(respawningState);
     }
-    public void TakeDamage(int damage)
+    public async void TakeDamage(int damage)
     {
         if (invincible) return; //Eventually add visual marker for user
 
-        //if (def > 0)
-        //{
-        //    if (def <= damage)
-        //    {
-        //        damage -= def;
-        //        def = 0;
-        //    }
-        //    if (def > damage)
-        //    {
-        //        def -= damage;
-        //        damage = 0;
-        //    }
-        //}
-        hp -= damage;
+        Hp -= damage;
         if (damage > 0)
         {
-            damageTakenTime = Time.time;
-            invincible = true;
+            SetInvincibility(invincibleDuration);
+            Time.timeScale = 0.4f;
+            await Task.Delay((int)(invincibleDuration * 1000));
+            Time.timeScale = 1;
         }
     }
-    private void HandleInvincibility()
+    public async void SetInvincibility(float duration)
     {
-        if (invincible && damageTakenTime + invincibleDuration > Time.time)
-        {
-            Time.timeScale = 0.33f;
-        }
-        else if (damageTakenTime + invincibleDuration < Time.time)
-        {
-            invincible = false;
-            Time.timeScale = 1.0f;
-            damageTakenTime = 0;
-        }
+        invincible = true;
+        GetComponent<SpriteRenderer>().color = Color.cyan;
+
+        await Task.Delay((int)(duration * 1000));
+
+        GetComponent<SpriteRenderer>().color = Color.white;
+        invincible = false;
     }
-    private void HealthChecks()
+    private void HealthCheck()
     {
         CheckForHpGraphics();
         CheckForMaxValues();
-        if (hp <= 0) { Die(); }
+        if (Hp <= 0) { Die(); }
         void CheckForHpGraphics()
         {
             for (int i = 0; i < hpImages.Length; i++)
             {
-                if (i < hp) { hpImages[i].sprite = fullHeart; }
+                if (i < Hp) { hpImages[i].sprite = fullHeart; }
                 else { hpImages[i].sprite = emptyHeart; }
 
                 if (i < hpDisplayed) { hpImages[i].enabled = true; }
                 else { hpImages[i].enabled = false; }
             }
-            //for (int j = maxHp + 1; j < hpImages.Length; j++)
-            //{
-            //    if (j < def) { hpImages[j].sprite = fullShield; }
-            //    else { hpImages[j].sprite = emptyShield; }
-
-            //    if (j < defDisplayed) { hpImages[j].enabled = true; }
-            //    else { hpImages[j].enabled = false; }
-            //}
         }
         void CheckForMaxValues()
         {
-            if (hp > maxHp) { hp = maxHp; }
-            hpDisplayed = maxHp;
+            if (Hp > MaxHp) { Hp = MaxHp; }
+            hpDisplayed = MaxHp;
         }
 
     }
-    public void Heal(int healAmount)
+    public async void Heal(int healAmount)
     {
-        if (hp >= maxHp) return;
-        hp += healAmount;
+        if (Hp >= MaxHp) return;
+        Hp += healAmount;
+        GetComponent<SpriteRenderer>().color = Color.green;
+        await Task.Delay(500);
+        GetComponent<SpriteRenderer>().color = Color.white;
     }
     #endregion
 
@@ -370,7 +357,9 @@ public class PlayerManager : MonoBehaviour, IDamageable
     [Header("ATTACK")]
     public float attackDelay = .2f; //determines the time interval before attack can be used again
     public float attackReach; //determines how far the attack reaches (in case of adding other weapons)
-    public int damage = 1;
+    public int Damage => baseDamage + boostedDamage;
+    public int baseDamage;
+    [HideInInspector] public int boostedDamage;
     public float pushbackForce = 10; //by what force will the character be pushed back from the direction of the attack
 
     private bool attackUsable; //checks whether attack isn't blocked by other actions
@@ -379,6 +368,15 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private float attackTime; //the time when attack action happened
     private bool attackBuffer; //queues another attack if the button was pressed, but the player is doing another action
     //private bool attacking; //This is never used, but I'm keeping it here in the case I need it when blocking other actions and abilites during attack
+
+    private void AttackCheck() 
+    { 
+        if (equippedWeapon != null && equippedWeapon.IsEmpty) 
+        { 
+            baseDamage = 0; 
+            attackReach = 0; 
+        }
+    }
 
     //private void HandleAttack()
     //{
@@ -414,48 +412,60 @@ public class PlayerManager : MonoBehaviour, IDamageable
     #endregion
 
     #region Abilities
-    [Header("HEAL")]
-    public float healChargeTime = 1f;
-    public float healManaCost = 30;
-
-    public void HealAbility()
-    {
-        if (hp >= maxHp) return;
-
-        Heal(1);
-        Mana -= healManaCost;
-    }
-
-    #endregion
-
-    #region Magic
-    [Header("MAGIC")]
+    [Header("Abilities")]
     public float Mana = 100;
-    public float maxMana = 100;
-    //private int baseMana = 100;
-    public float mAtk;
+    public float MaxMana => baseMaxMana + boostedMaxMana;
+    public int baseMaxMana = 100;
+    [HideInInspector] public int boostedMaxMana;
+    [HideInInspector] public float amulet1ChargeTime;
+    [HideInInspector] public float amulet2ChargeTime;
+    [HideInInspector] public float amulet3ChargeTime;
+
     public TextMeshProUGUI ManaCounter;
 
-    public void ManaCheck()
+    public void AbilityCheck()
     {
         ManaCounter.text = Mana.ToString();
+        if (equippedAmulet1 != null && equippedAmulet1.Item is AbilityAmulet tmp1) 
+        { 
+            amulet1ChargeTime = tmp1.chargeTime;
+        }
+        if (equippedAmulet2 != null && equippedAmulet2.Item is AbilityAmulet tmp2)
+        {
+            amulet2ChargeTime = tmp2.chargeTime;
+        }
+        if (equippedAmulet3 != null && equippedAmulet3.Item is AbilityAmulet tmp3)
+        {
+            amulet3ChargeTime = tmp3.chargeTime;
+        }
+
     }
 
-    //public void tmpRegainMana()
-    //{
-    //    if (Time.time >= timeDownArrowUp + 1 && Mana != maxMana)
-    //    {
-    //        Mana += 10;
-    //    }
-    //}
+    public void AmuletAbility(int amuletIndex)
+    {
+        AbstractSlot amulet = null;
+        switch (amuletIndex)
+        {
+            case 0: amulet = equippedAmulet1; break;
+            case 1: amulet = equippedAmulet2; break;
+            case 2: amulet = equippedAmulet3; break;
 
+        }
+        if (amulet != null && amulet.Item is AbilityAmulet tmp)
+        {
+            tmp.ActivateAbility();
+        }
+    }
     #endregion
 
     #region Inventory
-    public Inventory Inventory = new();
-    public AbstractSlot equippedConsumable = new();
-    public AbstractSlot equippedWeapon = new();
-    public AbstractSlot[] amulets;
+    [Header("Inventory")]
+    [HideInInspector] public Inventory Inventory = new();
+    [HideInInspector] public AbstractSlot equippedConsumable = new();
+    [HideInInspector] public AbstractSlot equippedWeapon = new();
+    [HideInInspector] public AbstractSlot equippedAmulet1 = new();
+    [HideInInspector] public AbstractSlot equippedAmulet2 = new();
+    [HideInInspector] public AbstractSlot equippedAmulet3 = new();
     public int Gold = 0;
 
     public void TriggerInventory()
@@ -491,7 +501,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         }
     }
 
-    public void ConsumeConsumableItem() 
+    public void ConsumeConsumableItem()
     {
         ConsumableItem consumable = (ConsumableItem)equippedConsumable.Item;
         consumable.Consume();

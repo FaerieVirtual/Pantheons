@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-internal class PlayerStats : ScriptableObject
+internal class DataSave : ScriptableObject
 {
     public Scene respawnPointScene;
 
@@ -17,7 +17,7 @@ internal class PlayerStats : ScriptableObject
 
     [Header("Inventory")]
     public List<IItem> inventory;
-    public List<ICharm> equippedCharms;
-    public List<ICharm> unequippedCharms;
+    //public List<ICharm> equippedCharms;
+    //public List<ICharm> unequippedCharms;
 
 }

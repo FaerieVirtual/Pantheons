@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0aeee5c87f56f14bbf34f056b8f5f5c, type: 3}
+  m_Name: Treeheart
+  m_EditorClassIdentifier: 
+  Name: Treeheart
+  Type: 2
+  Description: Pulsing bundle of something's lifeforce. Hold activation button for
+    1 second and heal 1 Hp for 30 mana.
+  ItemSprite: {fileID: -188679330444342605, guid: 812be1d8af7298f468ca67aaeb530efe, type: 3}
+  Price: 50
+  chargeTime: 1
+  HealAmount: 1
+  ManaCost: 30

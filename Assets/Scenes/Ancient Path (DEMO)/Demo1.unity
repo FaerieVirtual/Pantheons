@@ -2826,7 +2826,7 @@ Transform:
   m_GameObject: {fileID: 511955167}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 29.81164, y: 3.234058, z: -10.040409}
+  m_LocalPosition: {x: 29.932617, y: 3.236608, z: -10.040409}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3185,6 +3185,7 @@ MonoBehaviour:
   price: {fileID: 1442147873}
   CoinCount: {fileID: 147867631}
   DisplaySlot: {fileID: 79441412}
+  traderData: {fileID: 0}
 --- !u!114 &557295506
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13942,15 +13943,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5678529484309977025, guid: 4c1582fb8c2585e4180ac56ea5460f42, type: 3}
       propertyPath: Gold
-      value: 200
+      value: 600
       objectReference: {fileID: 0}
     - target: {fileID: 5678529484309977025, guid: 4c1582fb8c2585e4180ac56ea5460f42, type: 3}
       propertyPath: maxHp
       value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 5678529484309977025, guid: 4c1582fb8c2585e4180ac56ea5460f42, type: 3}
+      propertyPath: maxMana
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 5678529484309977025, guid: 4c1582fb8c2585e4180ac56ea5460f42, type: 3}
       propertyPath: JumpPower
       value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 5678529484309977025, guid: 4c1582fb8c2585e4180ac56ea5460f42, type: 3}
+      propertyPath: baseMaxHp
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 5678529484309977025, guid: 4c1582fb8c2585e4180ac56ea5460f42, type: 3}
       propertyPath: CoyoteTime
@@ -21804,10 +21813,9 @@ MonoBehaviour:
   CoinCount: {fileID: 949614763}
   DisplaySlot: {fileID: 1778447319}
   swordSlot: {fileID: 389180712}
-  equipmentSlots:
-  - {fileID: 1000060705}
-  - {fileID: 369871935}
-  - {fileID: 669546718}
+  amuletSlot1: {fileID: 1000060705}
+  amuletSlot2: {fileID: 369871935}
+  amuletSlot3: {fileID: 669546718}
   consumableSlot: {fileID: 239748186}
 --- !u!114 &2038021598
 MonoBehaviour:

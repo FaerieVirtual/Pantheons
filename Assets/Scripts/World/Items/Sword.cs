@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-public class Sword : WeaponItem
+﻿public class Sword : WeaponItem
 {
     private void OnEnable()
     {
@@ -8,7 +6,4 @@ public class Sword : WeaponItem
         Description = "Rusted and overgrown. This sword is perhaps more powerful than is apparent.";
         Price = -1;
     }
-    //public Sword(Sprite itemSprite) : base("Ancient Sword", "Rusted and overgrown. This sword is perhaps more powerful than is apparent.", itemSprite, -1)
-    //{
-    //}
 }
