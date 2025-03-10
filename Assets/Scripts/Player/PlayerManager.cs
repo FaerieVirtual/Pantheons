@@ -61,22 +61,15 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private PlayerInput Amulet1Input;
     private PlayerInput Amulet2Input;
     private PlayerInput Amulet3Input;
-    //private PlayerInput AttackInput;
+    private PlayerInput AttackInput;
 
     public void ResetPlayer()
     {
-        //ResetBoosts();
         Hp = MaxHp;
         Mana = MaxMana;
         invincible = false;
         movementDisable = false;
-        Gold = 0;
     }
-    //public void ResetBoosts()
-    //{
-    //    MaxHp = baseHp + hpAdd;
-    //    maxMana = baseMana + manaAdd;
-    //}
     private void SetInput()
     {
         JumpInput = new(KeyCode.Space, MaxJumpTime);
@@ -109,6 +102,9 @@ public class PlayerManager : MonoBehaviour, IDamageable
         Amulet3Input = new(KeyCode.F, amulet3ChargeTime);
         Amulet3Input.OnMaxReached.AddListener(() => AmuletAbility(2));
 
+        AttackInput = new(KeyCode.C, 0.1f);
+        AttackInput.OnDown.AddListener(HandleAttack);
+
     }
     private void UpdateInput()
     {
@@ -121,6 +117,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         Amulet1Input.Update();
         Amulet2Input.Update();
         Amulet3Input.Update();
+        AttackInput.Update();
         MoveDirection = Input.GetKey(KeyCode.RightArrow) ? 1 : Input.GetKey(KeyCode.LeftArrow) ? -1 : 0;
     }
     #endregion
@@ -145,13 +142,14 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public void Die()
     {
         movementDisable = true;
+        Gold = 0;
 
         GameRespawningState respawningState = new(GameManager.Instance.machine);
         GameManager.Instance.machine.ChangeState(respawningState);
     }
     public async void TakeDamage(int damage)
     {
-        if (invincible) return; //Eventually add visual marker for user
+        if (invincible) return;
 
         Hp -= damage;
         if (damage > 0)
@@ -236,6 +234,8 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private bool jumpSustainable;
     private bool ApexHit;
     private float timeGroundLeft;
+
+    private Vector2 BounceForce;
 
     private bool HasCoyoteTime => coyoteUsable && !IsStanding && Time.time <= timeGroundLeft + CoyoteTime;
 
@@ -330,6 +330,11 @@ public class PlayerManager : MonoBehaviour, IDamageable
     }
     private void ApplyMovement()
     {
+        if (BounceForce != Vector2.zero)
+        {
+            tempVelocity += BounceForce;
+            BounceForce = Vector2.zero;
+        }
         RigidBody.velocity = tempVelocity;
     }
 
@@ -360,55 +365,69 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public int Damage => baseDamage + boostedDamage;
     public int baseDamage;
     [HideInInspector] public int boostedDamage;
-    public float pushbackForce = 10; //by what force will the character be pushed back from the direction of the attack
+    public float AttackPushbackForce; //by what force will the character be pushed back from the direction of the attack
 
-    private bool attackUsable; //checks whether attack isn't blocked by other actions
+    //private bool attackUsable; //checks whether attack isn't blocked by other actions
     private bool attackDisable; //debug switch to disable attacks 
 
-    private float attackTime; //the time when attack action happened
-    private bool attackBuffer; //queues another attack if the button was pressed, but the player is doing another action
+    //private bool attackBuffer; //queues another attack if the button was pressed, but the player is doing another action
     //private bool attacking; //This is never used, but I'm keeping it here in the case I need it when blocking other actions and abilites during attack
 
-    private void AttackCheck() 
-    { 
-        if (equippedWeapon != null && equippedWeapon.IsEmpty) 
-        { 
-            baseDamage = 0; 
-            attackReach = 0; 
+    private void AttackCheck()
+    {
+        if (equippedWeapon != null && equippedWeapon.IsEmpty)
+        {
+            baseDamage = 0;
+            attackReach = 0;
+            attackDisable = true;
         }
+        if (equippedWeapon != null && !equippedWeapon.IsEmpty) attackDisable = false;
     }
 
-    //private void HandleAttack()
-    //{
-    //    attackTime = Time.time;
-    //    attackUsable = false;
+    private Vector2 GetDirection()
+    {
+        if (Input.GetKey(KeyCode.UpArrow)) return Vector2.up;
+        else if (Input.GetKey(KeyCode.DownArrow)) return Vector2.down;
+        else if (transform.localRotation.y == 0) return Vector2.right;
+        else if (transform.localRotation.y == 180) return Vector2.left;
 
-    //    Vector2 boxOrigin = new(Collider.bounds.center.x + (Collider.bounds.max.x + attackReach) / 2 * MoveDirection, Collider.bounds.center.y);
-    //    Vector2 boxSize = new(attackReach / 2, Collider.bounds.max.y / 2);
-    //    Vector2 boxDirection = new(MoveDirection, 0);
-    //    LayerMask player = LayerMask.GetMask("Player");
-    //    Transform enemyTransform = null;
+        return Vector2.zero;
+    }
 
-    //    RaycastHit2D[] hitObjects = Physics2D.BoxCastAll(boxOrigin, boxSize, 0f, boxDirection, 0.1f, ~player);
-    //    foreach (RaycastHit2D hit in hitObjects)
-    //    {
-    //        if (hit.transform.gameObject.GetComponent<IDamageable>() != null)
-    //        {
-    //            IDamageable damaged = hit.transform.gameObject.GetComponent<IDamageable>();
-    //            damaged.TakeDamage(damage);
-    //            if (hit.transform.CompareTag("Enemy")) enemyTransform = hit.transform;
-    //        }
-    //    }
-    //    if (enemyTransform != null)
-    //    {
-    //        Vector2 bounce = (transform.position - enemyTransform.position).normalized;
-    //        RigidBody.AddForce(bounce * pushbackForce, ForceMode2D.Impulse);
-    //    }
+    public Vector2 GetSize(Vector2 direction)
+    {
+        if (direction == Vector2.zero) { Debug.Log("getSize got a vector zero"); return Vector2.zero; }
+        if (direction == Vector2.down || direction == Vector2.up) return new Vector2(0.2f, attackReach);
+        if (direction == Vector2.right || direction == Vector2.left) return new Vector2(attackReach, 0.3f);
 
-    //}
+        return Vector2.zero;
+    }
 
+    private void HandleAttack()
+    {
+        if (attackDisable) return;
 
+        Vector2 Direction = GetDirection();
+        Vector2 Size = GetSize(Direction);
+        Vector2 Center = (Vector2)transform.position + Direction * (attackReach / 2);
+        Debug.DrawLine(Center - Size / 2, Center + Size / 2, Color.red, 3f);
 
+        Collider2D[] hits = Physics2D.OverlapBoxAll(Center, Size, 0);
+        foreach (Collider2D hit in hits)
+        {
+            if (hit.transform.gameObject.TryGetComponent(out IDamageable damaged))
+            {
+                if (hit.GetComponent<PlayerManager>() != null) continue;
+
+                damaged.TakeDamage(Damage);
+                if (hit.GetComponent<EnemyBase>() != null || hit.GetComponent<Spikes>() != null)
+                {
+                    Vector2 bounce = (transform.position - hit.transform.position).normalized;
+                    BounceForce = bounce * AttackPushbackForce;
+                }
+            }
+        }
+    }
     #endregion
 
     #region Abilities
@@ -426,8 +445,8 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public void AbilityCheck()
     {
         ManaCounter.text = Mana.ToString();
-        if (equippedAmulet1 != null && equippedAmulet1.Item is AbilityAmulet tmp1) 
-        { 
+        if (equippedAmulet1 != null && equippedAmulet1.Item is AbilityAmulet tmp1)
+        {
             amulet1ChargeTime = tmp1.chargeTime;
         }
         if (equippedAmulet2 != null && equippedAmulet2.Item is AbilityAmulet tmp2)

@@ -5,6 +5,9 @@ using UnityEngine;
 
 public interface IDamageable
 {
-    void TakeDamage(int damage);
-    void Die();
+    public int Hp { get;  set; }
+    public int MaxHp { get;  set; }
+    public bool Alive => Hp > 0;
+    public void TakeDamage(int damage);
+    public void Die();
 }

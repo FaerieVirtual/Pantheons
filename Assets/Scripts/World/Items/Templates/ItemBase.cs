@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
 
-public abstract class ItemBase : ScriptableObject//, IItem
+public abstract class ItemBase : ScriptableObject
 {
-    [SerializeField] public string Name;// { get; set; }
-    public ItemType Type;// { get; set; }
-    [SerializeField] public string Description;// { get; set; }
-    [SerializeField] public Sprite ItemSprite;// { get; set; }
-    [SerializeField] public int Price;// { get; set; }
+    public string Name;
+    public ItemType Type;
+    public string Description;
+    public Sprite ItemSprite;
+    public int Price;
 }
 

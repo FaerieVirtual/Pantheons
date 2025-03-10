@@ -262,54 +262,47 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d777ee7ca7db7624d8f85ab65da245ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Audio: {fileID: 0}
   VerticalDeadZoneThreshold: 0.1
   HorizontalDeadZoneThreshold: 0.1
   TapThreshold: 0.35
-  maxHp: 5
-  maxDef: 0
-  alive: 1
+  baseMaxHp: 0
+  boostedMaxHp: 0
+  Hp: 0
   invincibleDuration: 0
-  hp: 5
-  def: 0
   hpImages: []
   fullHeart: {fileID: 21300000, guid: 28fe1c7928ae4894ba26299be7cbf8fe, type: 3}
   emptyHeart: {fileID: 21300000, guid: cf5e10748c2d4cf4a98fb6a835cf538f, type: 3}
-  fullShield: {fileID: 0}
-  emptyShield: {fileID: 0}
-  respawnSceneIndex: 0
-  canChangeScenes: 0
   MaxSpeed: 12
   Acceleration: 140
   GroundDeceleration: 80
   AirDeceleration: 60
   GroundingForce: -1
-  GrounderDistance: 0.1
   JumpPower: 18
   JumpSustainPower: 16
+  MaxJumpTime: 0
   MaxFallSpeed: 30
   FallAcceleration: 40
-  JumpEndEarlyGravityModifier: 5
+  JumpEndGModifier: 0
   CoyoteTime: 0.15
   JumpBuffer: 0.2
   ApexSpeedModifier: 2
   movementDisable: 0
+  Interact:
+    m_PersistentCalls:
+      m_Calls: []
   attackDelay: 0.2
   attackReach: 0
-  damage: 1
-  pushbackForce: 10
-  healChargeTime: 0.7
-  healManaCost: 30
-  mana: 100
-  maxMana: 0
-  mAtk: 0
-  baseCharms: 3
-  unlockedCharms: 0
-  maxCharms: 0
-  hpAdd: 0
-  defAdd: 0
-  manaAdd: 0
-  speedAdd: 0
+  baseDamage: 0
+  boostedDamage: 0
+  AttackPushbackForce: 0
+  Mana: 100
+  baseMaxMana: 100
+  boostedMaxMana: 0
+  amulet1ChargeTime: 0
+  amulet2ChargeTime: 0
+  amulet3ChargeTime: 0
+  ManaCounter: {fileID: 0}
+  Gold: 0
 --- !u!1 &9195820129829134308
 GameObject:
   m_ObjectHideFlags: 0

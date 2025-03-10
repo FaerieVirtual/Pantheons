@@ -2,55 +2,55 @@ using UnityEngine;
 
 public class EnemyBase : MonoBehaviour, IDamageable, IMoveable
 {
-    Animator animator;
-    EnemyStatemachine enemyStatemachine { get; set; } = new EnemyStatemachine();
+    EnemyStatemachine EnemyStatemachine { get; set; } = new EnemyStatemachine();
     IdleState idleState;
     DeathState deathState;
 
     #region Start/Updates
     void Start()
     {
-        animator = GetComponent<Animator>();
-        idleState = new IdleState(this, enemyStatemachine);
-        deathState = new DeathState(this, enemyStatemachine);
-        enemyStatemachine.Init(idleState);
+        idleState = new IdleState(this, EnemyStatemachine);
+        deathState = new DeathState(this, EnemyStatemachine);
+        EnemyStatemachine.Init(idleState);
 
-        hp = maxHp;
+        Hp = MaxHp;
         ground = LayerMask.GetMask("Ground");
         groundCheck = transform.GetChild(2);
         wallCheck = transform.GetChild(3);
     }
     void Update()
     {
-        enemyStatemachine.currentState.Update();
+        EnemyStatemachine.currentState.Update();
     }
     void FixedUpdate()
     {
-        enemyStatemachine.currentState.PhysicsUpdate();
+        EnemyStatemachine.currentState.PhysicsUpdate();
     }
     #endregion
 
     #region Health
-    public int maxHp;
-    private float hp;
+    public int MaxHp { get; set; }
+    public int Hp { get; set; }
+    //public bool Alive => hp > 0;
 
     public void Die()
     {
-        enemyStatemachine.ChangeState(deathState);
+        EnemyStatemachine.ChangeState(deathState);
     }
     public void TakeDamage(int damage)
     {
-        hp -= damage;
-        if (hp <= 0) { Die(); }
+        Hp -= damage;
+        if (Hp <= 0) { Die(); }
     }
     #endregion
 
     #region Movement 
-    public float speed;
+    public int Speed { get; set; }
     private Transform groundCheck;
     private Transform wallCheck;
     private LayerMask ground;
     public Rigidbody2D RigidBody => GetComponent<Rigidbody2D>();
+
     private bool facingRight = true;
 
     public void Move()
@@ -61,8 +61,8 @@ public class EnemyBase : MonoBehaviour, IDamageable, IMoveable
 
         if (!groundDetect) { Flip(); }
         if (wallDetect) { Flip(); }
-        if (facingRight) { forward = new(speed, RigidBody.velocity.y); }
-        if (!facingRight) { forward = new(-speed, RigidBody.velocity.y); }
+        if (facingRight) { forward = new(Speed, RigidBody.velocity.y); }
+        if (!facingRight) { forward = new(-Speed, RigidBody.velocity.y); }
 
         Animator animator = GetComponent<Animator>();
         animator.Play("Run");
