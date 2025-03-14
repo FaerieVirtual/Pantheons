@@ -18,5 +18,5 @@ MonoBehaviour:
     \n5 damage, 7 reach
   ItemSprite: {fileID: -2804744358768855969, guid: 4c4dc131d2c789e459cc64987d258654, type: 3}
   Price: 60
-  damage: 5
-  reach: 7
+  damage: 2
+  reach: 4

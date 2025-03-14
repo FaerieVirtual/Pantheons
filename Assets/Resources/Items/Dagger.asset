@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: Rusty Dagger
   Type: 1
-  Description: A measly dagger barely worthy of keeping. \n2 damage, 4 reach
+  Description: A measly dagger barely worthy of keeping. 2 damage, 2 reach
   ItemSprite: {fileID: 3914693016000628799, guid: 4c4dc131d2c789e459cc64987d258654, type: 3}
   Price: 10
-  damage: 2
-  reach: 4
+  damage: 1
+  reach: 2

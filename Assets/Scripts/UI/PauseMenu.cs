@@ -5,6 +5,14 @@ using UnityEngine;
 public class PauseMenu : MonoBehaviour
 {
     GameStatemachine machine;
+    private void OnEnable()
+    {
+        if (TryGetComponent(out Canvas canvas) && canvas.worldCamera == null)
+        {
+            canvas.worldCamera = Camera.main;
+        }
+    }
+
     private void Start()
     {
         machine = GameManager.Instance.machine;

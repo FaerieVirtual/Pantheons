@@ -1,4 +1,5 @@
 using Assets.Scripts.Player;
+using System.Collections;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -33,9 +34,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
         HandleGravity();
         ApplyMovement();
 
-        //Attack
-        //HandleAttack();
-
         HealthCheck();
         AttackCheck();
         AbilityCheck();
@@ -65,10 +63,17 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     public void ResetPlayer()
     {
+        ResetStats();
         Hp = MaxHp;
         Mana = MaxMana;
         invincible = false;
         movementDisable = false;
+    }
+    public void ResetStats()
+    {
+        Damage = baseDamage + boostedDamage;
+        MaxHp = baseMaxHp + boostedMaxHp;
+        MaxMana = baseMaxMana + boostedMaxMana;
     }
     private void SetInput()
     {
@@ -126,14 +131,15 @@ public class PlayerManager : MonoBehaviour, IDamageable
     [Header("HEALTH")]
     public int baseMaxHp;
     [HideInInspector] public int boostedMaxHp;
-    [HideInInspector] public int MaxHp => baseMaxHp + boostedMaxHp;
+    [HideInInspector] public int MaxHp;
     public int Hp;
     public bool Alive => Hp > 0;
 
     public float invincibleDuration;
     private bool invincible;
 
-    [Header("HEALTH GRAPHICS")]
+    public int DamagePushbackForce;
+
     private int hpDisplayed;
     public Image[] hpImages;
     public Sprite fullHeart;
@@ -235,8 +241,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private bool ApexHit;
     private float timeGroundLeft;
 
-    private Vector2 BounceForce;
-
     private bool HasCoyoteTime => coyoteUsable && !IsStanding && Time.time <= timeGroundLeft + CoyoteTime;
 
     void HandleCollisions()
@@ -323,18 +327,13 @@ public class PlayerManager : MonoBehaviour, IDamageable
         else
         {
             var inAirGravity = FallAcceleration;
-            if (endedJump) inAirGravity *= JumpEndGModifier;
+            if (endedJump && tempVelocity.y < -5) inAirGravity *= JumpEndGModifier;
 
             tempVelocity.y = Mathf.MoveTowards(tempVelocity.y, -MaxFallSpeed, inAirGravity * Time.fixedDeltaTime);
         }
     }
     private void ApplyMovement()
     {
-        if (BounceForce != Vector2.zero)
-        {
-            tempVelocity += BounceForce;
-            BounceForce = Vector2.zero;
-        }
         RigidBody.velocity = tempVelocity;
     }
 
@@ -343,6 +342,11 @@ public class PlayerManager : MonoBehaviour, IDamageable
         tempVelocity = Vector2.zero;
     }
 
+    public void Pushback(Transform origin, int Force)
+    {
+        Vector2 bounce = (transform.position - origin.position).normalized;
+        tempVelocity += bounce * Force;
+    }
     #endregion
 
     #region Interact
@@ -360,18 +364,15 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     #region Attacking
     [Header("ATTACK")]
-    public float attackDelay = .2f; //determines the time interval before attack can be used again
+    //public float attackDelay = .2f; //determines the time interval before attack can be used again
     public float attackReach; //determines how far the attack reaches (in case of adding other weapons)
-    public int Damage => baseDamage + boostedDamage;
+    public int Damage;
     public int baseDamage;
     [HideInInspector] public int boostedDamage;
-    public float AttackPushbackForce; //by what force will the character be pushed back from the direction of the attack
+    public int AttackPushbackForce; //by what force will the character be pushed back from the direction of the attack
 
-    //private bool attackUsable; //checks whether attack isn't blocked by other actions
     private bool attackDisable; //debug switch to disable attacks 
 
-    //private bool attackBuffer; //queues another attack if the button was pressed, but the player is doing another action
-    //private bool attacking; //This is never used, but I'm keeping it here in the case I need it when blocking other actions and abilites during attack
 
     private void AttackCheck()
     {
@@ -380,8 +381,15 @@ public class PlayerManager : MonoBehaviour, IDamageable
             baseDamage = 0;
             attackReach = 0;
             attackDisable = true;
+            ResetStats();
         }
-        if (equippedWeapon != null && !equippedWeapon.IsEmpty) attackDisable = false;
+        if (equippedWeapon != null && !equippedWeapon.IsEmpty)
+        {
+            WeaponItem tmp = (WeaponItem)equippedWeapon.Item;
+            baseDamage = tmp.damage;
+            attackReach = tmp.reach;
+            attackDisable = false;
+        }
     }
 
     private Vector2 GetDirection()
@@ -396,7 +404,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     public Vector2 GetSize(Vector2 direction)
     {
-        if (direction == Vector2.zero) { Debug.Log("getSize got a vector zero"); return Vector2.zero; }
+        if (direction == Vector2.zero) return Vector2.zero;
         if (direction == Vector2.down || direction == Vector2.up) return new Vector2(0.2f, attackReach);
         if (direction == Vector2.right || direction == Vector2.left) return new Vector2(attackReach, 0.3f);
 
@@ -406,34 +414,44 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private void HandleAttack()
     {
         if (attackDisable) return;
-
+        attackDisable = true;
         Vector2 Direction = GetDirection();
         Vector2 Size = GetSize(Direction);
         Vector2 Center = (Vector2)transform.position + Direction * (attackReach / 2);
-        Debug.DrawLine(Center - Size / 2, Center + Size / 2, Color.red, 3f);
 
-        Collider2D[] hits = Physics2D.OverlapBoxAll(Center, Size, 0);
-        foreach (Collider2D hit in hits)
+        foreach (Collider2D hit in Physics2D.OverlapBoxAll(Center, Size, 0))
         {
+            if (hit.transform.parent != null && hit.transform.parent.TryGetComponent(out IDamageable damagedParent))
+            {
+                if (hit.GetComponent<PlayerManager>() != null) continue;
+
+                damagedParent.TakeDamage(Damage);
+                if (hit.GetComponent<EnemyBase>() != null || hit.GetComponent<Spikes>() != null)
+                {
+                    Pushback(hit.transform, AttackPushbackForce);
+                }
+            }
             if (hit.transform.gameObject.TryGetComponent(out IDamageable damaged))
             {
+
                 if (hit.GetComponent<PlayerManager>() != null) continue;
 
                 damaged.TakeDamage(Damage);
                 if (hit.GetComponent<EnemyBase>() != null || hit.GetComponent<Spikes>() != null)
                 {
-                    Vector2 bounce = (transform.position - hit.transform.position).normalized;
-                    BounceForce = bounce * AttackPushbackForce;
+                    Pushback(hit.transform, AttackPushbackForce);
                 }
             }
         }
+        attackDisable = false;
     }
+
     #endregion
 
     #region Abilities
     [Header("Abilities")]
     public float Mana = 100;
-    public float MaxMana => baseMaxMana + boostedMaxMana;
+    public float MaxMana;
     public int baseMaxMana = 100;
     [HideInInspector] public int boostedMaxMana;
     [HideInInspector] public float amulet1ChargeTime;
@@ -445,6 +463,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public void AbilityCheck()
     {
         ManaCounter.text = Mana.ToString();
+        if (Mana > MaxMana) Mana = MaxMana;
         if (equippedAmulet1 != null && equippedAmulet1.Item is AbilityAmulet tmp1)
         {
             amulet1ChargeTime = tmp1.chargeTime;
@@ -457,7 +476,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
         {
             amulet3ChargeTime = tmp3.chargeTime;
         }
-
     }
 
     public void AmuletAbility(int amuletIndex)

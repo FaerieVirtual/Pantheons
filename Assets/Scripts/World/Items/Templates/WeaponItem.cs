@@ -12,11 +12,5 @@ public class WeaponItem : ItemBase
         Type = ItemType.Sword;
     }
 
-    public void OnEquip()
-    {
-        PlayerManager.Instance.baseDamage = damage;
-        PlayerManager.Instance.attackReach = reach;
-        Debug.Log($"equipping {Name}, damage: {PlayerManager.Instance.baseDamage}, reach: {PlayerManager.Instance.attackReach}");
-    }
 }
 

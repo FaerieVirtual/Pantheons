@@ -12,6 +12,8 @@ public class VendorNPC : NPC
     private void Update()
     {
         if (Data.Inventory.IsEmpty && Data.HasFlag("InventoryEmpty")) Data.SetFlag("InventoryEmpty");
+        if (menuObject.activeSelf && TextBox.gameObject.activeSelf) { TextBox.gameObject.SetActive(false); }
+        else if (!menuObject.activeSelf && !TextBox.gameObject.activeSelf) { TextBox.gameObject.SetActive(true); }
     }
     public override void Interaction()
     {

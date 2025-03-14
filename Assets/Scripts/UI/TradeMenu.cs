@@ -15,6 +15,14 @@ public class TradeMenu : ItemManagingMenu
 
     public NPCData traderData;
 
+    private void OnEnable()
+    {
+        if (TryGetComponent(out Canvas canvas) && canvas.worldCamera == null)
+        {
+            canvas.worldCamera = Camera.main;
+        }
+    }
+
     public override void UpdateMenu()
     {
         foreach (GraphicalSlot slot in slots)

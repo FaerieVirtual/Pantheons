@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3119059993465859727}
   - component: {fileID: 1816225914758241940}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: ceilingCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -91,7 +91,7 @@ GameObject:
   - component: {fileID: 6895768331626554096}
   - component: {fileID: 2442991284209759815}
   - component: {fileID: 5678529484309977025}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -265,11 +265,21 @@ MonoBehaviour:
   VerticalDeadZoneThreshold: 0.1
   HorizontalDeadZoneThreshold: 0.1
   TapThreshold: 0.35
-  baseMaxHp: 0
+  baseMaxHp: 5
   boostedMaxHp: 0
+  MaxHp: 0
   Hp: 0
-  invincibleDuration: 0
-  hpImages: []
+  invincibleDuration: 1
+  DamagePushbackForce: 20
+  hpImages:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   fullHeart: {fileID: 21300000, guid: 28fe1c7928ae4894ba26299be7cbf8fe, type: 3}
   emptyHeart: {fileID: 21300000, guid: cf5e10748c2d4cf4a98fb6a835cf538f, type: 3}
   MaxSpeed: 12
@@ -277,32 +287,33 @@ MonoBehaviour:
   GroundDeceleration: 80
   AirDeceleration: 60
   GroundingForce: -1
-  JumpPower: 18
-  JumpSustainPower: 16
-  MaxJumpTime: 0
-  MaxFallSpeed: 30
-  FallAcceleration: 40
-  JumpEndGModifier: 0
-  CoyoteTime: 0.15
+  JumpPower: 17
+  JumpSustainPower: 17
+  MaxJumpTime: 0.2
+  MaxFallSpeed: 60
+  FallAcceleration: 50
+  JumpEndGModifier: 2
+  CoyoteTime: 0.1
   JumpBuffer: 0.2
-  ApexSpeedModifier: 2
+  ApexSpeedModifier: 1.5
   movementDisable: 0
   Interact:
     m_PersistentCalls:
       m_Calls: []
-  attackDelay: 0.2
   attackReach: 0
+  Damage: 0
   baseDamage: 0
   boostedDamage: 0
-  AttackPushbackForce: 0
+  AttackPushbackForce: 5
   Mana: 100
+  MaxMana: 0
   baseMaxMana: 100
   boostedMaxMana: 0
   amulet1ChargeTime: 0
   amulet2ChargeTime: 0
   amulet3ChargeTime: 0
   ManaCounter: {fileID: 0}
-  Gold: 0
+  Gold: 600
 --- !u!1 &9195820129829134308
 GameObject:
   m_ObjectHideFlags: 0
@@ -313,7 +324,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5128082115259138715}
   - component: {fileID: 1473247933062647653}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: standingCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
