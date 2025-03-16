@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine.SceneManagement;
 
 public class GameMainMenuState : GameState
@@ -8,12 +9,9 @@ public class GameMainMenuState : GameState
     }
     public override async void EnterState()
     {
-        GameManager.Instance.Area = "MainMenu";
-        if (SceneManager.GetActiveScene().name != "MainMenu") await LevelManager.LoadScene("MainMenu");
-    }
-    public override void ExitState()
-    {
-        GameManager.Instance.Area = null;
+        base.EnterState();
+        if (!SceneManager.GetSceneByBuildIndex(0).isLoaded) await LevelManager.LoadScene("MainMenu");
+        if (UIManager.Instance != null && UIManager.Instance.PlayerUI != null && UIManager.Instance.PlayerUI.activeSelf) UIManager.Instance.PlayerUI.SetActive(false);
     }
     public override void Update()
     {

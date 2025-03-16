@@ -1,8 +1,5 @@
-using JetBrains.Annotations;
-using System.Collections;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class GameLoadMenuState : GameState
 {
@@ -10,9 +7,13 @@ public class GameLoadMenuState : GameState
     {
         this.machine = machine;
     }
-    public override void EnterState()
+
+    public override async void EnterState()
     {
-        //GameManager.Area = 0;
+        await LevelManager.LoadScene("LoadMenu");
+        LoadMenu menu = Object.FindObjectOfType<LoadMenu>();
+        menu.SelectSave(1);
+        menu.playerSpriteAnimator.Play("Idle");
     }
     public override void ExitState() 
     {

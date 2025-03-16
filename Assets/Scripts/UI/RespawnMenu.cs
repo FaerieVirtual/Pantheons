@@ -1,6 +1,6 @@
+using System.IO;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class RespawnMenu : MonoBehaviour
 {
@@ -23,4 +23,19 @@ public class RespawnMenu : MonoBehaviour
         PlayerManager.Instance.ResetPlayer();
         machine.ChangeState(level);
     }
+    //public void BackToMenu()
+    //{
+    //    //DataManager manager = GameManager.Instance.DataManager;
+    //    //using (var writer = new StreamWriter(GameManager.Instance.DataManager.SavePath, false))
+    //    //{
+    //    //    manager.SaveFile(manager.Save(), manager.SaveIndex, writer);
+    //    //    writer.Flush();
+    //    //    writer.Close();
+    //    //    writer.Dispose();
+    //    //}
+
+    //    GameMainMenuState mainmenu = new(GameManager.Instance.machine);
+    //    GameManager.Instance.machine.ChangeState(mainmenu);
+    //}
+
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class Demo2 : Level
 {
@@ -14,7 +15,7 @@ public class Demo2 : Level
 
     public override void ExitState()
     {
-        base.ExitState();
+        GameManager.Instance.DataManager.NPCs["Nitril"] = Object.FindObjectOfType<VendorNPC>().Data;
     }
 
     public override void Update()

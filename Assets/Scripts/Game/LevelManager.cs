@@ -20,7 +20,6 @@ public class LevelManager : MonoBehaviour
     public static async Task LoadScene(int nextSceneIndex)
     {
         int oldSceneIndex = SceneManager.GetActiveScene().buildIndex;
-        //string oldSceneName = SceneManager.GetSceneByBuildIndex(oldSceneIndex).name;
         AsyncOperation load = SceneManager.LoadSceneAsync(nextSceneIndex, LoadSceneMode.Additive);
 
         load.allowSceneActivation = false;

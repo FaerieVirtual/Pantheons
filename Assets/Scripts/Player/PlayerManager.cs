@@ -1,7 +1,5 @@
 using Assets.Scripts.Player;
-using System.Collections;
 using System.Threading.Tasks;
-using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -141,9 +139,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     public int DamagePushbackForce;
 
     private int hpDisplayed;
-    public Image[] hpImages;
-    public Sprite fullHeart;
-    public Sprite emptyHeart;
+    private Image[] hpImages;
 
     public void Die()
     {
@@ -183,10 +179,11 @@ public class PlayerManager : MonoBehaviour, IDamageable
         if (Hp <= 0) { Die(); }
         void CheckForHpGraphics()
         {
+            hpImages = UIManager.Instance.PlayerUI.GetComponent<PlayerGUI>().HpImages;
             for (int i = 0; i < hpImages.Length; i++)
             {
-                if (i < Hp) { hpImages[i].sprite = fullHeart; }
-                else { hpImages[i].sprite = emptyHeart; }
+                if (i < Hp) { hpImages[i].sprite = Resources.Load<Sprite>("Sprites/heartfull"); }
+                else { hpImages[i].sprite = Resources.Load<Sprite>("Sprites/heartempty"); }
 
                 if (i < hpDisplayed) { hpImages[i].enabled = true; }
                 else { hpImages[i].enabled = false; }
@@ -354,6 +351,9 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     private void Pause()
     {
+        if (UIManager.Instance.InventoryUI.activeSelf) { UIManager.Instance.InventoryUI.SetActive(false); }
+        else if (UIManager.Instance.TradeMenuUI.activeSelf) { UIManager.Instance.TradeMenuUI.SetActive(false); }
+
         GameStatemachine machine = GameManager.Instance.machine;
         GamePausedState pausedState = new(machine);
         if (machine.CurrentState is Level) machine.ChangeState(pausedState);
@@ -364,7 +364,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     #region Attacking
     [Header("ATTACK")]
-    //public float attackDelay = .2f; //determines the time interval before attack can be used again
     public float attackReach; //determines how far the attack reaches (in case of adding other weapons)
     public int Damage;
     public int baseDamage;
@@ -450,19 +449,17 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     #region Abilities
     [Header("Abilities")]
-    public float Mana = 100;
-    public float MaxMana;
+    public int Mana = 100;
+    public int MaxMana;
     public int baseMaxMana = 100;
     [HideInInspector] public int boostedMaxMana;
     [HideInInspector] public float amulet1ChargeTime;
     [HideInInspector] public float amulet2ChargeTime;
     [HideInInspector] public float amulet3ChargeTime;
 
-    public TextMeshProUGUI ManaCounter;
-
     public void AbilityCheck()
     {
-        ManaCounter.text = Mana.ToString();
+        UIManager.Instance.PlayerUI.GetComponent<PlayerGUI>().ManaCounter.text = Mana.ToString();
         if (Mana > MaxMana) Mana = MaxMana;
         if (equippedAmulet1 != null && equippedAmulet1.Item is AbilityAmulet tmp1)
         {
@@ -503,12 +500,14 @@ public class PlayerManager : MonoBehaviour, IDamageable
     [HideInInspector] public AbstractSlot equippedAmulet1 = new();
     [HideInInspector] public AbstractSlot equippedAmulet2 = new();
     [HideInInspector] public AbstractSlot equippedAmulet3 = new();
-    public int Gold = 0;
+    public int Gold;
+    private GameObject playerUI;
 
     public void TriggerInventory()
     {
-        InventoryMenu inventoryMenu = FindObjectOfType<InventoryMenu>(true);
-        TradeMenu tradeMenu = FindObjectOfType<TradeMenu>(true);
+        playerUI = UIManager.Instance.PlayerUI;
+        InventoryMenu inventoryMenu = UIManager.Instance.InventoryUI.GetComponent<InventoryMenu>();
+        TradeMenu tradeMenu = UIManager.Instance.TradeMenuUI.GetComponent<TradeMenu>();
         if (inventoryMenu == null)
         {
             return;
@@ -518,19 +517,17 @@ public class PlayerManager : MonoBehaviour, IDamageable
         {
             tradeMenu.gameObject.SetActive(false);
 
-            GameObject playerUI = FindObjectOfType<UI>(true).transform.GetChild(0).gameObject;
+            GameObject playerUI = UIManager.Instance.PlayerUI;
             if (playerUI != null && !playerUI.activeSelf) { playerUI.SetActive(true); }
         }
         else if (inventoryMenu.gameObject.activeSelf)
         {
             inventoryMenu.gameObject.SetActive(false);
 
-            GameObject playerUI = FindObjectOfType<UI>(true).transform.GetChild(0).gameObject;
             if (playerUI != null && !playerUI.activeSelf) { playerUI.SetActive(true); }
         }
         else
         {
-            GameObject playerUI = FindObjectOfType<UI>(true).transform.GetChild(0).gameObject;
             if (playerUI != null && playerUI.activeSelf) { playerUI.SetActive(false); }
 
             inventoryMenu.gameObject.SetActive(true);

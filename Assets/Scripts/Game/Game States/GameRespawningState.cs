@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 public class GameRespawningState : GameState
 {
-    private RespawnMenu respawnMenu;
     public GameRespawningState(GameStatemachine machine) : base(machine)
     {
         this.machine = machine;
@@ -9,14 +8,14 @@ public class GameRespawningState : GameState
 
     public override void EnterState()
     {
-        respawnMenu = Object.FindObjectOfType<RespawnMenu>(true);
-        respawnMenu.gameObject.SetActive(true);
+
+        UIManager.Instance.RespawnMenuUI.SetActive(true);
         Time.timeScale = 0;
     }
 
     public override void ExitState()
     {
-        respawnMenu.gameObject.SetActive(false);
+        UIManager.Instance.RespawnMenuUI.SetActive(false);
         Time.timeScale = 1;
     }
 

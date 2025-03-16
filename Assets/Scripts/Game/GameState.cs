@@ -1,10 +1,6 @@
-using System.Linq.Expressions;
-using UnityEngine;
-
 public class GameState
 {
     protected GameStatemachine machine;
-    public LevelManager levelManager = GameManager.Instance.LevelManager;
     public GameState(GameStatemachine machine)
     {
         this.machine = machine;

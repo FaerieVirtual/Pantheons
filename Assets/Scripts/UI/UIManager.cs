@@ -1,45 +1,18 @@
-using UnityEngine.SceneManagement;
 using UnityEngine;
 
-public class UI : MonoBehaviour
+public class UIManager : MonoBehaviour
 {
-    public static UI instance;
+    public static UIManager Instance;
+
+    public GameObject PlayerUI;
+    public GameObject InventoryUI;
+    public GameObject PauseMenuUI;
+    public GameObject RespawnMenuUI;
+    public GameObject TradeMenuUI;
     private void Awake()
     {
         DontDestroyOnLoad(this);
-        if (instance != null) { Destroy(gameObject); }
-        if (instance == null) { instance = this; }
+        if (Instance != null) { Destroy(gameObject); }
+        if (Instance == null) { Instance = this; }
     }
-    //private void Start()
-    //{
-    //    SceneManager.sceneLoaded += OnSceneLoaded;
-    //}
-    //private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    //{
-    //    Camera camera = Camera.main;
-    //    foreach (Canvas canvas in GetComponentsInChildren<Canvas>(true)) 
-    //    {
-    //        Debug.Log($"got canvas in child {canvas}");
-    //        if (canvas.renderMode == RenderMode.ScreenSpaceCamera && canvas.worldCamera == null) 
-    //        {
-                
-    //            bool wasInactive = false;
-    //            if (!canvas.gameObject.activeSelf)
-    //            {
-    //                canvas.gameObject.SetActive(true);
-    //                wasInactive = true;
-    //            }
-
-    //            Debug.Log($"Canvas doesn't have a camera, assigning {camera}");
-    //            canvas.worldCamera = camera;
-
-    //            if (wasInactive) { canvas.gameObject.SetActive(false); }
-    //        }
-    //    }
-    //}
-    //public void UpdateCanvasCameras() 
-    //{ 
-    
-    //}
-
 }

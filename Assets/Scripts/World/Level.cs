@@ -36,11 +36,41 @@ public class Level : GameState
 
             PlayerManager.Instance.transform.position = respawn.GetRespawnpoint();
         }
+
+        foreach (var item in GameManager.Instance.LevelManager.levels.Values)
+        {
+            if (item.HasFlag("LastLevel")) item.RemoveFlag("LastLevel");
+        }
+        SetFlag("LastLevel");
     }
     public void SetFlag(string flag) => Flags.Add(flag);
     public void RemoveFlag(string flag) => Flags.Remove(flag);
     public bool HasFlag(string flag) { return Flags.Contains(flag); }
     public void ResetFlags() => Flags.Clear();
-
+    public SaveLevel ToSaveLevel() 
+    {
+        SaveLevel level = new()
+        {
+            LevelID = LevelID,
+            LevelScene = LevelScene,
+            Flags = Flags
+        };
+        return level;
+    }
 }
 
+public class SaveLevel 
+{
+    public string LevelID;
+    public string LevelScene;
+    public HashSet<string> Flags = new();
+
+    public Level ToLevel() 
+    {
+        Level level = new(GameManager.Instance.machine, LevelID, LevelScene)
+        {
+            Flags = Flags
+        };
+        return level;
+    }
+}

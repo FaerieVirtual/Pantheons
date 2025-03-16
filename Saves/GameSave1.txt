@@ -1,0 +1,111 @@
+{
+  "baseMaxHp": 5,
+  "MaxHp": 6,
+  "Hp": 5,
+  "baseMaxMana": 100,
+  "MaxMana": 100,
+  "Mana": 100,
+  "Gold": 520,
+  "inventory": {
+    "items": []
+  },
+  "weapon": {
+    "ItemPath": null,
+    "Quantity": 0
+  },
+  "consumable": {
+    "ItemPath": "Items/Small Mana Stone",
+    "Quantity": 3
+  },
+  "amulet1": {
+    "ItemPath": "Items/Heart Locket",
+    "Quantity": 1
+  },
+  "amulet2": {
+    "ItemPath": null,
+    "Quantity": 0
+  },
+  "amulet3": {
+    "ItemPath": null,
+    "Quantity": 0
+  },
+  "Levels": {
+    "A1": {
+      "LevelID": "A1",
+      "LevelScene": "Demo1",
+      "Flags": []
+    },
+    "A2": {
+      "LevelID": "A2",
+      "LevelScene": "Demo2",
+      "Flags": [
+        "LastLevel",
+        "RespawnLevel"
+      ]
+    },
+    "A3": {
+      "LevelID": "A3",
+      "LevelScene": "Demo3",
+      "Flags": []
+    },
+    "A4": {
+      "LevelID": "A4",
+      "LevelScene": "Demo4",
+      "Flags": []
+    }
+  },
+  "lastLevelID": "A2",
+  "lastX": 24,
+  "lastY": -12,
+  "NPCs": {
+    "Nitril": {
+      "Flags": [
+        "Met",
+        "ItemBought"
+      ],
+      "Inventory": {
+        "items": [
+          {
+            "ItemPath": "Items/Small Blood vial",
+            "Quantity": 2
+          },
+          {
+            "ItemPath": "Items/Herald's Wings",
+            "Quantity": 1
+          },
+          {
+            "ItemPath": "Items/Nitril's Fang",
+            "Quantity": 1
+          }
+        ]
+      },
+      "NPCResponses": [
+        {
+          "TriggerFlag": null,
+          "ExclusionFlag": "Met",
+          "SplitResponse": [
+            "Hi. I'm a vendor NPC. My name is Nitril.",
+            "I'm talking to you, but after we're done, I will offer you some wares.",
+            "There's a campfire ahead. Sit at it, set a respawn and save your game.",
+            "#!"
+          ]
+        },
+        {
+          "TriggerFlag": null,
+          "ExclusionFlag": "InventoryEmpty",
+          "SplitResponse": [
+            "#$"
+          ]
+        },
+        {
+          "TriggerFlag": "InventoryEmpty",
+          "ExclusionFlag": null,
+          "SplitResponse": [
+            "Apologies. I have no more stock. Maybe come back later?",
+            "#"
+          ]
+        }
+      ]
+    }
+  }
+}

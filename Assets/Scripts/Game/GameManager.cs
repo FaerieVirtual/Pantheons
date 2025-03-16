@@ -10,7 +10,7 @@ public class GameManager : MonoBehaviour
     public DataManager DataManager;
     public LevelManager LevelManager;
     //public int gameIndex;
-    public string Area;
+    //public string Area;
 
     public GameStatemachine machine = new();
     private GameMainMenuState menuState;

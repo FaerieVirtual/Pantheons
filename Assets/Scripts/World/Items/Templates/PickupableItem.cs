@@ -12,6 +12,7 @@ public class PickupableItem : InteractibleObject
     }
     public override void Interaction()
     {
+        base.Interaction();
         PlayerManager.Instance.Inventory.AddItem(item, quantity);
         Destroy(gameObject);
     }

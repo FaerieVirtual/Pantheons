@@ -1,83 +1,118 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class DataManager : MonoBehaviour
 {
 
-    #region Save/Load & File management
-    //private DataSave save;
+    #region Data Management
+    public DataSave GameSave;
+    public string SavePath => $"Saves/GameSave{SaveIndex}.txt";
+    public int SaveIndex;
 
-    //private Dictionary<ScriptableObject, string> saveFileDic;
-    //private void SaveDicRefresh() 
-    //{ 
-    //    saveFileDic = new Dictionary<ScriptableObject, string>()
-    //    {
-    //        {gameStats, $@"..\..\..\Saves\Save {gameIndex}\game"},
-    //        {playerStats, $@"..\..\..\Saves\Save {gameIndex}\player" },
-    //        {previewStats, $@"..\..\..\Saves\Save {gameIndex}\preview" }           
-    //    };
-    //}
+    JsonSerializerSettings settings = new()
+    {
+        TypeNameHandling = TypeNameHandling.Auto,
+    };
+    public DataSave LoadFile(int index)
+    {
+        string loadPath = Path.Combine("Saves", $"GameSave{index}.txt");
 
-    //public void Save()
-    //{
-    //    string folderPath = @"..\..\..\Saves";
-    //    string savePath = Path.Combine(folderPath, $"Save {gameIndex}");
-    //    if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath); 
-    //    if (!Directory.Exists(savePath)) Directory.CreateDirectory(savePath);
+        if (!Directory.Exists("Saves")) return null;
+        if (!File.Exists(loadPath)) return null;
 
-    //    //string GameJSON = JsonUtility.ToJson(gameStats);
-    //    //string PlayerJSON = JsonUtility.ToJson(playerStats);
-    //    //string PreviewJSON = JsonUtility.ToJson(previewStats);
-    //    foreach (var entry in saveFileDic) 
-    //    { 
-    //        string JSON = JsonUtility.ToJson(entry.Key);
-    //        File.WriteAllText(entry.Value, JSON);
-    //    }
-    //    //File.WriteAllText(Path.Combine(savePath, "game"), GameJSON);
-    //    //File.WriteAllText(Path.Combine(savePath, "player"), PlayerJSON);
-    //    //File.WriteAllText(Path.Combine(savePath, "preview"), PreviewJSON);
-    //}
+        string SaveJSON = File.ReadAllText(loadPath);
+        if (string.IsNullOrEmpty(SaveJSON)) return null;
+        return JsonConvert.DeserializeObject<DataSave>(SaveJSON, settings);
+    }
 
-    //public void Load(int saveIndex = 0)
-    //{
-    //    string folderPath = Path.Combine(@"..\..\..\Saves", $"Save {saveIndex}");
-    //    if (saveIndex != gameIndex)
-    //    {
-    //        gameIndex = saveIndex;
-    //        SaveDicRefresh();
-    //    }
-    //    if (Directory.Exists(folderPath))
-    //    {
-    //        //foreach (var entry in saveFileDic) 
-    //        //{ 
-    //        //    if (Directory.Exists(entry.Value)) 
-    //        //    { 
-    //        //        string JSON = File.ReadAllText(entry.Value);
-    //        //        var type = entry.Key.GetType();
-    //        //        entry.Key = JsonUtility.FromJson<type>(JSON);
-    //        //    }
-    //        //}
-    //        if (Directory.Exists(Path.Combine(folderPath, "game")))
-    //        {
-    //            string GameJSON = File.ReadAllText(Path.Combine(folderPath, "game"));
-    //            gameStats = JsonUtility.FromJson<GameStats>(GameJSON);
-    //        }
-    //        else { Console.WriteLine("Error: Save corrupted: game not found"); }
-    //        if (Directory.Exists(Path.Combine(folderPath, "player")))
-    //        {
-    //            string PlayerJSON = File.ReadAllText(Path.Combine(folderPath, "player"));
-    //            playerStats = JsonUtility.FromJson<PlayerStats>(PlayerJSON);
-    //        }
-    //        else { Console.WriteLine("Error: Save corrupted: player not found"); }
-    //        if (Directory.Exists(Path.Combine(folderPath, "preview")))
-    //        {
-    //            string PreviewJSON = File.ReadAllText(Path.Combine(folderPath, "preview"));
-    //            previewStats = JsonUtility.FromJson<PreviewStats>(PreviewJSON);
-    //        }
-    //        else { Console.WriteLine("Error: Save corrupted: preview not found"); }
-    //    }
-    //    else { Console.WriteLine("Error: Save corrupted: folder not found."); }
-    //}
+    public void Load(DataSave save, int index)
+    {
+        GameSave = save;
+        SaveIndex = index;
+    }
+    public void SaveFile(DataSave save, int index)
+    {
+        string savePath = Path.Combine("Saves", $"GameSave{index}.txt");
+
+        if (!Directory.Exists("Saves")) Directory.CreateDirectory("Saves");
+
+        string SaveJSON = JsonConvert.SerializeObject(save, Formatting.Indented, settings);
+        Debug.Log(SaveJSON);
+        if (string.IsNullOrEmpty(SaveJSON)) return;
+        File.WriteAllText(savePath, SaveJSON);
+    }
+
+    public DataSave Save()
+    {
+        DataSave save = new();
+        PlayerManager player = PlayerManager.Instance;
+
+        save.baseMaxHp = player.baseMaxHp;
+        save.MaxHp = player.MaxHp;
+        save.Hp = player.Hp;
+
+        save.baseMaxMana = player.baseMaxMana;
+        save.MaxMana = player.MaxMana;
+        save.Mana = player.Mana;
+
+        save.Gold = player.Gold;
+
+        save.inventory = player.Inventory.ToSaveInventory();
+        if (!player.equippedWeapon.IsEmpty)
+        {
+            save.weapon.ItemPath = $"Items/{player.equippedWeapon.Item.name}";
+            save.weapon.Quantity = player.equippedWeapon.Quantity;
+        }
+        if (!player.equippedConsumable.IsEmpty)
+        {
+            save.consumable.ItemPath = $"Items/{player.equippedConsumable.Item.name}";
+            save.consumable.Quantity = player.equippedConsumable.Quantity;
+        }
+        if (!player.equippedAmulet1.IsEmpty)
+        {
+            save.amulet1.ItemPath = $"Items/{player.equippedAmulet1.Item.name}";
+            save.amulet1.Quantity = player.equippedAmulet1.Quantity;
+        }
+        if (!player.equippedAmulet2.IsEmpty)
+        {
+            save.amulet2.ItemPath = $"Items/{player.equippedAmulet2.Item.name}";
+            save.amulet2.Quantity = player.equippedAmulet2.Quantity;
+        }
+        if (!player.equippedAmulet3.IsEmpty)
+        {
+            save.amulet3.ItemPath = $"Items/{player.equippedAmulet3.Item.name}";
+            save.amulet3.Quantity = player.equippedAmulet3.Quantity;
+        }
+
+        Dictionary<string, SaveLevel> SaveLevelDic = new();
+        foreach (string key in GameManager.Instance.LevelManager.levels.Keys)
+        {
+            SaveLevelDic.Add(key, GameManager.Instance.LevelManager.levels[key].ToSaveLevel());
+        }
+        save.Levels = SaveLevelDic;
+
+        foreach (Level level in GameManager.Instance.LevelManager.levels.Values)
+        {
+            if (level.HasFlag("LastLevel"))
+            {
+                save.lastLevelID = level.LevelID;
+                break;
+            }
+        }
+        save.lastX = Mathf.RoundToInt(player.transform.position.x);
+        save.lastY = Mathf.RoundToInt(player.transform.position.y);
+
+        Dictionary<string, SaveNPCData> SaveNPCDic = new();
+        foreach (string key in NPCs.Keys)
+        {
+            SaveNPCDic.Add(key, NPCs[key].ToSaveNPCData());
+        }
+        save.NPCs = SaveNPCDic;
+
+        return save;
+    }
 
     #endregion
 
@@ -96,7 +131,6 @@ public class DataManager : MonoBehaviour
 
         Nitril.Inventory = new Inventory();
         Nitril.Inventory.AddItem(Resources.Load<HealthPotion>("Items/Small Blood vial"), 2);
-        Nitril.Inventory.AddItem(Resources.Load<WeaponItem>("Items/Dagger"), 1);
         Nitril.Inventory.AddItem(Resources.Load<ManaStone>("Items/Small Mana Stone"), 3);
         Nitril.Inventory.AddItem(Resources.Load<BoostAmulet>("Items/Heart Locket"), 1);
         Nitril.Inventory.AddItem(Resources.Load<AbilityAmulet>("Items/Herald's Wings"), 1);

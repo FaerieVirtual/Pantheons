@@ -1,23 +1,27 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.SceneManagement;
 
-internal class DataSave : ScriptableObject
+public class DataSave 
 {
-    public Scene respawnPointScene;
+    public int baseMaxHp;
+    public int MaxHp;
+    public int Hp;
 
-    [Header("Statistics")]
-    public int maxHp;
-    public int maxDef;
+    public int baseMaxMana;
+    public int MaxMana;
+    public int Mana;
 
-    [Header("Abilities")]
-    public bool dash;
-    public bool doubleJump;
+    public int Gold;
 
-    [Header("Inventory")]
-    public List<IItem> inventory;
-    //public List<ICharm> equippedCharms;
-    //public List<ICharm> unequippedCharms;
+    public SaveInventory inventory;
+    public SaveSlot weapon = new();
+    public SaveSlot consumable = new();
+    public SaveSlot amulet1 = new();
+    public SaveSlot amulet2 = new();
+    public SaveSlot amulet3 = new();
 
+    public Dictionary<string, SaveLevel> Levels = new();
+    public string lastLevelID;
+    public int lastX, lastY;
+
+    public Dictionary<string, SaveNPCData> NPCs = new();
 }

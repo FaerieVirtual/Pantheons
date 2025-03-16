@@ -1,4 +1,6 @@
-﻿public class Demo1 : Level
+﻿using UnityEngine;
+
+public class Demo1 : Level
 {
     public NPCData NPCData;
     public Demo1(GameStatemachine machine, string LevelID = "A1", string LevelScene = "Demo1") : base(machine, LevelID, LevelScene)
@@ -9,7 +11,6 @@
     public override void EnterState()
     {
         base.EnterState();
-        
     }
 
     public override void ExitState()

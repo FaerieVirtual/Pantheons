@@ -1,6 +1,4 @@
-﻿
-using System.Collections.Generic;
-
+﻿using UnityEngine;
 public class Demo3 : Level
 {
     public Demo3(GameStatemachine machine, string LevelID = "A3", string LevelScene = "Demo3") : base(machine, LevelID, LevelScene)
@@ -10,7 +8,13 @@ public class Demo3 : Level
 
     public override void EnterState()
     {
-        base.EnterState();
+        if (HasFlag("SwordTaken"))
+        {
+            foreach (PickupableItem obj in Object.FindObjectsOfType<PickupableItem>())
+            {
+                if (obj.item == Resources.Load<WeaponItem>("Items/Ancient Sword")) { Object.Destroy(obj.gameObject); break; }
+            }
+        }
     }
 
     public override void ExitState()

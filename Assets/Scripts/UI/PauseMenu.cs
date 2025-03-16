@@ -1,4 +1,7 @@
 using System.ComponentModel;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Text;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -22,13 +25,12 @@ public class PauseMenu : MonoBehaviour
         machine.ChangeState(machine.PreviousState);
     }
 
-    public void Options()
+    public void BackToMenu()
     {
-        throw new System.NotImplementedException();
-    }
+        DataManager manager = GameManager.Instance.DataManager;
 
-    public void Quit()
-    {
-        Application.Quit();
+            manager.SaveFile(manager.Save(), manager.SaveIndex);
+        GameMainMenuState mainmenu = new(GameManager.Instance.machine);
+        GameManager.Instance.machine.ChangeState(mainmenu);
     }
 }

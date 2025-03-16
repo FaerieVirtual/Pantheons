@@ -7,7 +7,7 @@ public class VendorNPC : NPC
     private void Start()
     {
         Data = GameManager.Instance.DataManager.NPCs[Name];
-        menuObject = FindObjectOfType<TradeMenu>(true).gameObject;
+        menuObject = UIManager.Instance.TradeMenuUI;
     }
     private void Update()
     {
@@ -38,10 +38,11 @@ public class VendorNPC : NPC
     }
     public virtual void OpenInventory()
     {
+        if (UIManager.Instance.InventoryUI.activeSelf) return;
         menuObject.SetActive(true);
         menuObject.GetComponent<TradeMenu>().traderData = Data;
         menuObject.GetComponent<TradeMenu>().UpdateMenu();
-        FindObjectOfType<UI>().transform.GetChild(0).gameObject.SetActive(false);
+        UIManager.Instance.PlayerUI.SetActive(false);
     }
 }
 

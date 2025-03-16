@@ -1,32 +1,23 @@
-using Assets.Scripts.Backend.Game.Game_States;
-using Unity.VisualScripting;
+using System;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
-    private GameStatemachine machine;
-
-    private void Start()
-    {
-        machine = GameManager.Instance.machine;
-
-    }
     public void NewGame()
     {
+        if (GameManager.Instance.DataManager.SaveIndex == 0) { GameManager.Instance.DataManager.SaveIndex = 1; }
         GameManager.Instance.machine.ChangeState(GameManager.Instance.LevelManager.GetLevel("A1"));
+        if (UIManager.Instance != null && !UIManager.Instance.PlayerUI.activeSelf) UIManager.Instance.PlayerUI.SetActive(true);
     }
     public void LoadGame()
     {
-        throw new System.NotImplementedException();
-
-        //GameLoadMenuState loadMenuState = new(machine);
-        //machine.ChangeState(loadMenuState);
+        GameLoadMenuState loadMenuState = new(GameManager.Instance.machine);
+        GameManager.Instance.machine.ChangeState(loadMenuState);
     }
 
     public void Options()
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public void Quit()

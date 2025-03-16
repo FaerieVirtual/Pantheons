@@ -3,6 +3,7 @@
 public class InteractibleObject : MonoBehaviour, IInteractible
 {
     public bool CanInteract { get; set; } = true;
+    public string Flag;
     public virtual void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.GetComponent<PlayerManager>() != null)
@@ -18,6 +19,13 @@ public class InteractibleObject : MonoBehaviour, IInteractible
         }
     }
 
-    public virtual void Interaction() { }
+    public virtual void Interaction() 
+    { 
+        if (Flag != null) 
+        { 
+            Level tmp = (Level)GameManager.Instance.machine.CurrentState;
+            tmp.SetFlag(Flag);
+        }
+    }
 }
 

@@ -6,11 +6,11 @@ public class Respawn : InteractibleObject
     public Collider2D Collider { get; set; }
     private void Update()
     {
-        if (GameManager.Instance.machine.CurrentState == GameManager.Instance.LevelManager.levels.Values.FirstOrDefault(level => level.HasFlag("RespawnLevel")))
+        if (GameManager.Instance.machine.CurrentState == GameManager.Instance.LevelManager.levels.Values.FirstOrDefault(level => level.HasFlag("RespawnLevel")) && !GetFire().activeSelf)
         {
             GetFire().SetActive(true);
         }
-        else
+        if (GameManager.Instance.machine.CurrentState != GameManager.Instance.LevelManager.levels.Values.FirstOrDefault(level => level.HasFlag("RespawnLevel")) && GetFire().activeSelf)
         {
             GetFire().SetActive(false);
         }
@@ -28,6 +28,10 @@ public class Respawn : InteractibleObject
             CurrentLevel.SetFlag("RespawnLevel");
 
             PlayerManager.Instance.ResetPlayer();
+
+            DataManager manager = GameManager.Instance.DataManager;
+            manager.SaveFile(manager.Save(), manager.SaveIndex);
+
         }
     }
 

@@ -74,8 +74,8 @@ public class AudioManager : MonoBehaviour
         {
             Sound sound = Array.Find(sounds, sound => sound.name.ToLower() == entry.Key.ToLower());
 
-            if (!GameManager.Instance.Area.ToLower().Contains(entry.Key) && sound.source.isPlaying) Stop(entry.Key);
-            if (GameManager.Instance.Area.ToLower().Contains(entry.Key.ToLower()) && !sound.source.isPlaying) Play(entry.Value, musicVolume, 2);
+            //if (!GameManager.Instance.Area.ToLower().Contains(entry.Key) && sound.source.isPlaying) Stop(entry.Key);
+            //if (GameManager.Instance.Area.ToLower().Contains(entry.Key.ToLower()) && !sound.source.isPlaying) Play(entry.Value, musicVolume, 2);
         }
     }
 

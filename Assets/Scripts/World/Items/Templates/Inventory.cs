@@ -41,5 +41,39 @@ public class Inventory
     {
         return new List<AbstractSlot>(Items.Values);
     }
+
+    public SaveInventory ToSaveInventory()
+    {
+        SaveInventory inventory = new();
+        foreach (var slot in Items.Values)
+        {
+            SaveSlot saveslot = new()
+            {
+                ItemPath = $"Items/{slot.Item.Name}",
+                Quantity = slot.Quantity
+            };
+            inventory.items.Add(saveslot);
+        }
+        return inventory;
+    }
+}
+public class SaveInventory
+{
+    public List<SaveSlot> items = new();
+
+    public Inventory ToInventory() 
+    {
+        Inventory inventory = new();
+        foreach (var saveslot in items)
+        {
+            inventory.AddItem(Resources.Load<ItemBase>(saveslot.ItemPath), saveslot.Quantity);
+        }
+        return inventory;
+    }
+}
+public class SaveSlot 
+{
+    public string ItemPath;
+    public int Quantity;
 }
 
