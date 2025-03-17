@@ -155,7 +155,7 @@ public class InventoryMenu : ItemManagingMenu
                 }
                 if (!slotToEquipTo.IsEmpty && slotToEquipTo.Item is Amulet am) { am.OnUnequip(); }
                 break;
-            default: Debug.Log("Attempt to assign to searched slot failed. Unknown item type."); break;
+            default: Debug.Log("Attempt to assign to searched slot failed. Unknown Items type."); break;
         }
 
         if (!slotToEquipTo.IsEmpty && slotToEquipTo.Item != selectedSlot.Item)

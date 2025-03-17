@@ -65,21 +65,13 @@ public class EnemyBase : MonoBehaviour, IDamageable
     public int DamagePushbackForce;
 
     [HideInInspector] public Vector2 MoveDirection;
-    //public virtual void Patrol() { }
-    //public virtual void Chase() { }
     public void Flip()
     {
-        if (MoveDirection == Vector2.left)
-        {
-            transform.localRotation = Quaternion.Euler(transform.localRotation.x, 0f, transform.rotation.z);
-            MoveDirection = Vector2.right;
-        }
-        else
-        if (MoveDirection == Vector2.right)
-        {
-            transform.localRotation = Quaternion.Euler(transform.localRotation.x, 180f, transform.rotation.z);
-            MoveDirection = Vector2.left;
-        }
+        Vector3 scale = transform.localScale;
+        scale.x *= -1;
+        transform.localScale = scale;
+
+        MoveDirection = (MoveDirection == Vector2.right) ? Vector3.right : Vector3.left;
     }
     #endregion
 

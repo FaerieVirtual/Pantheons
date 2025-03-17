@@ -9,10 +9,10 @@ public class Demo3 : Level
     public override void EnterState()
     {
         if (HasFlag("SwordTaken"))
-        {
+        {            
             foreach (PickupableItem obj in Object.FindObjectsOfType<PickupableItem>())
             {
-                if (obj.item == Resources.Load<WeaponItem>("Items/Ancient Sword")) { Object.Destroy(obj.gameObject); break; }
+                if (obj.ObjectID == "Sword") { Object.Destroy(obj.gameObject); break; }
             }
         }
     }

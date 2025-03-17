@@ -26,6 +26,18 @@ public class DataManager : MonoBehaviour
         if (string.IsNullOrEmpty(SaveJSON)) return null;
         return JsonConvert.DeserializeObject<DataSave>(SaveJSON, settings);
     }
+    public DataSave LoadFile(string filename)
+    {
+        string loadPath = Path.Combine("Saves", $"{filename}.txt");
+
+        if (!Directory.Exists("Saves")) return null;
+        if (!File.Exists(loadPath)) return null;
+
+        string SaveJSON = File.ReadAllText(loadPath);
+        if (string.IsNullOrEmpty(SaveJSON)) return null;
+        return JsonConvert.DeserializeObject<DataSave>(SaveJSON, settings);
+    }
+
 
     public void Load(DataSave save, int index)
     {
@@ -93,6 +105,8 @@ public class DataManager : MonoBehaviour
         }
         save.Levels = SaveLevelDic;
 
+        save.lastLevelID = GameManager.Instance.LevelManager.GetLevelByFlag("LastLevel").LevelID;
+
         foreach (Level level in GameManager.Instance.LevelManager.levels.Values)
         {
             if (level.HasFlag("LastLevel"))
@@ -101,8 +115,8 @@ public class DataManager : MonoBehaviour
                 break;
             }
         }
-        save.lastX = Mathf.RoundToInt(player.transform.position.x);
-        save.lastY = Mathf.RoundToInt(player.transform.position.y);
+        save.lastX = player.transform.position.x;
+        save.lastY = player.transform.position.y + 3;
 
         Dictionary<string, SaveNPCData> SaveNPCDic = new();
         foreach (string key in NPCs.Keys)

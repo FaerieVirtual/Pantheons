@@ -1,11 +1,11 @@
 {
   "baseMaxHp": 5,
-  "MaxHp": 6,
+  "MaxHp": 5,
   "Hp": 5,
   "baseMaxMana": 100,
   "MaxMana": 100,
   "Mana": 100,
-  "Gold": 520,
+  "Gold": 600,
   "inventory": {
     "items": []
   },
@@ -14,12 +14,12 @@
     "Quantity": 0
   },
   "consumable": {
-    "ItemPath": "Items/Small Mana Stone",
-    "Quantity": 3
+    "ItemPath": null,
+    "Quantity": 0
   },
   "amulet1": {
-    "ItemPath": "Items/Heart Locket",
-    "Quantity": 1
+    "ItemPath": null,
+    "Quantity": 0
   },
   "amulet2": {
     "ItemPath": null,
@@ -55,19 +55,26 @@
     }
   },
   "lastLevelID": "A2",
-  "lastX": 24,
-  "lastY": -12,
+  "lastX": 18.6491413,
+  "lastY": -9.709542,
   "NPCs": {
     "Nitril": {
       "Flags": [
-        "Met",
-        "ItemBought"
+        "Met"
       ],
       "Inventory": {
         "items": [
           {
             "ItemPath": "Items/Small Blood vial",
             "Quantity": 2
+          },
+          {
+            "ItemPath": "Items/Small Mana Stone",
+            "Quantity": 3
+          },
+          {
+            "ItemPath": "Items/Heart Locket",
+            "Quantity": 1
           },
           {
             "ItemPath": "Items/Herald's Wings",

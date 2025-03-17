@@ -76,7 +76,7 @@ public class LevelManager : MonoBehaviour
         };
     }
 
-    public Level GetLevel(string ID)
+    public Level GetLevelByID(string ID)
     {
         try { return levels[ID]; }
         catch
@@ -84,6 +84,17 @@ public class LevelManager : MonoBehaviour
             Debug.Log("Attempted to fetch a non-existing level.");
             return null;
         }
+    }
+    public Level GetLevelByFlag(string flag) 
+    { 
+
+        foreach (Level level in levels.Values) 
+        {
+            Debug.Log(level.LevelScene + level.Flags);
+            if (level.HasFlag(flag)) return level;
+        }
+        Debug.Log("Attempted to fetch a level with a non-existing flag.");
+        return null;
     }
     #endregion
 }

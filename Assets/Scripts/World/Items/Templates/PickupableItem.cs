@@ -1,19 +1,19 @@
-﻿using UnityEngine;
-
-public class PickupableItem : InteractibleObject
+﻿public class PickupableItem : InteractibleObject
 {
-    public ItemBase item;
-    public int quantity;
+    public ItemBase Item;
+    public int Quantity;
+    public string ObjectID;
 
-    public PickupableItem(ItemBase item, int quantity, Sprite itemsprite)
+    public PickupableItem(ItemBase item, int quantity, string objectID)
     {
-        this.item = item;
-        this.quantity = quantity;
+        Item = item;
+        Quantity = quantity;
+        ObjectID = objectID;
     }
     public override void Interaction()
     {
         base.Interaction();
-        PlayerManager.Instance.Inventory.AddItem(item, quantity);
+        PlayerManager.Instance.Inventory.AddItem(Item, Quantity);
         Destroy(gameObject);
     }
 }

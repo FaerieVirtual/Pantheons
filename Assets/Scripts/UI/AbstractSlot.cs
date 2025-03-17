@@ -31,31 +31,4 @@ public class AbstractSlot
             }
         }
     }
-    public ItemBase GetItem() => Item;
-
-    //public void Clear()
-    //{
-    //    isLocked = false;
-    //    Item = null;
-    //    Quantity = 0;
-    //}
-
-    //public void OnItemDisplay()
-    //{
-    //    Button.onClick.RemoveAllListeners();
-    //    if (SlotID == "Inventory")
-    //    {
-    //        Button.onClick.AddListener(menu.EquipItem);
-    //    }
-    //    else
-    //    {
-    //        Button.onClick.AddListener(menu.UnequipItem);
-    //    }
-    //}
-
-    //public void StopItemDisplay()
-    //{
-    //    Button.onClick.RemoveAllListeners();
-    //    Button.onClick.AddListener(() => menu.SelectSlot(gameObject.GetComponent<Slot>()));
-    //}
 }

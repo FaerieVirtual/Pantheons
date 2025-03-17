@@ -150,14 +150,14 @@ RectTransform:
   m_GameObject: {fileID: 49665761}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.03588, y: 0.03588, z: 0.03588}
+  m_LocalScale: {x: 0.03588, y: 0.03588, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 561222660}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -17.53, y: -11.14}
+  m_AnchoredPosition: {x: -17.53, y: -11.5}
   m_SizeDelta: {x: 400, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &49665763
@@ -5639,7 +5639,7 @@ Transform:
   m_GameObject: {fileID: 547698641}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -10.202543, y: 6.754368, z: -10.040409}
+  m_LocalPosition: {x: -10.177095, y: 6.754328, z: -10.040409}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -6068,9 +6068,21 @@ PrefabInstance:
       value: SwordTaken
       objectReference: {fileID: 0}
     - target: {fileID: -8673849235677284486, guid: 96003f27cc28009488a090206265a03b, type: 3}
+      propertyPath: Item
+      value: 
+      objectReference: {fileID: 11400000, guid: c45466cb61e8d284a8e354583006cc16, type: 2}
+    - target: {fileID: -8673849235677284486, guid: 96003f27cc28009488a090206265a03b, type: 3}
       propertyPath: item
       value: 
       objectReference: {fileID: 11400000, guid: c45466cb61e8d284a8e354583006cc16, type: 2}
+    - target: {fileID: -8673849235677284486, guid: 96003f27cc28009488a090206265a03b, type: 3}
+      propertyPath: ObjectID
+      value: Sword
+      objectReference: {fileID: 0}
+    - target: {fileID: -8673849235677284486, guid: 96003f27cc28009488a090206265a03b, type: 3}
+      propertyPath: Quantity
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3338707741492886375, guid: 96003f27cc28009488a090206265a03b, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -6196,7 +6208,7 @@ RectTransform:
   m_GameObject: {fileID: 933583532}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.03587971, y: 0.03587971, z: 0.03587971}
+  m_LocalScale: {x: 0.03587971, y: 0.03587971, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 561222660}
@@ -6418,7 +6430,7 @@ RectTransform:
   m_GameObject: {fileID: 1220280472}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.03588, y: 0.03588, z: 0.03588}
+  m_LocalScale: {x: 0.03588, y: 0.03588, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 561222660}
@@ -6674,7 +6686,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 47.02, y: -12.34}
+  m_AnchoredPosition: {x: 46.8, y: -13.5}
   m_SizeDelta: {x: 400, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1407506311
@@ -6760,7 +6772,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: -56.751328, w: -1.7277927}
+  m_margin: {x: 0, y: 0, z: -56.751328, w: 149.87587}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -6820,7 +6832,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e828ffed26b0b4c4a89ae1925cdf534d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Hp: 10
+  Hp: 999999
   MaxHp: 0
 --- !u!61 &1431836987
 BoxCollider2D:

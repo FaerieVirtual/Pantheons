@@ -21,7 +21,7 @@ public class DataSave
 
     public Dictionary<string, SaveLevel> Levels = new();
     public string lastLevelID;
-    public int lastX, lastY;
+    public float lastX, lastY;
 
     public Dictionary<string, SaveNPCData> NPCs = new();
 }

@@ -23,6 +23,8 @@ public class PlayerManager : MonoBehaviour, IDamageable
         ResetPlayer();
         RigidBody.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
         SetInput();
+
+        transform.position = new Vector2(GameManager.Instance.DataManager.GameSave.lastX, GameManager.Instance.DataManager.GameSave.lastY);
     }
     private void FixedUpdate() //Executing physics simulation
     {
@@ -138,7 +140,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     public int DamagePushbackForce;
 
-    private int hpDisplayed;
     private Image[] hpImages;
 
     public void Die()
@@ -161,6 +162,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
             await Task.Delay((int)(invincibleDuration * 1000));
             Time.timeScale = 1;
         }
+        if (Hp <= 0) { Die(); }
     }
     public async void SetInvincibility(float duration)
     {
@@ -176,7 +178,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     {
         CheckForHpGraphics();
         CheckForMaxValues();
-        if (Hp <= 0) { Die(); }
+
         void CheckForHpGraphics()
         {
             hpImages = UIManager.Instance.PlayerUI.GetComponent<PlayerGUI>().HpImages;
@@ -185,14 +187,13 @@ public class PlayerManager : MonoBehaviour, IDamageable
                 if (i < Hp) { hpImages[i].sprite = Resources.Load<Sprite>("Sprites/heartfull"); }
                 else { hpImages[i].sprite = Resources.Load<Sprite>("Sprites/heartempty"); }
 
-                if (i < hpDisplayed) { hpImages[i].enabled = true; }
+                if (i < MaxHp) { hpImages[i].enabled = true; }
                 else { hpImages[i].enabled = false; }
             }
         }
         void CheckForMaxValues()
         {
             if (Hp > MaxHp) { Hp = MaxHp; }
-            hpDisplayed = MaxHp;
         }
 
     }
@@ -227,7 +228,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     private int MoveDirection;
     private bool groundHit, ceilingHit;
-    private bool IsStanding, IsJumping;
+    private bool IsStanding, IsJumping, FacingRight;
     private Vector2 tempVelocity;
     private LayerMask Ground => LayerMask.GetMask("Ground");
     public bool movementDisable;
@@ -237,7 +238,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private bool jumpSustainable;
     private bool ApexHit;
     private float timeGroundLeft;
-
     private bool HasCoyoteTime => coyoteUsable && !IsStanding && Time.time <= timeGroundLeft + CoyoteTime;
 
     void HandleCollisions()
@@ -286,6 +286,13 @@ public class PlayerManager : MonoBehaviour, IDamageable
     }
     void Move()
     {
+        if (MoveDirection == 1)
+        {
+            FacingRight = true;
+        } else if (MoveDirection == -1)
+        {
+            FacingRight = false;
+        }
         if (MoveDirection != 0 && (MoveDirection == 1 && transform.localRotation.y != 0) || (MoveDirection == -1 && transform.localRotation.y != 180))
         {
             int angle = MoveDirection == 1 ? 0 : 180;
@@ -395,19 +402,30 @@ public class PlayerManager : MonoBehaviour, IDamageable
     {
         if (Input.GetKey(KeyCode.UpArrow)) return Vector2.up;
         else if (Input.GetKey(KeyCode.DownArrow)) return Vector2.down;
-        else if (transform.localRotation.y == 0) return Vector2.right;
-        else if (transform.localRotation.y == 180) return Vector2.left;
-
-        return Vector2.zero;
+        else if (FacingRight) return Vector2.right;
+        else return Vector2.left;
     }
 
     public Vector2 GetSize(Vector2 direction)
     {
-        if (direction == Vector2.zero) return Vector2.zero;
-        if (direction == Vector2.down || direction == Vector2.up) return new Vector2(0.2f, attackReach);
-        if (direction == Vector2.right || direction == Vector2.left) return new Vector2(attackReach, 0.3f);
+        if (direction == Vector2.down || direction == Vector2.up) return new Vector2(1, attackReach);
+        if (direction == Vector2.right || direction == Vector2.left) return new Vector2(attackReach, 1);
 
         return Vector2.zero;
+    }
+    private void DrawBox(Vector2 center, Vector2 size, Color color, float duration)
+    {
+        Vector2 halfSize = size / 2;
+
+        Vector2 topLeft = center + new Vector2(-halfSize.x, halfSize.y);
+        Vector2 topRight = center + new Vector2(halfSize.x, halfSize.y);
+        Vector2 bottomRight = center + new Vector2(halfSize.x, -halfSize.y);
+        Vector2 bottomLeft = center + new Vector2(-halfSize.x, -halfSize.y);
+
+        Debug.DrawLine(topLeft, topRight, color, duration);
+        Debug.DrawLine(topRight, bottomRight, color, duration);
+        Debug.DrawLine(bottomRight, bottomLeft, color, duration);
+        Debug.DrawLine(bottomLeft, topLeft, color, duration);
     }
 
     private void HandleAttack()
@@ -418,14 +436,16 @@ public class PlayerManager : MonoBehaviour, IDamageable
         Vector2 Size = GetSize(Direction);
         Vector2 Center = (Vector2)transform.position + Direction * (attackReach / 2);
 
+        DrawBox(Center, Size, Color.red, 5);
+
         foreach (Collider2D hit in Physics2D.OverlapBoxAll(Center, Size, 0))
         {
             if (hit.transform.parent != null && hit.transform.parent.TryGetComponent(out IDamageable damagedParent))
             {
-                if (hit.GetComponent<PlayerManager>() != null) continue;
+                if (hit.transform.gameObject.GetComponent<PlayerManager>() != null) continue;
 
                 damagedParent.TakeDamage(Damage);
-                if (hit.GetComponent<EnemyBase>() != null || hit.GetComponent<Spikes>() != null)
+                if (hit.transform.gameObject.GetComponent<EnemyBase>() != null || hit.transform.gameObject.GetComponent<Spikes>() != null)
                 {
                     Pushback(hit.transform, AttackPushbackForce);
                 }
@@ -433,10 +453,10 @@ public class PlayerManager : MonoBehaviour, IDamageable
             if (hit.transform.gameObject.TryGetComponent(out IDamageable damaged))
             {
 
-                if (hit.GetComponent<PlayerManager>() != null) continue;
+                if (hit.transform.gameObject.GetComponent<PlayerManager>() != null) continue;
 
                 damaged.TakeDamage(Damage);
-                if (hit.GetComponent<EnemyBase>() != null || hit.GetComponent<Spikes>() != null)
+                if (hit.transform.gameObject.GetComponent<EnemyBase>() != null || hit.transform.gameObject.GetComponent<Spikes>() != null)
                 {
                     Pushback(hit.transform, AttackPushbackForce);
                 }

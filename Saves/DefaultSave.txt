@@ -1,11 +1,11 @@
 {
   "baseMaxHp": 5,
-  "MaxHp": 6,
-  "Hp": 6,
+  "MaxHp": 5,
+  "Hp": 5,
   "baseMaxMana": 100,
   "MaxMana": 100,
   "Mana": 100,
-  "Gold": 500,
+  "Gold": 600,
   "inventory": {
     "items": []
   },
@@ -18,12 +18,12 @@
     "Quantity": 0
   },
   "amulet1": {
-    "ItemPath": "Items/Heart Locket",
-    "Quantity": 1
+    "ItemPath": null,
+    "Quantity": 0
   },
   "amulet2": {
-    "ItemPath": "Items/Nitril's Fang",
-    "Quantity": 1
+    "ItemPath": null,
+    "Quantity": 0
   },
   "amulet3": {
     "ItemPath": null,
@@ -33,15 +33,14 @@
     "A1": {
       "LevelID": "A1",
       "LevelScene": "Demo1",
-      "Flags": []
+      "Flags": [
+        "LastLevel"
+      ]
     },
     "A2": {
       "LevelID": "A2",
       "LevelScene": "Demo2",
-      "Flags": [
-        "LastLevel",
-        "RespawnLevel"
-      ]
+      "Flags": []
     },
     "A3": {
       "LevelID": "A3",
@@ -54,15 +53,12 @@
       "Flags": []
     }
   },
-  "lastLevelID": "A2",
-  "lastX": 27,
-  "lastY": -12,
+  "lastLevelID": "A1",
+  "lastX": -37.28797,
+  "lastY": 24,
   "NPCs": {
     "Nitril": {
-      "Flags": [
-        "Met",
-        "ItemBought"
-      ],
+      "Flags": [],
       "Inventory": {
         "items": [
           {
@@ -74,7 +70,15 @@
             "Quantity": 3
           },
           {
+            "ItemPath": "Items/Heart Locket",
+            "Quantity": 1
+          },
+          {
             "ItemPath": "Items/Herald's Wings",
+            "Quantity": 1
+          },
+          {
+            "ItemPath": "Items/Nitril's Fang",
             "Quantity": 1
           }
         ]
