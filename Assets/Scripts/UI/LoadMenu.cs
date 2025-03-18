@@ -30,7 +30,9 @@ public class LoadMenu : MonoBehaviour
         }
 
         GameManager.Instance.DataManager.Load(GameSave, SelectedIndex);
-        GameManager.Instance.machine.ChangeState(GameManager.Instance.LevelManager.GetLevelByID(GameSave.lastLevelID));
+        Level level = (GameManager.Instance.LevelManager.GetLevelByID(GameSave.lastLevelID));
+        GameManager.Instance.Machine.ChangeState(level);
+        if (!level.HasFlag("LastLevel")) { level.SetFlag("LastLevel"); }
 
         if (FindObjectOfType<UIManager>() == null)
         {
@@ -66,33 +68,36 @@ public class LoadMenu : MonoBehaviour
         player.Mana = GameSave.Mana;
         player.Gold = GameSave.Gold;
 
-        Dictionary<string, Level> SaveLevelDic = new();
         foreach (string key in GameSave.Levels.Keys)
         {
-            SaveLevelDic.Add(key, GameSave.Levels[key].ToLevel());
+            GameManager.Instance.LevelManager.levels[key].ResetFlags();
+
+            foreach (string flag in GameSave.Levels[key].flags) 
+            {
+                GameManager.Instance.LevelManager.levels[key].Flags.Add(flag);
+            }
         }
-        GameManager.Instance.LevelManager.levels = SaveLevelDic;
 
         Dictionary<string, NPCData> SaveNPCDic = new();
         foreach (string key in GameSave.NPCs.Keys)
         {
-            SaveNPCDic.Add(key, GameSave.NPCs[key].ToNPCData());
+            GameManager.Instance.DataManager.NPCs[key].Flags = GameSave.NPCs[key].Flags;
+            GameManager.Instance.DataManager.NPCs[key].Inventory = GameSave.NPCs[key].Inventory.ToInventory();
         }
-        GameManager.Instance.DataManager.NPCs = SaveNPCDic;
 
         if (FindObjectOfType<UIManager>() == null)
         {
             Instantiate(Resources.Load<UIManager>("UI/UI"));
         }
-        FindObjectOfType<UIManager>().PlayerUI.gameObject.SetActive(true);
+        FindObjectOfType<UIManager>().PlayerUI.SetActive(true);
 
         player.transform.position = new(GameSave.lastX, GameSave.lastY);
     }
 
     public void Back()
     {
-        GameMainMenuState mainmenu = new(GameManager.Instance.machine);
-        GameManager.Instance.machine.ChangeState(mainmenu);
+        GameMainMenuState mainmenu = new(GameManager.Instance.Machine);
+        GameManager.Instance.Machine.ChangeState(mainmenu);
     }
 
     public void SelectSave(int index)

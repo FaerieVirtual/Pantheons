@@ -33,29 +33,27 @@
     "A1": {
       "LevelID": "A1",
       "LevelScene": "Demo1",
-      "Flags": [
-        "LastLevel"
-      ]
+      "flags": []
     },
     "A2": {
       "LevelID": "A2",
       "LevelScene": "Demo2",
-      "Flags": []
+      "flags": []
     },
     "A3": {
       "LevelID": "A3",
       "LevelScene": "Demo3",
-      "Flags": []
+      "flags": []
     },
     "A4": {
       "LevelID": "A4",
       "LevelScene": "Demo4",
-      "Flags": []
+      "flags": []
     }
   },
   "lastLevelID": "A1",
-  "lastX": -37.28797,
-  "lastY": 24,
+  "lastX": -37.0,
+  "lastY": 24.2904549,
   "NPCs": {
     "Nitril": {
       "Flags": [],
@@ -82,34 +80,7 @@
             "Quantity": 1
           }
         ]
-      },
-      "NPCResponses": [
-        {
-          "TriggerFlag": null,
-          "ExclusionFlag": "Met",
-          "SplitResponse": [
-            "Hi. I'm a vendor NPC. My name is Nitril.",
-            "I'm talking to you, but after we're done, I will offer you some wares.",
-            "There's a campfire ahead. Sit at it, set a respawn and save your game.",
-            "#!"
-          ]
-        },
-        {
-          "TriggerFlag": null,
-          "ExclusionFlag": "InventoryEmpty",
-          "SplitResponse": [
-            "#$"
-          ]
-        },
-        {
-          "TriggerFlag": "InventoryEmpty",
-          "ExclusionFlag": null,
-          "SplitResponse": [
-            "Apologies. I have no more stock. Maybe come back later?",
-            "#"
-          ]
-        }
-      ]
+      }
     }
   }
 }

@@ -37,7 +37,6 @@ public class NPCData : ScriptableObject
         {
             Flags = Flags,
             Inventory = Inventory.ToSaveInventory(),
-            NPCResponses = NPCResponses
         };
 
         return data;
@@ -48,13 +47,11 @@ public class SaveNPCData
 {
     public HashSet<string> Flags = new();
     public SaveInventory Inventory = new();
-    public List<NPCResponse> NPCResponses = new();
     public NPCData ToNPCData()
     {
         NPCData tmp = new()
         {
             Flags = Flags,
-            NPCResponses = NPCResponses,
             Inventory = Inventory.ToInventory()
         };
         return tmp;

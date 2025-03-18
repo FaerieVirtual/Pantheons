@@ -6141,7 +6141,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8024910946493488541, guid: 96003f27cc28009488a090206265a03b, type: 3}
       propertyPath: m_Name
-      value: PickupableItem
+      value: Sword
+      objectReference: {fileID: 0}
+    - target: {fileID: 8024910946493488541, guid: 96003f27cc28009488a090206265a03b, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8272006648066203736, guid: 96003f27cc28009488a090206265a03b, type: 3}
       propertyPath: m_Size.x

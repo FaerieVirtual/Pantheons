@@ -19,11 +19,11 @@ public class EnemyPatrolState : EnemyState
     private EnemyIdleState IdleState;
     private EnemyChaseState chaseState;
 
-    //public override void EnterState()
-    //{
-    //    enemy.Animator.StopPlayback();
-    //    enemy.Animator.Play("Run");
-    //}
+    public override void EnterState()
+    {
+        enemy.Animator.StopPlayback();
+        enemy.Animator.Play("Run");
+    }
     public override void PhysicsUpdate()
     {
         bool groundDetect = enemy.GroundCheck.IsTouchingLayers(enemy.Ground);

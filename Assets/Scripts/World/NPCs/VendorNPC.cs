@@ -9,15 +9,16 @@ public class VendorNPC : NPC
         Data = GameManager.Instance.DataManager.NPCs[Name];
         menuObject = UIManager.Instance.TradeMenuUI;
     }
-    private void Update()
+    public void UpdateVendorNPC()
     {
-        if (Data.Inventory.IsEmpty && Data.HasFlag("InventoryEmpty")) Data.SetFlag("InventoryEmpty");
+        if (Data.Inventory.IsEmpty && !Data.HasFlag("InventoryEmpty")) Data.SetFlag("InventoryEmpty");
         if (menuObject.activeSelf && TextBox.gameObject.activeSelf) { TextBox.gameObject.SetActive(false); }
         else if (!menuObject.activeSelf && !TextBox.gameObject.activeSelf) { TextBox.gameObject.SetActive(true); }
     }
     public override void Interaction()
     {
         if (!CanInteract) return;
+        UpdateVendorNPC();
         if (CurrentResponse == null)
         {
             CurrentResponse = GetResponse();
@@ -35,6 +36,7 @@ public class VendorNPC : NPC
             if (response.Contains("!") && CurrentResponse.ExclusionFlag != null) Data.Flags.Add(CurrentResponse.ExclusionFlag);
             CurrentResponse = null;
         }
+        UpdateVendorNPC();
     }
     public virtual void OpenInventory()
     {

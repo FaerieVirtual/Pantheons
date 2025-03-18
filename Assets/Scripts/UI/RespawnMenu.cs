@@ -15,7 +15,7 @@ public class RespawnMenu : MonoBehaviour
 
     private void Start()
     {
-        machine = GameManager.Instance.machine;
+        machine = GameManager.Instance.Machine;
     }
     public void Respawn() 
     {
@@ -23,19 +23,13 @@ public class RespawnMenu : MonoBehaviour
         PlayerManager.Instance.ResetPlayer();
         machine.ChangeState(level);
     }
-    //public void BackToMenu()
-    //{
-    //    //DataManager manager = GameManager.Instance.DataManager;
-    //    //using (var writer = new StreamWriter(GameManager.Instance.DataManager.SavePath, false))
-    //    //{
-    //    //    manager.SaveFile(manager.Save(), manager.SaveIndex, writer);
-    //    //    writer.Flush();
-    //    //    writer.Close();
-    //    //    writer.Dispose();
-    //    //}
+    public void BackToMenu()
+    {
+        DataManager manager = GameManager.Instance.DataManager;
+        manager.SaveFile(manager.Save(), manager.SaveIndex);
 
-    //    GameMainMenuState mainmenu = new(GameManager.Instance.machine);
-    //    GameManager.Instance.machine.ChangeState(mainmenu);
-    //}
+        GameMainMenuState mainmenu = new(GameManager.Instance.Machine);
+        GameManager.Instance.Machine.ChangeState(mainmenu);
+    }
 
 }

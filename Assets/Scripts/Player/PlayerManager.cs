@@ -1,12 +1,12 @@
 using Assets.Scripts.Player;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class PlayerManager : MonoBehaviour, IDamageable
 {
-    public Rigidbody2D RigidBody => GetComponent<Rigidbody2D>();
     public static PlayerManager Instance;
 
     #region General
@@ -18,37 +18,33 @@ public class PlayerManager : MonoBehaviour, IDamageable
     }
     private void Start()
     {
-        Interact = new();
-
-        ResetPlayer();
-        RigidBody.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
         SetInput();
 
-        transform.position = new Vector2(GameManager.Instance.DataManager.GameSave.lastX, GameManager.Instance.DataManager.GameSave.lastY);
+        transform.position = new Vector2(GameManager.Instance.DataManager.GameSave.lastX, GameManager.Instance.DataManager.GameSave.lastY + 2);
+        UpdateHealth();
+        UpdateAbilities();
+        UpdateAttack();
+        if (Hp <= 0) Die();
     }
-    private void FixedUpdate() //Executing physics simulation
+    private void FixedUpdate()
     {
-        //Movement
         HandleCollisions();
         Move();
         HandleGravity();
         ApplyMovement();
 
-        HealthCheck();
-        AttackCheck();
-        AbilityCheck();
+        UpdateMana();
     }
-    private void Update() //Getting Player Input
+    private void Update()
     {
         UpdateInput();
     }
     #endregion
 
-    #region PlayerManagement
+    #region Player Management
     [Header("INPUT")]
-    public float VerticalDeadZoneThreshold = .1f; //Determines the minimum velocity for the character to move vertically
-    public float HorizontalDeadZoneThreshold = .1f; //Determines the minimum velocity for the character to move horizontaly
-    public float TapThreshold = .35f; //Determines the difference between a tap and a hold of a button in time
+    public float VerticalDeadZoneThreshold = .1f;
+    public float HorizontalDeadZoneThreshold = .1f;
 
     private PlayerInput JumpInput;
     private PlayerInput InteractInput;
@@ -63,17 +59,10 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     public void ResetPlayer()
     {
-        ResetStats();
         Hp = MaxHp;
         Mana = MaxMana;
         invincible = false;
         movementDisable = false;
-    }
-    public void ResetStats()
-    {
-        Damage = baseDamage + boostedDamage;
-        MaxHp = baseMaxHp + boostedMaxHp;
-        MaxMana = baseMaxMana + boostedMaxMana;
     }
     private void SetInput()
     {
@@ -131,7 +120,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     [Header("HEALTH")]
     public int baseMaxHp;
     [HideInInspector] public int boostedMaxHp;
-    [HideInInspector] public int MaxHp;
+    [HideInInspector] public int MaxHp => baseMaxHp + boostedMaxHp;
     public int Hp;
     public bool Alive => Hp > 0;
 
@@ -139,16 +128,13 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private bool invincible;
 
     public int DamagePushbackForce;
-
-    private Image[] hpImages;
-
     public void Die()
     {
         movementDisable = true;
         Gold = 0;
 
-        GameRespawningState respawningState = new(GameManager.Instance.machine);
-        GameManager.Instance.machine.ChangeState(respawningState);
+        GameRespawningState respawningState = new(GameManager.Instance.Machine);
+        GameManager.Instance.Machine.ChangeState(respawningState);
     }
     public async void TakeDamage(int damage)
     {
@@ -174,27 +160,19 @@ public class PlayerManager : MonoBehaviour, IDamageable
         GetComponent<SpriteRenderer>().color = Color.white;
         invincible = false;
     }
-    private void HealthCheck()
+    public void UpdateHealth()
     {
-        CheckForHpGraphics();
-        CheckForMaxValues();
+        Image[] HpImages = UIManager.Instance.PlayerUI.GetComponent<PlayerGUI>().HpImages;
 
-        void CheckForHpGraphics()
+        for (int i = 0; i < HpImages.Length; i++)
         {
-            hpImages = UIManager.Instance.PlayerUI.GetComponent<PlayerGUI>().HpImages;
-            for (int i = 0; i < hpImages.Length; i++)
-            {
-                if (i < Hp) { hpImages[i].sprite = Resources.Load<Sprite>("Sprites/heartfull"); }
-                else { hpImages[i].sprite = Resources.Load<Sprite>("Sprites/heartempty"); }
+            if (i < Hp) { HpImages[i].sprite = Resources.Load<Sprite>("Sprites/heartfull"); }
+            else { HpImages[i].sprite = Resources.Load<Sprite>("Sprites/heartempty"); }
 
-                if (i < MaxHp) { hpImages[i].enabled = true; }
-                else { hpImages[i].enabled = false; }
-            }
+            if (i < MaxHp) { HpImages[i].enabled = true; }
+            else { HpImages[i].enabled = false; }
         }
-        void CheckForMaxValues()
-        {
-            if (Hp > MaxHp) { Hp = MaxHp; }
-        }
+        if (Hp > MaxHp) { Hp = MaxHp; }
 
     }
     public async void Heal(int healAmount)
@@ -202,6 +180,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         if (Hp >= MaxHp) return;
         Hp += healAmount;
         GetComponent<SpriteRenderer>().color = Color.green;
+        UpdateHealth();
         await Task.Delay(500);
         GetComponent<SpriteRenderer>().color = Color.white;
     }
@@ -217,13 +196,11 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     [Header("JUMP")]
     public int JumpPower;
-    public int JumpSustainPower;
     public float MaxJumpTime;
     public float MaxFallSpeed;
     public float FallAcceleration;
     public float JumpEndGModifier;
     public float CoyoteTime;
-    public float JumpBuffer;
     public float ApexSpeedModifier;
 
     private int MoveDirection;
@@ -231,6 +208,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private bool IsStanding, IsJumping, FacingRight;
     private Vector2 tempVelocity;
     private LayerMask Ground => LayerMask.GetMask("Ground");
+    public Rigidbody2D RigidBody => GetComponent<Rigidbody2D>();
     public bool movementDisable;
 
     private bool endedJump;
@@ -282,22 +260,13 @@ public class PlayerManager : MonoBehaviour, IDamageable
         if (!jumpSustainable || JumpInput.timePressed + MaxJumpTime < Time.time) return;
         coyoteUsable = false;
         IsJumping = true;
-        if (tempVelocity.y <= JumpSustainPower) tempVelocity.y = JumpSustainPower;
+        if (tempVelocity.y <= JumpPower) tempVelocity.y = JumpPower;
     }
     void Move()
     {
-        if (MoveDirection == 1)
-        {
-            FacingRight = true;
-        } else if (MoveDirection == -1)
-        {
-            FacingRight = false;
-        }
-        if (MoveDirection != 0 && (MoveDirection == 1 && transform.localRotation.y != 0) || (MoveDirection == -1 && transform.localRotation.y != 180))
-        {
-            int angle = MoveDirection == 1 ? 0 : 180;
-            transform.localRotation = Quaternion.Euler(transform.localRotation.x, angle, transform.rotation.z);
-        }
+        if (MoveDirection == 1) { FacingRight = true; }
+        else if (MoveDirection == -1) { FacingRight = false; }
+
 
         if (MoveDirection == 0)
         {
@@ -306,6 +275,11 @@ public class PlayerManager : MonoBehaviour, IDamageable
         }
         else
         {
+            if ((MoveDirection == 1 && transform.localRotation.y != 0) || (MoveDirection == -1 && transform.localRotation.y != 180))
+            {
+                int angle = MoveDirection == 1 ? 0 : 180;
+                transform.localRotation = Quaternion.Euler(transform.localRotation.x, angle, transform.rotation.z);
+            }
             tempVelocity.x = Mathf.MoveTowards(tempVelocity.x, MoveDirection * MaxSpeed, Acceleration * Time.fixedDeltaTime);
         }
 
@@ -354,14 +328,14 @@ public class PlayerManager : MonoBehaviour, IDamageable
     #endregion
 
     #region Interact
-    public UnityEvent Interact;
+    [HideInInspector] public UnityEvent Interact = new();
 
     private void Pause()
     {
         if (UIManager.Instance.InventoryUI.activeSelf) { UIManager.Instance.InventoryUI.SetActive(false); }
         else if (UIManager.Instance.TradeMenuUI.activeSelf) { UIManager.Instance.TradeMenuUI.SetActive(false); }
 
-        GameStatemachine machine = GameManager.Instance.machine;
+        GameStatemachine machine = GameManager.Instance.Machine;
         GamePausedState pausedState = new(machine);
         if (machine.CurrentState is Level) machine.ChangeState(pausedState);
         else machine.ChangeState(machine.PreviousState);
@@ -371,23 +345,24 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     #region Attacking
     [Header("ATTACK")]
-    public float attackReach; //determines how far the attack reaches (in case of adding other weapons)
-    public int Damage;
-    public int baseDamage;
+    public int AttackPushbackForce;
+    public bool attackDisable;
+
+    public int Damage => baseDamage + boostedDamage;
+    [HideInInspector] public int baseDamage;
     [HideInInspector] public int boostedDamage;
-    public int AttackPushbackForce; //by what force will the character be pushed back from the direction of the attack
+    [HideInInspector] public float attackReach;
 
-    private bool attackDisable; //debug switch to disable attacks 
+    [HideInInspector] public int GatherGoldBoost = 0;
+    [HideInInspector] public int GatherManaBoost = 0;
 
-
-    private void AttackCheck()
+    public void UpdateAttack()
     {
         if (equippedWeapon != null && equippedWeapon.IsEmpty)
         {
             baseDamage = 0;
             attackReach = 0;
             attackDisable = true;
-            ResetStats();
         }
         if (equippedWeapon != null && !equippedWeapon.IsEmpty)
         {
@@ -413,21 +388,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
         return Vector2.zero;
     }
-    private void DrawBox(Vector2 center, Vector2 size, Color color, float duration)
-    {
-        Vector2 halfSize = size / 2;
-
-        Vector2 topLeft = center + new Vector2(-halfSize.x, halfSize.y);
-        Vector2 topRight = center + new Vector2(halfSize.x, halfSize.y);
-        Vector2 bottomRight = center + new Vector2(halfSize.x, -halfSize.y);
-        Vector2 bottomLeft = center + new Vector2(-halfSize.x, -halfSize.y);
-
-        Debug.DrawLine(topLeft, topRight, color, duration);
-        Debug.DrawLine(topRight, bottomRight, color, duration);
-        Debug.DrawLine(bottomRight, bottomLeft, color, duration);
-        Debug.DrawLine(bottomLeft, topLeft, color, duration);
-    }
-
     private void HandleAttack()
     {
         if (attackDisable) return;
@@ -436,27 +396,22 @@ public class PlayerManager : MonoBehaviour, IDamageable
         Vector2 Size = GetSize(Direction);
         Vector2 Center = (Vector2)transform.position + Direction * (attackReach / 2);
 
-        DrawBox(Center, Size, Color.red, 5);
-
         foreach (Collider2D hit in Physics2D.OverlapBoxAll(Center, Size, 0))
         {
+            if (hit.GetComponent<PlayerManager>() != null) continue;
+
             if (hit.transform.parent != null && hit.transform.parent.TryGetComponent(out IDamageable damagedParent))
             {
-                if (hit.transform.gameObject.GetComponent<PlayerManager>() != null) continue;
-
                 damagedParent.TakeDamage(Damage);
-                if (hit.transform.gameObject.GetComponent<EnemyBase>() != null || hit.transform.gameObject.GetComponent<Spikes>() != null)
+                if (hit.transform.parent.GetComponent<EnemyBase>() != null || hit.GetComponent<Spikes>() != null)
                 {
                     Pushback(hit.transform, AttackPushbackForce);
                 }
             }
-            if (hit.transform.gameObject.TryGetComponent(out IDamageable damaged))
+            if (hit.TryGetComponent(out IDamageable damaged))
             {
-
-                if (hit.transform.gameObject.GetComponent<PlayerManager>() != null) continue;
-
                 damaged.TakeDamage(Damage);
-                if (hit.transform.gameObject.GetComponent<EnemyBase>() != null || hit.transform.gameObject.GetComponent<Spikes>() != null)
+                if (hit.GetComponent<EnemyBase>() != null || hit.GetComponent<Spikes>() != null)
                 {
                     Pushback(hit.transform, AttackPushbackForce);
                 }
@@ -470,17 +425,21 @@ public class PlayerManager : MonoBehaviour, IDamageable
     #region Abilities
     [Header("Abilities")]
     public int Mana = 100;
-    public int MaxMana;
+    public int MaxMana => baseMaxMana + boostedMaxMana;
     public int baseMaxMana = 100;
     [HideInInspector] public int boostedMaxMana;
     [HideInInspector] public float amulet1ChargeTime;
     [HideInInspector] public float amulet2ChargeTime;
     [HideInInspector] public float amulet3ChargeTime;
+    private TextMeshProUGUI manaCounter => UIManager.Instance.PlayerUI.GetComponent<PlayerGUI>().ManaCounter;
 
-    public void AbilityCheck()
+    public void UpdateMana()
     {
-        UIManager.Instance.PlayerUI.GetComponent<PlayerGUI>().ManaCounter.text = Mana.ToString();
         if (Mana > MaxMana) Mana = MaxMana;
+        manaCounter.text = Mana.ToString();
+    }
+    public void UpdateAbilities()
+    {
         if (equippedAmulet1 != null && equippedAmulet1.Item is AbilityAmulet tmp1)
         {
             amulet1ChargeTime = tmp1.chargeTime;
@@ -508,7 +467,13 @@ public class PlayerManager : MonoBehaviour, IDamageable
         if (amulet != null && amulet.Item is AbilityAmulet tmp)
         {
             tmp.ActivateAbility();
+            UpdateMana();
         }
+    }
+
+    public void AddMana(int amount)
+    {
+        Mana += amount;
     }
     #endregion
 
@@ -521,11 +486,11 @@ public class PlayerManager : MonoBehaviour, IDamageable
     [HideInInspector] public AbstractSlot equippedAmulet2 = new();
     [HideInInspector] public AbstractSlot equippedAmulet3 = new();
     public int Gold;
-    private GameObject playerUI;
 
     public void TriggerInventory()
     {
-        playerUI = UIManager.Instance.PlayerUI;
+        GameObject playerUI = UIManager.Instance.PlayerUI;
+
         InventoryMenu inventoryMenu = UIManager.Instance.InventoryUI.GetComponent<InventoryMenu>();
         TradeMenu tradeMenu = UIManager.Instance.TradeMenuUI.GetComponent<TradeMenu>();
         if (inventoryMenu == null)
@@ -536,8 +501,10 @@ public class PlayerManager : MonoBehaviour, IDamageable
         if (tradeMenu.gameObject.activeSelf)
         {
             tradeMenu.gameObject.SetActive(false);
-
-            GameObject playerUI = UIManager.Instance.PlayerUI;
+            foreach (VendorNPC npc in FindObjectsByType<VendorNPC>(FindObjectsSortMode.None)) 
+            {
+                npc.UpdateVendorNPC();
+            }
             if (playerUI != null && !playerUI.activeSelf) { playerUI.SetActive(true); }
         }
         else if (inventoryMenu.gameObject.activeSelf)

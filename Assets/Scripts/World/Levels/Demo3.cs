@@ -8,23 +8,7 @@ public class Demo3 : Level
 
     public override void EnterState()
     {
-        if (HasFlag("SwordTaken"))
-        {            
-            foreach (PickupableItem obj in Object.FindObjectsOfType<PickupableItem>())
-            {
-                if (obj.ObjectID == "Sword") { Object.Destroy(obj.gameObject); break; }
-            }
-        }
-    }
-
-    public override void ExitState()
-    {
-        base.ExitState();
-    }
-
-    public override void Update()
-    {
-        base.Update();
+        base.EnterState();
     }
 }
 

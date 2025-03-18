@@ -144,9 +144,9 @@ public class AudioManager : MonoBehaviour
     //}
     //public void CheckForPause()
     //{
-    //    GamePausedState paused = new GamePausedState(GameManager.Instance.machine);
-    //    if (GameManager.Instance.machine.currentState == paused && themePause == false) { themePause = true; }
-    //    if (GameManager.Instance.machine.currentState != paused && themePause == true) { themePause = false; }
+    //    GamePausedState paused = new GamePausedState(GameManager.Instance.Machine);
+    //    if (GameManager.Instance.Machine.currentState == paused && themePause == false) { themePause = true; }
+    //    if (GameManager.Instance.Machine.currentState != paused && themePause == true) { themePause = false; }
     //}
 
 

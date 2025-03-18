@@ -18,12 +18,19 @@ public class InventoryMenu : ItemManagingMenu
     public GraphicalSlot amuletSlot3;
     public GraphicalSlot consumableSlot;
 
+    public Button EquipButton;
+    public Button UnequipButton;
+    public Animator PlayerSpriteAnimator;
+
     private void OnEnable()
     {
         if (TryGetComponent(out Canvas canvas) && canvas.worldCamera == null) 
         { 
             canvas.worldCamera = Camera.main;
         }
+        SelectSlot(slots[1]);
+        PlayerSpriteAnimator.StopPlayback(); 
+        PlayerSpriteAnimator.Play("Idle");
     }
     public override void UpdateMenu()
     {
@@ -38,8 +45,6 @@ public class InventoryMenu : ItemManagingMenu
             for (int i = 0; i < playerInventory.Count; i++)
             {
                 slots[i].AddItem(playerInventory[i].Item, playerInventory[i].Quantity);
-                slots[i].transform.GetChild(0).GetComponent<Image>().sprite = slots[i].Item.ItemSprite;
-                slots[i].transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = slots[i].Quantity.ToString();
             }
         }
         swordSlot.RemoveItem(swordSlot.Quantity);
@@ -67,7 +72,6 @@ public class InventoryMenu : ItemManagingMenu
 
         foreach (GraphicalSlot slot in slots) 
         { 
-            slot.isLocked = false;
             slot.Button.interactable = true;
         }
 
@@ -84,13 +88,32 @@ public class InventoryMenu : ItemManagingMenu
             GraphicalSlot tmp = selectedSlot;
             selectedSlot.Button.onClick.AddListener(() => SelectSlot(tmp));
         }
-        DisplaySlot.RemoveItem(DisplaySlot.Quantity);
+        if (!slot.IsEmpty)
+        {
+            DisplaySlot.RemoveItem(DisplaySlot.Quantity);
 
-        description.text = slot.Item.Description;
-        itemName.text = slot.Item.Name;
-        DisplaySlot.AddItem(slot.Item);
-
+            description.text = slot.Item.Description;
+            itemName.text = slot.Item.Name;
+            DisplaySlot.AddItem(slot.Item);
+        }
+        else
+        {
+            description.text = "";
+            itemName.text = "";
+            if (!DisplaySlot.IsEmpty) DisplaySlot.RemoveItem(DisplaySlot.Quantity);
+        }
         selectedSlot = slot;
+
+        if (selectedSlot.Type == SlotType.EquipSlot) 
+        { 
+            EquipButton.interactable = true; 
+            UnequipButton.interactable = false; 
+        }
+        if (selectedSlot.Type == SlotType.UnequipSlot) 
+        {
+            EquipButton.interactable = false;
+            UnequipButton.interactable = true;
+        }
     }
 
     public void EquipItem()
@@ -103,6 +126,7 @@ public class InventoryMenu : ItemManagingMenu
                 slotToEquipTo = swordSlot;
                 PlayerManager.Instance.equippedWeapon.RemoveItem(1);
                 PlayerManager.Instance.equippedWeapon.AddItem(selectedSlot.Item);
+                PlayerManager.Instance.UpdateAttack();
                 
                 break;
 
@@ -131,29 +155,14 @@ public class InventoryMenu : ItemManagingMenu
                     PlayerManager.Instance.equippedAmulet3.RemoveItem(1);
                     PlayerManager.Instance.equippedAmulet3.AddItem(selectedSlot.Item);
                 }
-                else
-                {
-                    System.Random r = new();
-                    switch (r.Next(1, 4))
-                    {
-                        case 1:
-                            slotToEquipTo = amuletSlot1;
-                            PlayerManager.Instance.equippedAmulet1.RemoveItem(1);
-                            PlayerManager.Instance.equippedAmulet1.AddItem(selectedSlot.Item);
-                            break;
-                        case 2:
-                            slotToEquipTo = amuletSlot2;
-                            PlayerManager.Instance.equippedAmulet2.RemoveItem(1);
-                            PlayerManager.Instance.equippedAmulet2.AddItem(selectedSlot.Item);
-                            break;
-                        case 3:
-                            slotToEquipTo = amuletSlot3;
-                            PlayerManager.Instance.equippedAmulet3.RemoveItem(1);
-                            PlayerManager.Instance.equippedAmulet3.AddItem(selectedSlot.Item);
-                            break;
-                    }
+                else return;
+
+                if (!slotToEquipTo.IsEmpty && slotToEquipTo.Item is Amulet am) 
+                { 
+                    am.OnUnequip(); 
+                    if (selectedSlot.Item is Amulet am2) { am2.OnEquip(); }
                 }
-                if (!slotToEquipTo.IsEmpty && slotToEquipTo.Item is Amulet am) { am.OnUnequip(); }
+                PlayerManager.Instance.UpdateAbilities();
                 break;
             default: Debug.Log("Attempt to assign to searched slot failed. Unknown Items type."); break;
         }
@@ -167,11 +176,25 @@ public class InventoryMenu : ItemManagingMenu
 
         slotToEquipTo.AddItem(selectedSlot.Item, selectedSlot.Quantity);
 
-        if (slotToEquipTo.Item is Amulet tmp1) { tmp1.OnEquip(); }
-
         PlayerManager.Instance.Inventory.RemoveItem(selectedSlot.Item, selectedSlot.Quantity);
         selectedSlot.RemoveItem(selectedSlot.Quantity);
-        PlayerManager.Instance.ResetStats();
+        UpdateMenu();
+    }
+
+    public void UnequipItem() 
+    {
+        if (selectedSlot == null || selectedSlot.IsEmpty) return;
+
+        PlayerManager.Instance.Inventory.AddItem(selectedSlot.Item, selectedSlot.Quantity);
+
+        if (selectedSlot == swordSlot) PlayerManager.Instance.equippedWeapon.RemoveItem(PlayerManager.Instance.equippedWeapon.Quantity);
+        if (selectedSlot == consumableSlot) PlayerManager.Instance.equippedConsumable.RemoveItem(PlayerManager.Instance.equippedConsumable.Quantity);
+        if (selectedSlot == amuletSlot1) PlayerManager.Instance.equippedAmulet1.RemoveItem(PlayerManager.Instance.equippedAmulet1.Quantity);
+        if (selectedSlot == amuletSlot2) PlayerManager.Instance.equippedAmulet2.RemoveItem(PlayerManager.Instance.equippedAmulet2.Quantity);
+        if (selectedSlot == amuletSlot3) PlayerManager.Instance.equippedAmulet3.RemoveItem(PlayerManager.Instance.equippedAmulet3.Quantity);
+
+        if (selectedSlot.Item is Amulet am) am.OnUnequip();
+        selectedSlot.RemoveItem(selectedSlot.Quantity);
         UpdateMenu();
     }
 }

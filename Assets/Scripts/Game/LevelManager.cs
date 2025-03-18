@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -12,7 +11,7 @@ public class LevelManager : MonoBehaviour
     public Dictionary<string, Level> levels;
     private void Start()
     {
-        machine = GameManager.Instance.machine;
+        machine = GameManager.Instance.Machine;
         InitializeLevels();
     }
 
@@ -90,7 +89,6 @@ public class LevelManager : MonoBehaviour
 
         foreach (Level level in levels.Values) 
         {
-            Debug.Log(level.LevelScene + level.Flags);
             if (level.HasFlag(flag)) return level;
         }
         Debug.Log("Attempted to fetch a level with a non-existing flag.");

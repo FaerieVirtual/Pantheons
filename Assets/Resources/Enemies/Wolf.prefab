@@ -162,7 +162,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!114 &-6115499524885183163
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -177,7 +177,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxHp: 5
   Hp: 5
-  CoinCount: 5
+  CoinCount: 4
+  ManaCount: 30
   Speed: 6
   GroundCheck: {fileID: 8648053250519435026}
   WallCheck: {fileID: 8855721065778758451}

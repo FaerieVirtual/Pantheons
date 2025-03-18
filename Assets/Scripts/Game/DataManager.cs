@@ -10,8 +10,7 @@ public class DataManager : MonoBehaviour
     public DataSave GameSave;
     public string SavePath => $"Saves/GameSave{SaveIndex}.txt";
     public int SaveIndex;
-
-    JsonSerializerSettings settings = new()
+    private readonly JsonSerializerSettings settings = new()
     {
         TypeNameHandling = TypeNameHandling.Auto,
     };
@@ -51,7 +50,6 @@ public class DataManager : MonoBehaviour
         if (!Directory.Exists("Saves")) Directory.CreateDirectory("Saves");
 
         string SaveJSON = JsonConvert.SerializeObject(save, Formatting.Indented, settings);
-        Debug.Log(SaveJSON);
         if (string.IsNullOrEmpty(SaveJSON)) return;
         File.WriteAllText(savePath, SaveJSON);
     }
@@ -105,7 +103,15 @@ public class DataManager : MonoBehaviour
         }
         save.Levels = SaveLevelDic;
 
-        save.lastLevelID = GameManager.Instance.LevelManager.GetLevelByFlag("LastLevel").LevelID;
+        if (GameManager.Instance.LevelManager.GetLevelByFlag("LastLevel") != null)
+        {
+            save.lastLevelID = GameManager.Instance.LevelManager.GetLevelByFlag("LastLevel").LevelID;
+        }
+        else if (GameManager.Instance.Machine.PreviousState is Level tmp)
+        {
+            tmp.SetFlag("LastLevel");
+            save.lastLevelID = tmp.LevelID;
+        }
 
         foreach (Level level in GameManager.Instance.LevelManager.levels.Values)
         {

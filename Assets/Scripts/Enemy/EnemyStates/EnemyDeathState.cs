@@ -12,16 +12,18 @@ public class DeathState : EnemyState
     public override void EnterState()
     {
         enemy.RigidBody.velocity = Vector3.zero;
-        enemy.SpawnCoin(enemy.CoinCount);
+        enemy.SpawnCoin(enemy.CoinCount + PlayerManager.Instance.GatherGoldBoost);
+        PlayerManager.Instance.AddMana(enemy.ManaCount + PlayerManager.Instance.GatherManaBoost);
 
-        //enemy.StartCoroutine(AnimateAndDisable());
+        enemy.StartCoroutine(AnimateAndDisable());
     }
 
-    //private IEnumerator AnimateAndDisable()
-    //{
-    //    enemy.Animator.Play("Death");
-    //    AnimatorStateInfo info = enemy.Animator.GetCurrentAnimatorStateInfo(0);
-    //    yield return new WaitForSeconds(info.length);
-    //    enemy.gameObject.SetActive(false);
-    //}
+    private IEnumerator AnimateAndDisable()
+    {
+        enemy.Animator.Play("Death");
+        AnimatorStateInfo info = enemy.Animator.GetCurrentAnimatorStateInfo(0);
+
+        yield return new WaitForSeconds(info.length);
+        enemy.gameObject.SetActive(false);
+    }
 }

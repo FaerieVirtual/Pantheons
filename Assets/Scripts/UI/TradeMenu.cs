@@ -36,8 +36,6 @@ public class TradeMenu : ItemManagingMenu
             for (int i = 0; i < traderInventory.Count; i++)
             {
                 slots[i].AddItem(traderInventory[i].Item, traderInventory[i].Quantity);
-                slots[i].transform.GetChild(0).GetComponent<Image>().sprite = slots[i].Item.ItemSprite;
-                slots[i].transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = slots[i].Quantity.ToString();
             }
         }
 

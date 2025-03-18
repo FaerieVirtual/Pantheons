@@ -7,6 +7,7 @@ public class EnemyBase : MonoBehaviour, IDamageable
     private DeathState deathState;
     public EnemyPatrolState patrolState;
 
+    public Animator Animator => GetComponent<Animator>();
     #region Start/Updates
     void Start()
     {
@@ -32,10 +33,11 @@ public class EnemyBase : MonoBehaviour, IDamageable
     public int MaxHp;
     public int Hp;
     public int CoinCount;
+    public int ManaCount;
 
     public void Die()
     {
-        Machine.ChangeState(deathState);
+        if (Machine.currentState != deathState) Machine.ChangeState(deathState);
     }
     public async void TakeDamage(int damage)
     {
@@ -71,7 +73,7 @@ public class EnemyBase : MonoBehaviour, IDamageable
         scale.x *= -1;
         transform.localScale = scale;
 
-        MoveDirection = (MoveDirection == Vector2.right) ? Vector3.right : Vector3.left;
+        MoveDirection = (MoveDirection == Vector2.left) ? Vector3.right : Vector3.left;
     }
     #endregion
 
@@ -87,12 +89,13 @@ public class EnemyBase : MonoBehaviour, IDamageable
     }
     #endregion
 
-    public void SpawnCoin(int amount)
+    public async void SpawnCoin(int amount)
     {
         GameObject coinPrefab = Resources.Load<GameObject>("Items/Coin");
         for (int i = 0; i < amount; i++)
         {
             Instantiate(coinPrefab, transform.position, Quaternion.identity);
+            await Task.Delay(200);
         }
     }
 }

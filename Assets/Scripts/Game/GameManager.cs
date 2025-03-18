@@ -9,10 +9,8 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
     public DataManager DataManager;
     public LevelManager LevelManager;
-    //public int gameIndex;
-    //public string Area;
 
-    public GameStatemachine machine = new();
+    public GameStatemachine Machine = new();
     private GameMainMenuState menuState;
 
     #region General
@@ -23,16 +21,15 @@ public class GameManager : MonoBehaviour
 
         DontDestroyOnLoad(gameObject);
 
-        LevelManager = this.AddComponent<LevelManager>();
-        DataManager = this.AddComponent<DataManager>();
-        menuState = new GameMainMenuState(machine);
-
-        machine.Init(menuState);
+        DataManager = gameObject.AddComponent<DataManager>();
+        LevelManager = gameObject.AddComponent<LevelManager>();
+        menuState = new GameMainMenuState(Machine);
+        Machine.Init(menuState);
     }
 
     private void Update()
     {
-        machine.CurrentState.Update();
+        Machine.CurrentState.Update();
     }
     #endregion
 

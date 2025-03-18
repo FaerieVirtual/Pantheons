@@ -6,25 +6,28 @@ public class GraphicalSlot : MonoBehaviour
 {
     public ItemBase Item;
     public int Quantity;
+    public SlotType Type;
     public bool IsEmpty => Item == null || Quantity == 0;
-    public bool isLocked;
     public Button Button;
     private ItemManagingMenu menu;
     public TextMeshProUGUI quantityText;
 
     private void OnEnable()
     {
-        //Button = GetComponentInChildren<Button>(true);
         GameObject parent = transform.parent.gameObject;
         while (menu == null) 
         {
             if (!parent.TryGetComponent(out menu)) parent = parent.transform.parent.gameObject;
         }
-        if (isLocked) { Button.interactable = false; }
+        if (Type == SlotType.LockedSlot) { Button.interactable = false; }
         else
-        { Button.onClick.AddListener(() => menu.SelectSlot(this)); }
+        {
+            Button.interactable = true;
+            Button.onClick.AddListener(() => menu.SelectSlot(this)); 
+        }
+        UpdateSlot();
     }
-    private void Update()
+    public void UpdateSlot()
     {
         if (Quantity > 1) { quantityText.text = Quantity.ToString(); }
         else { quantityText.text = ""; }
@@ -34,7 +37,8 @@ public class GraphicalSlot : MonoBehaviour
             Button.gameObject.GetComponent<Image>().color = Color.white;
             Button.gameObject.GetComponent<Image>().sprite = Item.ItemSprite;
         }
-        if (IsEmpty) isLocked = true;
+        if (IsEmpty) { Button.interactable = false; }
+        else { Button.interactable = true; }
     }
 
     public void AddItem(ItemBase item, int amount = 1)
@@ -48,6 +52,7 @@ public class GraphicalSlot : MonoBehaviour
         {
             Quantity += amount;
         };
+        UpdateSlot();
     }
     public void RemoveItem(int amount)
     {
@@ -59,32 +64,14 @@ public class GraphicalSlot : MonoBehaviour
                 Item = null;
             }
         }
+        UpdateSlot();
     }
     public ItemBase GetItem() => Item;
+}
 
-    //public void Clear()
-    //{
-    //    isLocked = false;
-    //    Item = null;
-    //    Quantity = 0;
-    //}
-
-    //public void OnItemDisplay()
-    //{
-    //    Button.onClick.RemoveAllListeners();
-    //    if (SlotID == "Inventory")
-    //    {
-    //        Button.onClick.AddListener(menu.EquipItem);
-    //    }
-    //    else
-    //    {
-    //        Button.onClick.AddListener(menu.UnequipItem);
-    //    }
-    //}
-
-    //public void StopItemDisplay()
-    //{
-    //    Button.onClick.RemoveAllListeners();
-    //    Button.onClick.AddListener(() => menu.SelectSlot(gameObject.GetComponent<Slot>()));
-    //}
+public enum SlotType 
+{ 
+    EquipSlot,
+    UnequipSlot,
+    LockedSlot
 }

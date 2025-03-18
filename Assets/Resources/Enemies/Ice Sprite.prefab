@@ -167,6 +167,7 @@ GameObject:
   - component: {fileID: 6930441371964090960}
   - component: {fileID: -8989753072129500493}
   - component: {fileID: 3989326842702887679}
+  - component: {fileID: 4414160132886487105}
   m_Layer: 9
   m_Name: Ice Sprite
   m_TagString: Untagged
@@ -329,10 +330,32 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxHp: 3
   Hp: 0
-  CoinCount: 3
-  Speed: 5
+  CoinCount: 2
+  ManaCount: 10
+  Speed: 4
   GroundCheck: {fileID: 6785692242703262095}
   WallCheck: {fileID: 4860707716128947480}
   ChaseRadius: {fileID: 0}
   DamagePushbackForce: 30
   MoveDirection: {x: 0, y: 0}
+--- !u!95 &4414160132886487105
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8491661678376351441}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 6bdfe8af26bcfec4f92ea5a33b2a91f7, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

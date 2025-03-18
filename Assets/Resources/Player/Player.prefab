@@ -192,7 +192,7 @@ Rigidbody2D:
     m_Bits: 0
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!95 &6895768331626554096
 Animator:
@@ -262,57 +262,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d777ee7ca7db7624d8f85ab65da245ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  VerticalDeadZoneThreshold: 0.1
-  HorizontalDeadZoneThreshold: 0.1
-  TapThreshold: 0.35
   baseMaxHp: 5
   boostedMaxHp: 0
-  MaxHp: 0
   Hp: 0
   invincibleDuration: 1
-  DamagePushbackForce: 20
-  hpImages:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  fullHeart: {fileID: 21300000, guid: 28fe1c7928ae4894ba26299be7cbf8fe, type: 3}
-  emptyHeart: {fileID: 21300000, guid: cf5e10748c2d4cf4a98fb6a835cf538f, type: 3}
+  DamagePushbackForce: 40
   MaxSpeed: 12
   Acceleration: 140
   GroundDeceleration: 80
   AirDeceleration: 60
   GroundingForce: -1
   JumpPower: 17
-  JumpSustainPower: 17
   MaxJumpTime: 0.2
   MaxFallSpeed: 60
   FallAcceleration: 50
   JumpEndGModifier: 2
   CoyoteTime: 0.1
-  JumpBuffer: 0.2
   ApexSpeedModifier: 1.5
+  RigidBody: {fileID: 0}
   movementDisable: 0
   Interact:
     m_PersistentCalls:
       m_Calls: []
   attackReach: 0
-  Damage: 0
   baseDamage: 0
   boostedDamage: 0
-  AttackPushbackForce: 5
+  AttackPushbackForce: 10
   Mana: 100
-  MaxMana: 0
   baseMaxMana: 100
   boostedMaxMana: 0
   amulet1ChargeTime: 0
   amulet2ChargeTime: 0
   amulet3ChargeTime: 0
-  ManaCounter: {fileID: 0}
   Gold: 600
 --- !u!1 &9195820129829134308
 GameObject:

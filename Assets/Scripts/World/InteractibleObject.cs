@@ -4,6 +4,13 @@ public class InteractibleObject : MonoBehaviour, IInteractible
 {
     public bool CanInteract { get; set; } = true;
     public string Flag;
+    private Level Level => (Level)GameManager.Instance.Machine.CurrentState;
+
+    private void Awake()
+    {
+        if (Level.HasFlag(Flag) && Flag != null) Destroy(gameObject);
+    }
+
     public virtual void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.GetComponent<PlayerManager>() != null)
@@ -19,13 +26,9 @@ public class InteractibleObject : MonoBehaviour, IInteractible
         }
     }
 
-    public virtual void Interaction() 
-    { 
-        if (Flag != null) 
-        { 
-            Level tmp = (Level)GameManager.Instance.machine.CurrentState;
-            tmp.SetFlag(Flag);
-        }
+    public virtual void Interaction()
+    {
+        if (Flag != null) Level.SetFlag(Flag);
     }
 }
 

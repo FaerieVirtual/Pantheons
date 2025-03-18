@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -18,7 +19,7 @@ public class PauseMenu : MonoBehaviour
 
     private void Start()
     {
-        machine = GameManager.Instance.machine;
+        machine = GameManager.Instance.Machine;
     }
     public void Resume()
     {
@@ -29,8 +30,17 @@ public class PauseMenu : MonoBehaviour
     {
         DataManager manager = GameManager.Instance.DataManager;
 
-            manager.SaveFile(manager.Save(), manager.SaveIndex);
-        GameMainMenuState mainmenu = new(GameManager.Instance.machine);
-        GameManager.Instance.machine.ChangeState(mainmenu);
+        manager.SaveFile(manager.Save(), manager.SaveIndex);
+        GameMainMenuState mainmenu = new(GameManager.Instance.Machine);
+        GameManager.Instance.Machine.ChangeState(mainmenu);
+    }
+
+    public async void Quit()
+    {
+        DataManager manager = GameManager.Instance.DataManager;
+
+        manager.SaveFile(manager.Save(), manager.SaveIndex);
+        await Task.Delay(500);
+        Application.Quit();
     }
 }

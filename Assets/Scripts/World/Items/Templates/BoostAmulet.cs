@@ -14,11 +14,17 @@ public class BoostAmulet : Amulet
         if (maxHpBoost > 0) PlayerManager.Instance.boostedMaxHp += maxHpBoost;
         if (maxManaBoost > 0) PlayerManager.Instance.boostedMaxMana += maxManaBoost;
         if (damageBoost > 0) PlayerManager.Instance.boostedDamage += damageBoost; 
+
+        if (gatherGoldBoost > 0) PlayerManager.Instance.GatherGoldBoost += gatherGoldBoost;
+        if (gatherManaBoost > 0) PlayerManager.Instance.GatherManaBoost += gatherManaBoost;
     }
     public override void OnUnequip()
     {
         if (maxHpBoost > 0) PlayerManager.Instance.boostedMaxHp -= maxHpBoost;
         if (maxManaBoost > 0) PlayerManager.Instance.boostedMaxMana -= maxManaBoost;
         if (damageBoost > 0) PlayerManager.Instance.boostedDamage -= damageBoost;
+
+        if (gatherGoldBoost > 0) PlayerManager.Instance.GatherGoldBoost -= gatherGoldBoost;
+        if (gatherManaBoost > 0) PlayerManager.Instance.GatherManaBoost -= gatherManaBoost;
     }
 }

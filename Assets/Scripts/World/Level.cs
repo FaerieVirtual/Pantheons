@@ -53,7 +53,7 @@ public class Level : GameState
         {
             LevelID = LevelID,
             LevelScene = LevelScene,
-            Flags = Flags
+            flags = Flags
         };
         return level;
     }
@@ -63,13 +63,13 @@ public class SaveLevel
 {
     public string LevelID;
     public string LevelScene;
-    public HashSet<string> Flags = new();
+    public HashSet<string> flags = new();
 
     public Level ToLevel() 
     {
-        Level level = new(GameManager.Instance.machine, LevelID, LevelScene)
+        Level level = new(GameManager.Instance.Machine, LevelID, LevelScene)
         {
-            Flags = Flags
+            Flags = flags
         };
         return level;
     }

@@ -25,16 +25,13 @@ public class NPC : InteractibleObject
         { 
             GetResponse(); 
             ResponseIndex = 0;
-            Debug.Log($"Reseting CurrentResponse: {CurrentResponse}, index: {ResponseIndex}");
         }
 
         string response = CurrentResponse.SplitResponse[ResponseIndex];
         TextBox.text = response;
         ResponseIndex++;
-        Debug.Log($"response: {response}, index: {ResponseIndex}");
         if (response == CurrentResponse.SplitResponse.Last())
         {
-            Debug.Log("getting last response, setting current to null");
             if (response.Contains("#")) TextBox.text = "";
             if (response.Contains("!") && CurrentResponse.ExclusionFlag != null) Data.Flags.Add(CurrentResponse.ExclusionFlag);
             CurrentResponse = null;
