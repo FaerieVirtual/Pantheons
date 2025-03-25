@@ -1,110 +1,101 @@
+using System.Threading.Tasks;
 using UnityEngine;
 
-public class EnemyBase : MonoBehaviour, IDamageable, IMoveable
+public class EnemyBase : MonoBehaviour, IDamageable
 {
-    Animator animator;
-    EnemyStatemachine enemyStatemachine { get; set; } = new EnemyStatemachine();
-    IdleState idleState;
-    DeathState deathState;
+    public EnemyStateMachine Machine { get; set; } = new EnemyStateMachine();
+    private DeathState deathState;
+    public EnemyPatrolState patrolState;
 
+    public Animator Animator => GetComponent<Animator>();
     #region Start/Updates
     void Start()
     {
-        animator = GetComponent<Animator>();
-        idleState = new IdleState(this, enemyStatemachine);
-        deathState = new DeathState(this, enemyStatemachine);
-        enemyStatemachine.Init(idleState);
+        deathState = new(this, Machine);
+        patrolState = new(this, Machine);
+        Machine.Init(patrolState);
 
-        hp = maxHp;
-        ground = LayerMask.GetMask("Ground");
-        groundCheck = transform.GetChild(2);
-        wallCheck = transform.GetChild(3);
+        Hp = MaxHp;
+        MoveDirection = Vector2.right;
     }
-    void Update()
+    private void Update()
     {
-        enemyStatemachine.currentState.Update();
+        Machine.CurrentState.Update();
     }
-    void FixedUpdate()
+    private void FixedUpdate()
     {
-        enemyStatemachine.currentState.PhysicsUpdate();
+        if (RigidBody.velocity.y > -1) RigidBody.velocity = new(RigidBody.velocity.x, Mathf.MoveTowards(RigidBody.velocity.y, -1, 4));
+        Machine.CurrentState.PhysicsUpdate();
     }
     #endregion
 
     #region Health
-    public int maxHp;
-    private float hp;
+    public int MaxHp;
+    public int Hp;
+    public int CoinCount;
+    public int ManaCount;
 
     public void Die()
     {
-        enemyStatemachine.ChangeState(deathState);
+        if (Machine.CurrentState != deathState) Machine.ChangeState(deathState);
     }
-    public void TakeDamage(int damage)
+    public async void TakeDamage(int damage)
     {
-        hp -= damage;
-        if (hp <= 0) { Die(); }
+        TryGetComponent(out SpriteRenderer renderer);
+
+        renderer.color = Color.red;
+        Hp -= damage;
+
+        await Task.Delay(500);
+
+        renderer.color = Color.white;
+        if (Hp <= 0) { Die(); }
+        Vector2 bounce = (transform.position - PlayerManager.Instance.transform.position).normalized;
+        RigidBody.velocity = bounce * PlayerManager.Instance.AttackPushbackForce;
+
     }
     #endregion
 
     #region Movement 
-    public float speed;
-    private Transform groundCheck;
-    private Transform wallCheck;
-    private LayerMask ground;
+    public int Speed;
+    public BoxCollider2D GroundCheck;
+    public BoxCollider2D WallCheck;
+    public Collider2D ChaseRadius;
+
+    public LayerMask Ground => LayerMask.GetMask("Ground");
     public Rigidbody2D RigidBody => GetComponent<Rigidbody2D>();
-    private bool facingRight = true;
+    public int DamagePushbackForce;
 
-    public void Move()
-    {
-        Vector2 forward = Vector2.zero;
-        bool groundDetect = Physics2D.OverlapCircle(groundCheck.position, 0.1f, ground);
-        bool wallDetect = Physics2D.OverlapCircle(wallCheck.position, 0.1f, ground);
-
-        if (!groundDetect) { Flip(); }
-        if (wallDetect) { Flip(); }
-        if (facingRight) { forward = new(speed, RigidBody.velocity.y); }
-        if (!facingRight) { forward = new(-speed, RigidBody.velocity.y); }
-
-        Animator animator = GetComponent<Animator>();
-        animator.Play("Run");
-        RigidBody.velocity = forward;
-    }
+    [HideInInspector] public Vector2 MoveDirection;
     public void Flip()
     {
-        switch (facingRight)
-        {
-            case true:
-                transform.localRotation = Quaternion.Euler(transform.localRotation.x, 180f, transform.rotation.z);
-                facingRight = false;
-                break;
-            case false:
-                transform.localRotation = Quaternion.Euler(transform.localRotation.x, 0f, transform.rotation.z);
-                facingRight = true;
-                break;
-        }
+        Vector3 scale = transform.localScale;
+        scale.x *= -1;
+        transform.localScale = scale;
+
+        MoveDirection = (MoveDirection == Vector2.left) ? Vector3.right : Vector3.left;
     }
     #endregion
 
     #region Collision
-    private void OnCollisionStay2D(Collision2D collision)
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
 
-        if (collision.gameObject.CompareTag("Player"))
+        if (collision.gameObject.TryGetComponent(out PlayerManager player))
         {
-            PlayerManager player = collision.gameObject.GetComponent<PlayerManager>();
-            Rigidbody2D otherRigidBody = playerObject.GetComponent<Rigidbody2D>();
-
             player.TakeDamage(1);
-            Vector2 bounce = (otherRigidBody.transform.position - transform.position).normalized;
-            otherRigidBody.AddForce(bounce * 12, ForceMode2D.Impulse);
-        }
-        if (collision.gameObject.CompareTag("PlayerAttackHitbox"))
-        {
-            TakeDamage(1);
-            Vector2 bounce = (collision.transform.position - transform.position).normalized;
-            RigidBody.AddForce(bounce * 4, ForceMode2D.Impulse);
-
+            player.Pushback(transform, PlayerManager.Instance.DamagePushbackForce);
         }
     }
     #endregion
+
+    public async void SpawnCoin(int amount)
+    {
+        GameObject coinPrefab = Resources.Load<GameObject>("Items/Coin");
+        for (int i = 0; i < amount; i++)
+        {
+            Instantiate(coinPrefab, transform.position, Quaternion.identity);
+            await Task.Delay(200);
+        }
+    }
 }

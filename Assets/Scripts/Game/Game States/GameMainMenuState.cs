@@ -1,4 +1,4 @@
-using System;
+using System.Threading.Tasks;
 using UnityEngine.SceneManagement;
 
 public class GameMainMenuState : GameState
@@ -7,18 +7,15 @@ public class GameMainMenuState : GameState
     {
         this.machine = machine;
     }
-    public override void EnterState()
+    public override async void EnterState()
     {
-        GameManager.Instance.Area = "MainMenu";
-        if (SceneManager.GetActiveScene().name != "MainMenu") levelManager.LoadScene("MainMenu", false);
-        //AudioManager.Instance.Play("");
-    }
-    public override void ExitState()
-    {
-        GameManager.Instance.Area = null;
-    }
-    public override void Update()
-    {
-        base.Update();
+        base.EnterState();
+        await Task.Delay(200);
+        foreach (Scene scene in SceneManager.GetAllScenes())
+        {
+            SceneManager.UnloadSceneAsync(scene);
+        }
+        if (!SceneManager.GetSceneByBuildIndex(0).isLoaded) await LevelManager.LoadScene("MainMenu");
+        if (UIManager.Instance != null && UIManager.Instance.PlayerUI != null && UIManager.Instance.PlayerUI.activeSelf) UIManager.Instance.PlayerUI.SetActive(false);
     }
 }

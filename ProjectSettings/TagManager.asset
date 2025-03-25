@@ -6,22 +6,18 @@ TagManager:
   tags:
   - Enemy
   - Camera
-  - PlayerAttackHitbox
-  - Healthbar
-  - PauseMenu
-  - Theme
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Player
   - Water
   - UI
   - Ground
   - Background
   - CameraBorder
   - Enemy
-  - 
+  - Coin
   - 
   - 
   - 

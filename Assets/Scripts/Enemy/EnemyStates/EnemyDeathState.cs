@@ -3,8 +3,7 @@ using UnityEngine;
 
 public class DeathState : EnemyState
 {
-    Animator animator;
-    public DeathState(EnemyBase enemy, EnemyStatemachine machine) : base(enemy, machine)
+    public DeathState(EnemyBase enemy, EnemyStateMachine machine) : base(enemy, machine)
     {
         this.machine = machine;
         this.enemy = enemy;
@@ -13,29 +12,18 @@ public class DeathState : EnemyState
     public override void EnterState()
     {
         enemy.RigidBody.velocity = Vector3.zero;
-        animator = enemy.GetComponent<Animator>();
-        enemy.StartCoroutine(AnimateAndDestroy());
+        enemy.SpawnCoin(enemy.CoinCount + PlayerManager.Instance.GatherGoldBoost);
+        PlayerManager.Instance.AddMana(enemy.ManaCount + PlayerManager.Instance.GatherManaBoost);
+
+        enemy.StartCoroutine(AnimateAndDisable());
     }
 
-    public override void ExitState()
+    private IEnumerator AnimateAndDisable()
     {
-        base.ExitState();
-    }
+        enemy.Animator.Play("Death");
+        AnimatorStateInfo info = enemy.Animator.GetCurrentAnimatorStateInfo(0);
 
-    public override void PhysicsUpdate()
-    {
-        base.PhysicsUpdate();
-    }
-
-    public override void Update()
-    {
-        base.Update();
-    }
-    private IEnumerator AnimateAndDestroy() 
-    {
-        animator.Play("Death");
-        AnimatorStateInfo info = animator.GetCurrentAnimatorStateInfo(0);
         yield return new WaitForSeconds(info.length);
-        Object.Destroy(enemy);
+        enemy.gameObject.SetActive(false);
     }
 }

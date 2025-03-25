@@ -1,31 +1,25 @@
 using UnityEngine;
 
-public class IdleState : EnemyState
+public class EnemyIdleState : EnemyState
 {
-    public IdleState(EnemyBase enemy, EnemyStatemachine machine) : base(enemy, machine)
+    public EnemyIdleState(EnemyBase enemy, EnemyStateMachine machine) : base(enemy, machine)
     {
         this.machine = machine;
         this.enemy = enemy;
     }
+    private EnemyPatrolState patrolState;
 
     public override void EnterState()
     {
-
+        enemy.Animator.StopPlayback();
+        enemy.Animator.Play("Idle");
     }
-
-    public override void ExitState()
-    {
-        base.ExitState();
-    }
-
-    public override void PhysicsUpdate()
-    {
-        base.PhysicsUpdate();
-        enemy.Move();
-    }
-
     public override void Update()
     {
-        base.Update();
+        if (PlayerManager.Instance.Alive)
+        {
+            patrolState = new(enemy, machine);
+            enemy.Machine.ChangeState(patrolState);
+        }
     }
 }

@@ -1,547 +1,523 @@
-using System.Collections.Generic;
-using System.Linq;
+using Assets.Scripts.Player;
+using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class PlayerManager : MonoBehaviour, IDamageable
 {
-    public Rigidbody2D RigidBody => GetComponent<Rigidbody2D>();
-    public CapsuleCollider2D Collider => GetComponent<CapsuleCollider2D>();
-    public Animator Animator => GetComponent<Animator>();
-    private LevelManager Loader;
-    public static PlayerManager instance;
-    public AudioManager Audio;
-
+    public static PlayerManager Instance;
 
     #region General
-    //TODO
-    //simple statemachine based on simple bools, determining what action is the player currently executing and what actions cannot be executed at the same moment
-    //queue for buffered actions limited to one consequent action (could be timed, so the queue works only a moment before the current action is to end)
     private void Awake()
     {
-        if (instance != null) { Destroy(gameObject); }
-        if (instance == null) { instance = this; }
+        if (Instance != null) { Destroy(gameObject); }
+        if (Instance == null) { Instance = this; }
         DontDestroyOnLoad(gameObject);
     }
     private void Start()
     {
-        Audio = AudioManager.Instance;
+        SetInput();
 
-        ResetPlayer();
-        RigidBody.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+        transform.position = new Vector2(GameManager.Instance.DataManager.GameSave.lastX, GameManager.Instance.DataManager.GameSave.lastY + 2);
+        UpdateAbilities();
+        UpdateAttack();
+        if (Hp <= 0) Die();
     }
     private void FixedUpdate()
     {
-        time += Time.deltaTime;
-        GetInput();
-
-        //Movement
         HandleCollisions();
-        HandleY();
-        HandleX();
+        Move();
         HandleGravity();
         ApplyMovement();
 
-        //Attack
-        HandleAttack();
-
-        //Health
-        HealthChecks();
-        HandleInvincibility();
-        HandleRespawnPoint();
+        UpdateMana();
+        UpdateHealth();
+    }
+    private void Update()
+    {
+        UpdateInput();
     }
     #endregion
 
-    #region PlayerManagement
+    #region Player Management
     [Header("INPUT")]
-    public float VerticalDeadZoneThreshold = .1f; //Determines the minimum velocity for the character to move vertically
-    public float HorizontalDeadZoneThreshold = .1f; //Determines the minimum velocity for the character to move horizontaly
-    public float TapThreshold = .275f; //Determines the difference between a tap and a hold of a button in time
-    public float HoldThreshold = 1; //Determines after what point does the hold cut off and button resets
+    public float VelocityForJumpThreshold = .1f;
 
-    private float timeInteractDown;
-    private float timeInteractUp;
-
-    private void OnCollisionStay(Collision collision) //Handles interactible object detection
-    {
-        if (collision == null) return;
-
-        if (collision.transform.CompareTag("Respawn"))
-        {
-            if (respawnPoint != collision.gameObject)
-            {
-                respawnPoint = collision.gameObject;
-                respawnPointOverlap = true; 
-            }
-        }
-        else { respawnPointOverlap = false; }
-
-
-        if (collision.transform.TryGetComponent<IInteractible>(out var tmp))
-        {
-            if ((timeInteractUp - timeInteractDown > TapThreshold) || (!tmp.CanInteract)) return;
-            tmp.HandleInteraction();
-            //checks whether an object can be interacted with and then executes its interact function if the button was tapped
-        }
-    }
+    private PlayerInput JumpInput;
+    private PlayerInput InteractInput;
+    private PlayerInput PauseInput;
+    private PlayerInput DebugInput;
+    private PlayerInput InventoryInput;
+    private PlayerInput ConsumableInput;
+    private PlayerInput Amulet1Input;
+    private PlayerInput Amulet2Input;
+    private PlayerInput Amulet3Input;
+    private PlayerInput AttackInput;
 
     public void ResetPlayer()
     {
-        alive = true;
-        ResetBoosts();
-        hp = maxHp;
-        def = maxDef;
-        mana = maxMana;
+        Hp = MaxHp;
+        Mana = MaxMana;
         invincible = false;
         movementDisable = false;
-        maxCharms = baseCharms + unlockedCharms;
     }
-    public void ResetBoosts() 
+    private void SetInput()
     {
-        maxHp = baseHp + hpAdd;
-        maxDef = baseDef + defAdd;
-        maxMana = baseMana + manaAdd;
+        JumpInput = new(KeyCode.Space, MaxJumpTime);
+        JumpInput.OnDown.AddListener(Jump);
+        JumpInput.OnHold.AddListener(JumpSustain);
+        JumpInput.OnUp.AddListener(() => jumpSustainable = false);
+        JumpInput.OnUp.AddListener(() => endedJump = true);
+
+        InteractInput = new(KeyCode.DownArrow, MaxJumpTime);
+        InteractInput.OnDown.AddListener(Interact.Invoke);
+
+        PauseInput = new(KeyCode.Escape, 0.1f);
+        PauseInput.OnDown.AddListener(Pause);
+
+        DebugInput = new(KeyCode.O, 0.1f);
+        DebugInput.OnDown.AddListener(() => TakeDamage(1));
+
+        InventoryInput = new(KeyCode.Tab, 0.1f);
+        InventoryInput.OnDown.AddListener(TriggerInventory);
+
+        ConsumableInput = new(KeyCode.A, 0.1f);
+        ConsumableInput.OnDown.AddListener(ConsumeConsumableItem);
+
+        Amulet1Input = new(KeyCode.S, amulet1ChargeTime);
+        Amulet1Input.OnMaxReached.AddListener(() => AmuletAbility(0));
+
+        Amulet2Input = new(KeyCode.D, amulet2ChargeTime);
+        Amulet2Input.OnMaxReached.AddListener(() => AmuletAbility(1));
+
+        Amulet3Input = new(KeyCode.F, amulet3ChargeTime);
+        Amulet3Input.OnMaxReached.AddListener(() => AmuletAbility(2));
+
+        AttackInput = new(KeyCode.C, 0.1f);
+        AttackInput.OnDown.AddListener(HandleAttack);
+
     }
-
-    void GetInput()
+    private void UpdateInput()
     {
-        if (Input.GetKey(KeyCode.O)) TakeDamage(1); //DEBUG COMMAND to take damage (for healing tests)
-        MoveInput();
-        InteractInput();
-        AttackInput();
-
-        void MoveInput()
-        {
-            JumpDown = Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown("Jump");
-            JumpHeld = Input.GetKey(KeyCode.Space) || Input.GetButton("Jump");
-            if (JumpDown)
-            {
-                jumpToConsume = true;
-                timeJumpPressed = time;
-            }
-            MoveDirection = Input.GetKey(KeyCode.RightArrow) ? 1 : Input.GetKey(KeyCode.LeftArrow) ? -1 : 0;
-
-        }
-        void InteractInput()
-        {
-            bool Held = false; //Rules out pressing buttons while the button is already pressed
-            if (Input.GetKeyDown(KeyCode.DownArrow) && !Held)//Input.GetButtonDown("InteractInput") && !Held)
-            {
-                timeInteractDown = time;
-                Held = true;
-            }
-            if (Input.GetKeyUp(KeyCode.DownArrow) && Held)//Input.GetButtonUp("InteractInput") && Held)
-            {
-                timeInteractUp = time;
-                Held = false;
-            }
-        }
-        void AttackInput()
-        {
-            if (Input.GetKeyDown(KeyCode.X) && !attackDisable)
-            {
-                switch (attackUsable) //checks whether attack action can be activated. If not, it puts it in the queue
-                {
-                    case true:
-                        //attacking = true;
-                        HandleAttack();
-                        break;
-                    case false: attackBuffer = true; break; //buffers the attack action
-                }
-            }
-            if (time > attackTime + attackDelay)
-            {
-                attackUsable = true;
-                if (attackBuffer) //executes the attack action whenever attack is usable if it's buffered
-                {
-                    //attacking = true;
-                    HandleAttack();
-                }
-            }
-        }
-
+        JumpInput.Update();
+        InteractInput.Update();
+        PauseInput.Update();
+        DebugInput.Update();
+        InventoryInput.Update();
+        ConsumableInput.Update();
+        Amulet1Input.Update();
+        Amulet2Input.Update();
+        Amulet3Input.Update();
+        AttackInput.Update();
+        MoveDirection = Input.GetKey(KeyCode.RightArrow) ? 1 : Input.GetKey(KeyCode.LeftArrow) ? -1 : 0;
     }
     #endregion
 
     #region Health
     [Header("HEALTH")]
-    public int maxHp;
-    private int baseHp;
-    public int maxDef;
-    private int baseDef;
-    public bool alive = true;
+    public int baseMaxHp;
+    [HideInInspector] public int boostedMaxHp;
+    [HideInInspector] public int MaxHp => baseMaxHp + boostedMaxHp;
+    public int Hp;
+    public bool Alive => Hp > 0;
+
     public float invincibleDuration;
-
-    public int hp;
-    public int def;
     private bool invincible;
-    private float damageTakenTime;
 
-    [Header("HEALTH GRAPHICS")]
-    private int hpDisplayed;
-    public Image[] hpImages;
-    public Sprite fullHeart;
-    public Sprite emptyHeart;
-
-    [Header("DEF GRAPHICS")]
-    private int defDisplayed;
-    public Sprite fullShield;
-    public Sprite emptyShield;
-
-    private GameObject respawnPoint;
-    [HideInInspector] public int respawnSceneIndex;
-    private bool respawnPointOverlap;
-    private bool IsSitting;
-    [HideInInspector] public bool canChangeScenes;
-
+    public int DamagePushbackForce;
     public void Die()
     {
         movementDisable = true;
-        alive = false;
+        Gold = 0;
+
+        GameRespawningState respawningState = new(GameManager.Instance.Machine);
+        GameManager.Instance.Machine.ChangeState(respawningState);
     }
-    public void TakeDamage(int damage)
+    public async void TakeDamage(int damage)
     {
         if (invincible) return;
-        //Deathward deathward = new Deathward();
-        //if (equippedCharms.Contains(deathward)) damage = deathward.DeathSave(damage);
-            
-        if (def > 0)
+
+        Hp -= damage;
+        if (damage > 0)
         {
-            if (def <= damage)
-            {
-                damage -= def;
-                def = 0;
-            }
-            if (def > damage)
-            {
-                def -= damage;
-                damage = 0;
-            }
+            SetInvincibility(invincibleDuration);
+            Time.timeScale = 0.4f;
+            await Task.Delay((int)(invincibleDuration * 1000));
+            Time.timeScale = 1;
         }
-        hp -= damage;
-        if (damage > 0 && hp > 0)
-        {
-            damageTakenTime = time;
-        }
-        if (hp <= 0) { Die(); }
+        if (Hp <= 0) { Die(); }
     }
-    private void HandleInvincibility()
+    public async void SetInvincibility(float duration)
     {
-        if (damageTakenTime + invincibleDuration <= time)
-        {
-            invincible = false;
-            damageTakenTime = 0;
-        }
+        invincible = true;
+        GetComponent<SpriteRenderer>().color = Color.cyan;
+
+        await Task.Delay((int)(duration * 1000));
+
+        GetComponent<SpriteRenderer>().color = Color.white;
+        invincible = false;
     }
-    private void HealthChecks()
+    // Here begins the modified version of code cited in documentation in source [1]
+
+    public void UpdateHealth()
     {
-        CheckForHpGraphics();
-        CheckForMaxValues();
+        Image[] HpImages = UIManager.Instance.PlayerUI.GetComponent<PlayerGUI>().HpImages;
 
-        void CheckForHpGraphics()
+        for (int i = 0; i < HpImages.Length; i++)
         {
-            for (int i = 0; i < hpImages.Length; i++)
-            {
-                if (i < hp) { hpImages[i].sprite = fullHeart; }
-                else { hpImages[i].sprite = emptyHeart; }
+            if (i < Hp) { HpImages[i].sprite = Resources.Load<Sprite>("Sprites/heartfull"); }
+            else { HpImages[i].sprite = Resources.Load<Sprite>("Sprites/heartempty"); }
 
-                if (i < hpDisplayed) { hpImages[i].enabled = true; }
-                else { hpImages[i].enabled = false; }
-            }
-            for (int j = maxHp + 1; j < hpImages.Length; j++)
-            {
-                if (j < def) { hpImages[j].sprite = fullShield; }
-                else { hpImages[j].sprite = emptyShield; }
-
-                if (j < defDisplayed) { hpImages[j].enabled = true; }
-                else { hpImages[j].enabled = false; }
-            }
+            if (i < MaxHp) { HpImages[i].enabled = true; }
+            else { HpImages[i].enabled = false; }
         }
-        void CheckForMaxValues()
-        {
-            if (hp > maxHp) { hp = maxHp; }
-            hpDisplayed = maxHp;
-            if (def > maxDef) { def = maxDef; }
-        }
+        if (Hp > MaxHp) { Hp = MaxHp; }
     }
-    private void HandleRespawnPoint()
+    // Here ends the modified version of code cited in documentation in source [1]
+
+    public async void Heal(int healAmount)
     {
-        if (!Input.GetKeyUp(KeyCode.DownArrow)) return;
-        if (respawnPointOverlap && !IsSitting)
-        {
-            respawnSceneIndex = SceneManager.GetActiveScene().buildIndex;
-            Mathf.MoveTowards(transform.position.x, respawnPoint.transform.position.x, previousVelocity.x);
-            IsSitting = true;
-            movementDisable = true;
-        }
-        if (IsSitting)
-        {
-            IsSitting = false;
-            movementDisable = false;
-        }
+        if (Hp >= MaxHp) return;
+        Hp += healAmount;
+        GetComponent<SpriteRenderer>().color = Color.green;
+        await Task.Delay(500);
+        GetComponent<SpriteRenderer>().color = Color.white;
     }
-
-    public void Respawn()
-    {
-        //if (respawnSceneIndex < 2) return;
-        if (!canChangeScenes)
-        {
-            Debug.LogError("Cannot change scenes. Respawn is impossible.");
-            return;
-        }
-
-        Loader.LoadScene(respawnSceneIndex);
-        GameObject[] objects = SceneManager.GetSceneByBuildIndex(respawnSceneIndex).GetRootGameObjects();
-        foreach (GameObject obj in objects)
-        {
-            if (obj != null && obj.CompareTag("Respawn")) respawnPoint = obj;
-        }
-        transform.position = respawnPoint.transform.position;
-        ResetPlayer();
-        IsSitting = true;
-    }
-
     #endregion
 
     #region Movement
     [Header("MOVEMENT")]
-    public float MaxSpeed = 14;
-    public float Acceleration = 140;
-    public float GroundDeceleration = 80;
-    public float AirDeceleration = 60;
-    public float GroundingForce = -1f;
-    public float GrounderDistance = .1f;
+    // Here begins the modified version of code cited in documentation in source [2]
+    public float MaxSpeed;
+    public float Acceleration;
+    public float GroundDeceleration;
+    public float AirDeceleration;
+    public float GroundingForce;
 
     [Header("JUMP")]
-    public float JumpPower = 24;
-    public float MaxJumpTime = 1.2f;
-    public float MaxFallSpeed = 30;
-    public float FallAcceleration = 40;
-    public float JumpEndEarlyGravityModifier = 5f;
-    public float CoyoteTime = .15f;
-    public float JumpBuffer = .2f;
-    public float ApexSpeedBonus = 2f;
+    public int JumpPower;
+    public float MaxJumpTime;
+    public float MaxFallSpeed;
+    public float FallAcceleration;
+    public float JumpEndGModifier;
+    public float CoyoteTime;
+    public float ApexSpeedModifier;
 
-    private bool JumpDown, JumpHeld;
     private int MoveDirection;
-
-    private bool IsStanding, groundHit, ceilingHit;
-    private bool IsJumping;
-    private float time;
+    private bool groundHit, ceilingHit;
+    private bool IsStanding, IsJumping, FacingRight;
     private Vector2 tempVelocity;
-    private LayerMask ground => LayerMask.GetMask("Ground");
+    private LayerMask Ground => LayerMask.GetMask("Ground");
+    public Rigidbody2D RigidBody => GetComponent<Rigidbody2D>();
+    private BoxCollider2D Groundcheck => transform.GetChild(0).gameObject.GetComponent<BoxCollider2D>();
+    private BoxCollider2D Ceilingcheck => transform.GetChild(1).gameObject.GetComponent<BoxCollider2D>();
+
     public bool movementDisable;
 
-    private bool jumpToConsume;
-    private bool bufferedJumpUsable;
-    private bool endedJumpEarly;
-    private bool coyoteUsable;
-    private bool apexHit;
-    private float timeJumpPressed;
+    private bool endedJump;
+    private bool CoyoteUsable;
+    private bool jumpSustainable;
+    private bool ApexHit;
     private float timeGroundLeft;
-    private Vector2 previousVelocity;
-
-    private bool HasBufferedJump => bufferedJumpUsable && time < timeJumpPressed + JumpBuffer;
-    private bool HasCoyoteTime => coyoteUsable && !IsStanding && time < timeGroundLeft + CoyoteTime;
+    private bool HasCoyoteTime => CoyoteUsable && !IsStanding && Time.time <= timeGroundLeft + CoyoteTime;
 
     void HandleCollisions()
     {
-        Physics2D.queriesStartInColliders = false;
-        Vector2 ColLeftDown = new(Collider.bounds.min.x, Collider.bounds.min.y);
-        Vector2 ColRightDown = new(Collider.bounds.max.x, Collider.bounds.min.y);
-        Vector2 ColLeftUp = new(Collider.bounds.min.x, Collider.bounds.max.y);
-        Vector2 ColRightUp = new(Collider.bounds.max.x, Collider.bounds.max.y);
-
-        groundHit = Physics2D.Raycast(ColLeftDown, Vector2.down, GrounderDistance, ground) || Physics2D.Raycast(ColRightDown, Vector2.down, GrounderDistance, ground);
-        ceilingHit = Physics2D.Raycast(ColLeftUp, Vector2.up, GrounderDistance, ground) || Physics2D.Raycast(ColRightUp, Vector2.up, GrounderDistance, ground);
-
-        if (ceilingHit) tempVelocity.y = Mathf.Min(0, tempVelocity.y);
+        groundHit = Groundcheck.IsTouchingLayers(Ground);
+        ceilingHit = Ceilingcheck.IsTouchingLayers(Ground);
 
         if (!IsStanding && groundHit)
         {
             IsStanding = true;
-            coyoteUsable = true;
-            bufferedJumpUsable = true;
-            endedJumpEarly = false;
+            CoyoteUsable = true;
         }
-
         if (IsStanding && !groundHit)
         {
             IsStanding = false;
-            timeGroundLeft = time;
+            timeGroundLeft = Time.time;
+        }
+        if (ceilingHit)
+        {
+            tempVelocity.y = Mathf.Min(0, tempVelocity.y);
+            jumpSustainable = false;
         }
     }
-    void HandleY()
+
+    private void Jump()
     {
-        if (!endedJumpEarly && !IsStanding && !JumpHeld && RigidBody.velocity.y > 0) { endedJumpEarly = true; }
-
-        if (!jumpToConsume && !HasBufferedJump) { return; }
-
-        if (IsStanding || HasCoyoteTime && !movementDisable) { DoJump(); }
-
-        jumpToConsume = false;
-
-        void DoJump()
+        if (IsStanding || HasCoyoteTime)
         {
-            endedJumpEarly = false;
-            timeJumpPressed = 0;
-            bufferedJumpUsable = false;
-            coyoteUsable = false;
+            CoyoteUsable = false;
             IsJumping = true;
             tempVelocity.y = JumpPower;
+            endedJump = false;
+            jumpSustainable = true;
         }
     }
-    void HandleX()
+    private void JumpSustain()
     {
-        if (MoveDirection != 0 && (MoveDirection == 1 && transform.localRotation.y != 0) || (MoveDirection == -1 && transform.localRotation.y != 180))
-        {
-            int angle = MoveDirection == 1 ? 0 : 180;
-            transform.localRotation = Quaternion.Euler(transform.localRotation.x, angle, transform.rotation.z);
-        }
+        if (!jumpSustainable || JumpInput.timePressed + MaxJumpTime < Time.time) return;
+        CoyoteUsable = false;
+        IsJumping = true;
+        if (tempVelocity.y <= JumpPower) tempVelocity.y = JumpPower;
+    }
+    void Move()
+    {
+        if (MoveDirection == 1) { FacingRight = true; }
+        else if (MoveDirection == -1) { FacingRight = false; }
 
-        if (MoveDirection == 0 && RigidBody.velocity.x > HorizontalDeadZoneThreshold)
+
+        if (MoveDirection == 0)
         {
             var deceleration = IsStanding ? GroundDeceleration : AirDeceleration;
-
             tempVelocity.x = Mathf.MoveTowards(tempVelocity.x, 0, deceleration * Time.fixedDeltaTime);
         }
         else
         {
+            if ((MoveDirection == 1 && transform.localRotation.y != 0) || (MoveDirection == -1 && transform.localRotation.y != 180))
+            {
+                int angle = MoveDirection == 1 ? 0 : 180;
+                transform.localRotation = Quaternion.Euler(transform.localRotation.x, angle, transform.rotation.z);
+            }
             tempVelocity.x = Mathf.MoveTowards(tempVelocity.x, MoveDirection * MaxSpeed, Acceleration * Time.fixedDeltaTime);
         }
-        tempVelocity.x = Mathf.Clamp(tempVelocity.x, -MaxSpeed, MaxSpeed);
+
+        if (IsJumping && tempVelocity.y < 1)
+        {
+            tempVelocity.x *= ApexSpeedModifier;
+            IsJumping = false;
+            endedJump = true;
+            ApexHit = true;
+        }
+        if (!(ApexHit && (tempVelocity.x > MaxSpeed || tempVelocity.x < -MaxSpeed)))
+        {
+            tempVelocity.x = Mathf.Clamp(tempVelocity.x, -MaxSpeed, MaxSpeed);
+            ApexHit = false;
+        }
     }
     private void HandleGravity()
     {
-        if (IsStanding && tempVelocity.y <= VerticalDeadZoneThreshold)
+        if (IsStanding && tempVelocity.y <= VelocityForJumpThreshold)
         {
             tempVelocity.y = GroundingForce;
         }
         else
         {
             var inAirGravity = FallAcceleration;
+            if (endedJump && tempVelocity.y < -5) inAirGravity *= JumpEndGModifier;
 
-            if (endedJumpEarly && tempVelocity.y > 0)
-            {
-                inAirGravity *= JumpEndEarlyGravityModifier;
-            }
             tempVelocity.y = Mathf.MoveTowards(tempVelocity.y, -MaxFallSpeed, inAirGravity * Time.fixedDeltaTime);
         }
-
-        if (previousVelocity.y >= 0 && tempVelocity.y <= 0 && IsJumping)
-        { apexHit = true; }
-        if (apexHit)
-        {
-            Debug.Log("trying to apex");
-            tempVelocity.x *= ApexSpeedBonus;
-            apexHit = false;
-            IsJumping = false;
-        }
     }
-    void ApplyMovement()
+    private void ApplyMovement()
     {
-        previousVelocity = tempVelocity;
         RigidBody.velocity = tempVelocity;
-        Debug.Log(tempVelocity);
+    }
+    // Here ends the modified version of code cited in documentation in source [2]
+
+    public void Stop()
+    {
+        tempVelocity = Vector2.zero;
+    }
+
+    public void Pushback(Transform origin, int Force)
+    {
+        Vector2 bounce = (transform.position - origin.position).normalized;
+        tempVelocity += bounce * Force;
+    }
+    #endregion
+
+    #region Interact
+    [HideInInspector] public UnityEvent Interact = new();
+
+    private void Pause()
+    {
+        if (UIManager.Instance.InventoryUI.activeSelf) { UIManager.Instance.InventoryUI.SetActive(false); }
+        else if (UIManager.Instance.TradeMenuUI.activeSelf) { UIManager.Instance.TradeMenuUI.SetActive(false); }
+
+        GameStatemachine machine = GameManager.Instance.Machine;
+        GamePausedState pausedState = new(machine);
+        if (machine.CurrentState is Level) machine.ChangeState(pausedState);
+        else machine.ChangeState(machine.PreviousState);
     }
 
     #endregion
 
-    #region Attacking
+    #region Attack
     [Header("ATTACK")]
-    public float attackDelay = .2f; //determines the time interval before attack can be used again
-    public float attackReach; //determines how far the attack reaches (in case of adding other weapons)
-    public int damage = 1;
-    public float pushbackForce = 10; //by what force will the character be pushed back from the direction of the attack
+    public int AttackPushbackForce;
+    public bool attackDisable;
 
-    private bool attackUsable; //checks whether attack isn't blocked by other actions
-    private bool attackDisable; //debug switch to disable attacks 
+    public int Damage => baseDamage + boostedDamage;
+    [HideInInspector] public int baseDamage;
+    [HideInInspector] public int boostedDamage;
+    [HideInInspector] public float attackReach;
 
-    private float attackTime; //the time when attack action happened
-    private bool attackBuffer; //queues another attack if the button was pressed, but the player is doing another action
-    //private bool attacking; //This is never used, but I'm keeping it here in the case I need it when blocking other actions and abilites during attack
+    [HideInInspector] public int GatherGoldBoost = 0;
+    [HideInInspector] public int GatherManaBoost = 0;
 
-    private void HandleAttack()
+    public void UpdateAttack()
     {
-        attackTime = time;
-        attackUsable = false;
-
-        Vector2 boxOrigin = new(Collider.bounds.center.x + (Collider.bounds.max.x + attackReach) / 2 * MoveDirection, Collider.bounds.center.y);
-        Vector2 boxSize = new(attackReach / 2, Collider.bounds.max.y / 2);
-        Vector2 boxDirection = new(MoveDirection, 0);
-        LayerMask player = LayerMask.GetMask("Player");
-        Transform enemyTransform = null;
-
-        RaycastHit2D[] hitObjects = Physics2D.BoxCastAll(boxOrigin, boxSize, 0f, boxDirection, 0.1f, ~player);
-        foreach (RaycastHit2D hit in hitObjects)
+        if (equippedWeapon != null && equippedWeapon.IsEmpty)
         {
-            if (hit.transform.gameObject.GetComponent<IDamageable>() != null)
-            {
-                IDamageable damaged = hit.transform.gameObject.GetComponent<IDamageable>();
-                damaged.TakeDamage(damage);
-                if (hit.transform.CompareTag("Enemy")) enemyTransform = hit.transform;
-            }
+            baseDamage = 0;
+            attackReach = 0;
+            attackDisable = true;
         }
-        if (enemyTransform != null)
+        if (equippedWeapon != null && !equippedWeapon.IsEmpty)
         {
-            Vector2 bounce = (transform.position - enemyTransform.position).normalized;
-            RigidBody.AddForce(bounce * pushbackForce, ForceMode2D.Impulse);
+            WeaponItem tmp = (WeaponItem)equippedWeapon.Item;
+            baseDamage = tmp.damage;
+            attackReach = tmp.reach;
+            attackDisable = false;
         }
-
     }
 
+    private Vector2 GetDirection()
+    {
+        if (Input.GetKey(KeyCode.UpArrow)) return Vector2.up;
+        else if (Input.GetKey(KeyCode.DownArrow)) return Vector2.down;
+        else if (FacingRight) return Vector2.right;
+        else return Vector2.left;
+    }
 
+    public Vector2 GetSize(Vector2 direction)
+    {
+        if (direction == Vector2.down || direction == Vector2.up) return new Vector2(1, attackReach);
+        if (direction == Vector2.right || direction == Vector2.left) return new Vector2(attackReach, 1);
 
+        return Vector2.zero;
+    }
+    private void HandleAttack()
+    {
+        if (attackDisable) return;
+        attackDisable = true;
+        Vector2 Direction = GetDirection();
+        Vector2 Size = GetSize(Direction);
+        Vector2 Center = (Vector2)transform.position + Direction * (attackReach / 2);
+
+        foreach (Collider2D hit in Physics2D.OverlapBoxAll(Center, Size, 0))
+        {
+            if (hit.TryGetComponent(out IDamageable damaged) && hit.GetComponent<PlayerManager>() == null)
+            {
+                damaged.TakeDamage(Damage);
+                if (hit.GetComponent<EnemyBase>() != null || hit.GetComponent<Spikes>() != null)
+                {
+                    Pushback(hit.transform, AttackPushbackForce);
+                }
+            }
+        }
+        attackDisable = false;
+    }
     #endregion
 
     #region Abilities
-    [Header("HEAL")]
-    public float healChargeTime = .7f;
-    public float healManaCost = 30;
+    [Header("Abilities")]
+    public int Mana;
+    public int MaxMana => baseMaxMana + boostedMaxMana;
+    public int baseMaxMana;
+    [HideInInspector] public int boostedMaxMana;
+    [HideInInspector] public float amulet1ChargeTime;
+    [HideInInspector] public float amulet2ChargeTime;
+    [HideInInspector] public float amulet3ChargeTime;
+    private TextMeshProUGUI manaCounter => UIManager.Instance.PlayerUI.GetComponent<PlayerGUI>().ManaCounter;
 
-    public void Heal()
+    public void UpdateMana()
     {
-        if (!(timeInteractUp - timeInteractDown < healChargeTime)) return;
-
-        if (hp == maxHp) return;
-
-        hp += 1;
-        mana -= healManaCost;
+        if (Mana > MaxMana) Mana = MaxMana;
+        manaCounter.text = Mana.ToString();
     }
-
-    #endregion
-
-    #region Magic
-    [Header("MAGIC")]
-    public float mana = 100;
-    public float maxMana;
-    private int baseMana = 100;
-    public float mAtk;
-
-    public void tmpRegainMana()
+    public void UpdateAbilities()
     {
-        if (time >= timeInteractUp + 1 && mana != maxMana)
+        if (equippedAmulet1 != null && equippedAmulet1.Item is AbilityAmulet tmp1)
         {
-            mana += 10;
+            amulet1ChargeTime = tmp1.chargeTime;
+        }
+        if (equippedAmulet2 != null && equippedAmulet2.Item is AbilityAmulet tmp2)
+        {
+            amulet2ChargeTime = tmp2.chargeTime;
+        }
+        if (equippedAmulet3 != null && equippedAmulet3.Item is AbilityAmulet tmp3)
+        {
+            amulet3ChargeTime = tmp3.chargeTime;
         }
     }
 
+    public void AmuletAbility(int amuletIndex)
+    {
+        AbstractSlot amulet = null;
+        switch (amuletIndex)
+        {
+            case 0: amulet = equippedAmulet1; break;
+            case 1: amulet = equippedAmulet2; break;
+            case 2: amulet = equippedAmulet3; break;
+
+        }
+        if (amulet != null && amulet.Item is AbilityAmulet tmp)
+        {
+            tmp.ActivateAbility();
+        }
+    }
+
+    public void AddMana(int amount)
+    {
+        Mana += amount;
+    }
     #endregion
 
     #region Inventory
-    public List<IItem> inventory;
-    #region Charms
-    public int baseCharms = 3;
-    public int unlockedCharms = 0;
-    public int maxCharms;
-    //public List<Charm> equippedCharms;
+    [Header("Inventory")]
+    [HideInInspector] public Inventory Inventory = new();
+    [HideInInspector] public AbstractSlot equippedConsumable = new();
+    [HideInInspector] public AbstractSlot equippedWeapon = new();
+    [HideInInspector] public AbstractSlot equippedAmulet1 = new();
+    [HideInInspector] public AbstractSlot equippedAmulet2 = new();
+    [HideInInspector] public AbstractSlot equippedAmulet3 = new();
+    public int Gold;
 
-    public int hpAdd;
-    public int defAdd;
-    public int manaAdd;
-    public int speedAdd;
-    #endregion
+    public void TriggerInventory()
+    {
+        GameObject playerUI = UIManager.Instance.PlayerUI;
+
+        InventoryMenu inventoryMenu = UIManager.Instance.InventoryUI.GetComponent<InventoryMenu>();
+        TradeMenu tradeMenu = UIManager.Instance.TradeMenuUI.GetComponent<TradeMenu>();
+        if (inventoryMenu == null)
+        {
+            return;
+        }
+
+        if (tradeMenu.gameObject.activeSelf)
+        {
+            tradeMenu.gameObject.SetActive(false);
+            foreach (VendorNPC npc in FindObjectsByType<VendorNPC>(FindObjectsSortMode.None))
+            {
+                npc.UpdateVendorNPC();
+            }
+            if (playerUI != null && !playerUI.activeSelf) { playerUI.SetActive(true); }
+        }
+        else if (inventoryMenu.gameObject.activeSelf)
+        {
+            inventoryMenu.gameObject.SetActive(false);
+
+            if (playerUI != null && !playerUI.activeSelf) { playerUI.SetActive(true); }
+        }
+        else
+        {
+            if (playerUI != null && playerUI.activeSelf) { playerUI.SetActive(false); }
+
+            inventoryMenu.gameObject.SetActive(true);
+            inventoryMenu.UpdateMenu();
+        }
+    }
+
+    public void ConsumeConsumableItem()
+    {
+        ConsumableItem consumable = (ConsumableItem)equippedConsumable.Item;
+        consumable.Consume();
+        equippedConsumable.RemoveItem(1);
+    }
     #endregion
 }
 

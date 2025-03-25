@@ -1,22 +1,41 @@
-using System.ComponentModel;
-using Unity.VisualScripting;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class PauseMenu : MonoBehaviour
 {
+    GameStatemachine machine;
+    private void OnEnable()
+    {
+        if (TryGetComponent(out Canvas canvas) && canvas.worldCamera == null)
+        {
+            canvas.worldCamera = Camera.main;
+        }
+    }
+
+    private void Start()
+    {
+        machine = GameManager.Instance.Machine;
+    }
     public void Resume()
     {
-        GameRunningState running = new(GameManager.Instance.machine);
-        GameManager.Instance.machine.ChangeState(running);
+        machine.ChangeState(machine.PreviousState);
     }
 
-    public void Options()
+    public void BackToMenu()
     {
-        throw new System.NotImplementedException();
+        DataManager manager = GameManager.Instance.DataManager;
+
+        manager.SaveFile(manager.Save(), manager.SaveIndex);
+        GameMainMenuState mainmenu = new(GameManager.Instance.Machine);
+        GameManager.Instance.Machine.ChangeState(mainmenu);
     }
 
-    public void Quit()
+    public async void Quit()
     {
+        DataManager manager = GameManager.Instance.DataManager;
+
+        manager.SaveFile(manager.Save(), manager.SaveIndex);
+        await Task.Delay(500);
         Application.Quit();
     }
 }

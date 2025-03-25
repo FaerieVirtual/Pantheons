@@ -1,10 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using UnityEngine;
+// This is a modified version of code cited in documentation in source [3]
 
 public interface IDamageable
 {
-    void TakeDamage(int damage);
-    void Die();
+    public void TakeDamage(int damage);
+    public void Die();
 }

@@ -1,10 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
 public class GameStatemachine
 {
-    public GameState CurrentState {  get; set; }
+   public GameState CurrentState {  get; set; }
+    public GameState PreviousState { get; set; }
     public void Init(GameState initialState) 
     { 
         CurrentState = initialState;
@@ -13,6 +10,7 @@ public class GameStatemachine
     public void ChangeState(GameState newState) 
     { 
         CurrentState.ExitState();
+        PreviousState = CurrentState;
         CurrentState = newState;
         CurrentState.EnterState();
     }

@@ -1,19 +1,17 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+// This is a copied class cited in documentation in source [3]
 
-public class EnemyStatemachine
+public class EnemyStateMachine
 {
-    public EnemyState currentState {  get; set; }
+    public EnemyState CurrentState {  get; set; }
     public void Init(EnemyState initialState) 
     { 
-        currentState = initialState;
-        currentState.EnterState();
+        CurrentState = initialState;
+        CurrentState.EnterState();
     }
     public void ChangeState(EnemyState newState) 
     { 
-        currentState.ExitState();
-        currentState = newState;
-        currentState.EnterState();
+        CurrentState.ExitState();
+        CurrentState = newState;
+        CurrentState.EnterState();
     }
 }

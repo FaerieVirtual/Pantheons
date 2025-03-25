@@ -1,62 +1,98 @@
-using System;
-using System.Collections;
-using Unity.VisualScripting;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
 {
-    public void LoadScene(int nextSceneIndex, bool movePlayer = true)
+    private GameStatemachine machine;
+
+    public Dictionary<string, Level> Levels;
+    private void Start()
+    {
+        machine = GameManager.Instance.Machine;
+        InitializeLevels();
+    }
+
+    #region LoadScenes
+    public static async Task LoadScene(int nextSceneIndex)
     {
         int oldSceneIndex = SceneManager.GetActiveScene().buildIndex;
         AsyncOperation load = SceneManager.LoadSceneAsync(nextSceneIndex, LoadSceneMode.Additive);
+
         load.allowSceneActivation = false;
-        load.completed += (x) =>
-        {
-            if (movePlayer)
-            {
-                try { SceneManager.MoveGameObjectToScene(PlayerManager.instance.gameObject, SceneManager.GetSceneByBuildIndex(nextSceneIndex)); }
-                catch { Debug.Log("Moving the player failed. Not moving from a menu."); }
-            }
-        };
-        WaitForSecondsRealtime wait = new(0.1f)
+        while (load.progress < 0.9f) await Task.Yield();
         load.allowSceneActivation = true;
+        while (!load.isDone) await Task.Yield();
 
         SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(nextSceneIndex));
-        SceneManager.UnloadSceneAsync(SceneManager.GetSceneByBuildIndex(oldSceneIndex));
+        SceneManager.UnloadSceneAsync(oldSceneIndex);
     }
 
-    public void LoadScene(string nextSceneName, bool movePlayer = true)
+    public static async Task LoadScene(string nextSceneName)
     {
-        int nextSceneIndex = SceneManager.GetSceneByName(nextSceneName).buildIndex;
+        int nextSceneIndex = SceneUtility.GetBuildIndexByScenePath(nextSceneName);
+        await LoadScene(nextSceneIndex);
+    }
+
+    public static async Task LoadScene(int nextSceneIndex, LevelConnector connector) 
+    {
         int oldSceneIndex = SceneManager.GetActiveScene().buildIndex;
         AsyncOperation load = SceneManager.LoadSceneAsync(nextSceneIndex, LoadSceneMode.Additive);
+
         load.allowSceneActivation = false;
-        load.completed += (x) =>
-        {
-            if (movePlayer)
-            {
-                try { SceneManager.MoveGameObjectToScene(PlayerManager.instance.gameObject, SceneManager.GetSceneByBuildIndex(nextSceneIndex)); }
-                catch { Debug.Log("Moving the player failed. Not moving from a menu."); }
-            }
-        };
+        while (load.progress < 0.9f) await Task.Yield();
         load.allowSceneActivation = true;
+        while (!load.isDone) await Task.Yield();
+
+        SceneManager.MoveGameObjectToScene(PlayerManager.Instance.gameObject, SceneManager.GetSceneByBuildIndex(nextSceneIndex));
+        Transform playerTrans = PlayerManager.Instance.GetComponent<Transform>();
+
+        LevelConnector sisterconnector = FindObjectsOfType<LevelConnector>()
+            .FirstOrDefault(sisterconnector => connector.SisterConnectorID == sisterconnector.ConnectorID);
+        PlayerManager.Instance.GetComponent<Transform>().position = sisterconnector.GetSpawnpoint();
 
         SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(nextSceneIndex));
-        SceneManager.UnloadSceneAsync(SceneManager.GetSceneByBuildIndex(oldSceneIndex));
+        SceneManager.UnloadSceneAsync(oldSceneIndex);
+    }
+    public static async Task LoadScene(string nextSceneName, LevelConnector connector) 
+    {
+        int nextSceneIndex = SceneUtility.GetBuildIndexByScenePath(nextSceneName);
+        await LoadScene(nextSceneIndex, connector);
+    }
+    #endregion
+
+    #region LevelManagement
+    private void InitializeLevels()
+    {
+        Levels = new()
+        {
+            { "A1", new Demo1(machine) },
+            { "A2", new Demo2(machine) },
+            { "A3", new Demo3(machine) },
+            { "A4", new Demo4(machine) },
+        };
     }
 
-    //private IEnumerator LoadSceneAsync(int sceneIndex)
-    //{
-    //    AsyncOperation load = SceneManager.LoadSceneAsync(sceneIndex, LoadSceneMode.Additive);
-    //    load.allowSceneActivation = false;
-    //    load.completed += (x) => { SceneManager.MoveGameObjectToScene(PlayerManager.Instance.gameObject, nextScene); };
-    //    load.allowSceneActivation = true;
+    public Level GetLevelByID(string ID)
+    {
+        try { return Levels[ID]; }
+        catch
+        {
+            Debug.Log("Attempted to fetch a non-existing level.");
+            return null;
+        }
+    }
+    public Level GetLevelByFlag(string flag) 
+    { 
 
-    //    yield return new WaitForSeconds(.2f); 
-
-    //    int oldSceneIndex = SceneManager.GetActiveScene().buildIndex;
-    //    SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(nextSceneIndex));
-    //    SceneManager.UnloadSceneAsync(SceneManager.GetSceneByBuildIndex(oldSceneIndex));
-    //}
+        foreach (Level level in Levels.Values) 
+        {
+            if (level.HasFlag(flag)) return level;
+        }
+        Debug.Log("Attempted to fetch a level with a non-existing flag.");
+        return null;
+    }
+    #endregion
 }

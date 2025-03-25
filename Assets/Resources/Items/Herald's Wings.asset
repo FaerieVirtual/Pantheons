@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cde711fd59b4224fad6d8e079b0aeb5, type: 3}
+  m_Name: Herald's Wings
+  m_EditorClassIdentifier: 
+  Name: Herald's Wings
+  Type: 2
+  Description: Grants 3 seconds of invincibility for 50 mana on activation.
+  ItemSprite: {fileID: 21300000, guid: 1546e3d73707ebf43a1866b6242000cb, type: 3}
+  Price: 100
+  chargeTime: 0.1
+  ManaCost: 50
+  Duration: 3

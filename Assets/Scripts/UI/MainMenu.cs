@@ -1,34 +1,17 @@
-using Assets.Scripts.Backend.Game.Game_States;
-using Unity.VisualScripting;
+using System;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
-    private GameStatemachine machine;
-
-    private void Start()
-    {
-        machine = GameManager.Instance.machine;
-
-    }
-    public void NewGame()
-    {
-        //GameGodMenuState godMenuState = new(machine);
-        GameRunningState runningState = new(machine);
-        GameManager.Instance.machine.ChangeState(runningState);
-    }
     public void LoadGame()
     {
-        throw new System.NotImplementedException();
-
-        //GameLoadMenuState loadMenuState = new(machine);
-        //machine.ChangeState(loadMenuState);
+        GameLoadMenuState loadMenuState = new(GameManager.Instance.Machine);
+        GameManager.Instance.Machine.ChangeState(loadMenuState);
     }
 
     public void Options()
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public void Quit()

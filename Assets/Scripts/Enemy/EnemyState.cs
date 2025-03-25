@@ -1,14 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor.Tilemaps;
-using UnityEngine;
+// This is a copied class cited in documentation in source [3]
 
 public class EnemyState
 {
     protected EnemyBase enemy;
-    protected EnemyStatemachine machine;
+    protected EnemyStateMachine machine;
 
-    public EnemyState(EnemyBase enemy, EnemyStatemachine machine)
+    public EnemyState(EnemyBase enemy, EnemyStateMachine machine)
     {
         this.enemy = enemy;
         this.machine = machine;

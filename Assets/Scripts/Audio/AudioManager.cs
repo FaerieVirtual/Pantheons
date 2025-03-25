@@ -59,7 +59,7 @@ public class AudioManager : MonoBehaviour
         var musicMap = new Dictionary<string, string>
         {
             { "Ancient Path", "At the beginning" },
-            { "Sword's Gully", "Ancestors' bated breath"},
+            { "WeaponItem's Gully", "Ancestors' bated breath"},
             { "Hangman's Grove", "The sound of Regret" },
             { "Verdant Grottos", "Greener grass" }
         };
@@ -74,8 +74,8 @@ public class AudioManager : MonoBehaviour
         {
             Sound sound = Array.Find(sounds, sound => sound.name.ToLower() == entry.Key.ToLower());
 
-            if (!GameManager.Instance.Area.ToLower().Contains(entry.Key) && sound.source.isPlaying) Stop(entry.Key);
-            if (GameManager.Instance.Area.ToLower().Contains(entry.Key.ToLower()) && !sound.source.isPlaying) Play(entry.Value, musicVolume, 2);
+            //if (!GameManager.Instance.Area.ToLower().Contains(entry.Key) && sound.source.isPlaying) Stop(entry.Key);
+            //if (GameManager.Instance.Area.ToLower().Contains(entry.Key.ToLower()) && !sound.source.isPlaying) Play(entry.Value, musicVolume, 2);
         }
     }
 
@@ -144,9 +144,9 @@ public class AudioManager : MonoBehaviour
     //}
     //public void CheckForPause()
     //{
-    //    GamePausedState paused = new GamePausedState(GameManager.Instance.machine);
-    //    if (GameManager.Instance.machine.currentState == paused && themePause == false) { themePause = true; }
-    //    if (GameManager.Instance.machine.currentState != paused && themePause == true) { themePause = false; }
+    //    GamePausedState paused = new GamePausedState(GameManager.Instance.Machine);
+    //    if (GameManager.Instance.Machine.currentState == paused && themePause == false) { themePause = true; }
+    //    if (GameManager.Instance.Machine.currentState != paused && themePause == true) { themePause = false; }
     //}
 
 
