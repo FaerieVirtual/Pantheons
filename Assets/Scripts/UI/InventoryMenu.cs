@@ -29,7 +29,7 @@ public class InventoryMenu : ItemManagingMenu
             canvas.worldCamera = Camera.main;
         }
         SelectSlot(slots[1]);
-        PlayerSpriteAnimator.StopPlayback(); 
+        PlayerSpriteAnimator.StopPlayback();
         PlayerSpriteAnimator.Play("Idle");
     }
     public override void UpdateMenu()
@@ -136,7 +136,7 @@ public class InventoryMenu : ItemManagingMenu
                 PlayerManager.Instance.equippedConsumable.AddItem(selectedSlot.Item, selectedSlot.Quantity);
                 break;
 
-            case ItemType.Equipment:
+            case ItemType.Amulet:
                 if (amuletSlot1.IsEmpty)
                 {
                     slotToEquipTo = amuletSlot1;

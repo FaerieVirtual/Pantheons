@@ -9,12 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea4b8bd285a6bfc47a6166dcea411b0e, type: 3}
+  m_Script: {fileID: 11500000, guid: 5ec0a216372f0f742b45494827f4b878, type: 3}
   m_Name: Small Mana Stone
   m_EditorClassIdentifier: 
   Name: Small Mana Stone
   Type: 0
-  Description: This strange rock resonates with power. Adds 30 mana.
+  Description: Strange shiny rock. Restores 30 mana on consumption.
   ItemSprite: {fileID: 21300000, guid: 1276b4a6fd789624d8d4200e7c0d066f, type: 3}
-  Price: 20
+  Price: 30
   ManaAmount: 30

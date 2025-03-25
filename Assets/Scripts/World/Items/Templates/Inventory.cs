@@ -71,9 +71,4 @@ public class SaveInventory
         return inventory;
     }
 }
-public class SaveSlot 
-{
-    public string ItemPath;
-    public int Quantity;
-}
 

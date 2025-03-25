@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: Nitril's Fang
   Type: 2
-  Description: A fang of a devout follower. On activation, your strikes will deal
-    1 more damage for 10 seconds in exchange for 40 mana.
+  Description: On activation, your strikes will deal 1 more damage for 10 seconds
+    in exchange for 40 mana.
   ItemSprite: {fileID: -545380113026382421, guid: 4c4dc131d2c789e459cc64987d258654, type: 3}
   Price: 80
   chargeTime: 0.1

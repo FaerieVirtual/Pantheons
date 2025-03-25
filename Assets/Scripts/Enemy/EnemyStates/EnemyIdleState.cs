@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class EnemyIdleState : EnemyState
 {
-    public EnemyIdleState(EnemyBase enemy, EnemyStatemachine machine) : base(enemy, machine)
+    public EnemyIdleState(EnemyBase enemy, EnemyStateMachine machine) : base(enemy, machine)
     {
         this.machine = machine;
         this.enemy = enemy;

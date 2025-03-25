@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: Heart Locket
   Type: 2
-  Description: Keeps the good stuff in and the bad stuff out. Raises Max Hp by 1.
+  Description: Raises Max Hp by 1.
   ItemSprite: {fileID: 5575579087702807243, guid: 4c4dc131d2c789e459cc64987d258654, type: 3}
   Price: 20
   maxHpBoost: 1

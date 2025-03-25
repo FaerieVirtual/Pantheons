@@ -2,7 +2,7 @@
 
 public class EnemyPatrolState : EnemyState
 {
-    public EnemyPatrolState(EnemyBase enemy, EnemyStatemachine machine) : base(enemy, machine)
+    public EnemyPatrolState(EnemyBase enemy, EnemyStateMachine machine) : base(enemy, machine)
     {
         //Ground = enemy.Ground;
         //GroundCheck = enemy.GroundCheck;

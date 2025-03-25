@@ -2,7 +2,7 @@
 {
     public Amulet()
     {
-        Type = ItemType.Equipment;
+        Type = ItemType.Amulet;
     }
     public virtual void OnEquip() { }
     public virtual void OnUnequip() { }

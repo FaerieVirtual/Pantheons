@@ -8,7 +8,7 @@ public class LevelManager : MonoBehaviour
 {
     private GameStatemachine machine;
 
-    public Dictionary<string, Level> levels;
+    public Dictionary<string, Level> Levels;
     private void Start()
     {
         machine = GameManager.Instance.Machine;
@@ -66,7 +66,7 @@ public class LevelManager : MonoBehaviour
     #region LevelManagement
     private void InitializeLevels()
     {
-        levels = new()
+        Levels = new()
         {
             { "A1", new Demo1(machine) },
             { "A2", new Demo2(machine) },
@@ -77,7 +77,7 @@ public class LevelManager : MonoBehaviour
 
     public Level GetLevelByID(string ID)
     {
-        try { return levels[ID]; }
+        try { return Levels[ID]; }
         catch
         {
             Debug.Log("Attempted to fetch a non-existing level.");
@@ -87,7 +87,7 @@ public class LevelManager : MonoBehaviour
     public Level GetLevelByFlag(string flag) 
     { 
 
-        foreach (Level level in levels.Values) 
+        foreach (Level level in Levels.Values) 
         {
             if (level.HasFlag(flag)) return level;
         }

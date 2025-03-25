@@ -9,12 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c268c53d11115a64095c3537c0eeae07, type: 3}
+  m_Script: {fileID: 11500000, guid: 02aa36056c17af142a3ec9ae92bd83fc, type: 3}
   m_Name: Small Blood vial
   m_EditorClassIdentifier: 
-  Name: Small Blood vial
+  Name: Small Blood Vial
   Type: 0
-  Description: This potent mixture mends bone and sinew. Heals 1 Health.
+  Description: Thick liquid swerves in this bottle. Restores 1 hp on consumption
   ItemSprite: {fileID: 21300000, guid: a8ddf1ba00be36c44b8f86166f3ccc0e, type: 3}
-  Price: 30
+  Price: 40
   HealAmount: 1

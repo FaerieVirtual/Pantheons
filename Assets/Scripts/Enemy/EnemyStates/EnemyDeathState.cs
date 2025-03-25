@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class DeathState : EnemyState
 {
-    public DeathState(EnemyBase enemy, EnemyStatemachine machine) : base(enemy, machine)
+    public DeathState(EnemyBase enemy, EnemyStateMachine machine) : base(enemy, machine)
     {
         this.machine = machine;
         this.enemy = enemy;

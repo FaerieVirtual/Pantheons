@@ -21,7 +21,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
         SetInput();
 
         transform.position = new Vector2(GameManager.Instance.DataManager.GameSave.lastX, GameManager.Instance.DataManager.GameSave.lastY + 2);
-        UpdateHealth();
         UpdateAbilities();
         UpdateAttack();
         if (Hp <= 0) Die();
@@ -34,6 +33,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         ApplyMovement();
 
         UpdateMana();
+        UpdateHealth();
     }
     private void Update()
     {
@@ -43,8 +43,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     #region Player Management
     [Header("INPUT")]
-    public float VerticalDeadZoneThreshold = .1f;
-    public float HorizontalDeadZoneThreshold = .1f;
+    public float VelocityForJumpThreshold = .1f;
 
     private PlayerInput JumpInput;
     private PlayerInput InteractInput;
@@ -160,6 +159,8 @@ public class PlayerManager : MonoBehaviour, IDamageable
         GetComponent<SpriteRenderer>().color = Color.white;
         invincible = false;
     }
+    // Here begins the modified version of code cited in documentation in source [1]
+
     public void UpdateHealth()
     {
         Image[] HpImages = UIManager.Instance.PlayerUI.GetComponent<PlayerGUI>().HpImages;
@@ -173,14 +174,14 @@ public class PlayerManager : MonoBehaviour, IDamageable
             else { HpImages[i].enabled = false; }
         }
         if (Hp > MaxHp) { Hp = MaxHp; }
-
     }
+    // Here ends the modified version of code cited in documentation in source [1]
+
     public async void Heal(int healAmount)
     {
         if (Hp >= MaxHp) return;
         Hp += healAmount;
         GetComponent<SpriteRenderer>().color = Color.green;
-        UpdateHealth();
         await Task.Delay(500);
         GetComponent<SpriteRenderer>().color = Color.white;
     }
@@ -188,6 +189,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     #region Movement
     [Header("MOVEMENT")]
+    // Here begins the modified version of code cited in documentation in source [2]
     public float MaxSpeed;
     public float Acceleration;
     public float GroundDeceleration;
@@ -209,28 +211,27 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private Vector2 tempVelocity;
     private LayerMask Ground => LayerMask.GetMask("Ground");
     public Rigidbody2D RigidBody => GetComponent<Rigidbody2D>();
+    private BoxCollider2D Groundcheck => transform.GetChild(0).gameObject.GetComponent<BoxCollider2D>();
+    private BoxCollider2D Ceilingcheck => transform.GetChild(1).gameObject.GetComponent<BoxCollider2D>();
+
     public bool movementDisable;
 
     private bool endedJump;
-    private bool coyoteUsable;
+    private bool CoyoteUsable;
     private bool jumpSustainable;
     private bool ApexHit;
     private float timeGroundLeft;
-    private bool HasCoyoteTime => coyoteUsable && !IsStanding && Time.time <= timeGroundLeft + CoyoteTime;
+    private bool HasCoyoteTime => CoyoteUsable && !IsStanding && Time.time <= timeGroundLeft + CoyoteTime;
 
     void HandleCollisions()
     {
-        Physics2D.queriesStartInColliders = false;
-
-        BoxCollider2D groundcheck = transform.GetChild(0).gameObject.GetComponent<BoxCollider2D>();
-        BoxCollider2D ceilingcheck = transform.GetChild(1).gameObject.GetComponent<BoxCollider2D>();
-        groundHit = groundcheck.IsTouchingLayers(Ground);
-        ceilingHit = ceilingcheck.IsTouchingLayers(Ground);
+        groundHit = Groundcheck.IsTouchingLayers(Ground);
+        ceilingHit = Ceilingcheck.IsTouchingLayers(Ground);
 
         if (!IsStanding && groundHit)
         {
             IsStanding = true;
-            coyoteUsable = true;
+            CoyoteUsable = true;
         }
         if (IsStanding && !groundHit)
         {
@@ -248,7 +249,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     {
         if (IsStanding || HasCoyoteTime)
         {
-            coyoteUsable = false;
+            CoyoteUsable = false;
             IsJumping = true;
             tempVelocity.y = JumpPower;
             endedJump = false;
@@ -258,7 +259,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private void JumpSustain()
     {
         if (!jumpSustainable || JumpInput.timePressed + MaxJumpTime < Time.time) return;
-        coyoteUsable = false;
+        CoyoteUsable = false;
         IsJumping = true;
         if (tempVelocity.y <= JumpPower) tempVelocity.y = JumpPower;
     }
@@ -298,7 +299,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     }
     private void HandleGravity()
     {
-        if (IsStanding && tempVelocity.y <= VerticalDeadZoneThreshold)
+        if (IsStanding && tempVelocity.y <= VelocityForJumpThreshold)
         {
             tempVelocity.y = GroundingForce;
         }
@@ -314,6 +315,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     {
         RigidBody.velocity = tempVelocity;
     }
+    // Here ends the modified version of code cited in documentation in source [2]
 
     public void Stop()
     {
@@ -343,7 +345,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     #endregion
 
-    #region Attacking
+    #region Attack
     [Header("ATTACK")]
     public int AttackPushbackForce;
     public bool attackDisable;
@@ -398,17 +400,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
         foreach (Collider2D hit in Physics2D.OverlapBoxAll(Center, Size, 0))
         {
-            if (hit.GetComponent<PlayerManager>() != null) continue;
-
-            if (hit.transform.parent != null && hit.transform.parent.TryGetComponent(out IDamageable damagedParent))
-            {
-                damagedParent.TakeDamage(Damage);
-                if (hit.transform.parent.GetComponent<EnemyBase>() != null || hit.GetComponent<Spikes>() != null)
-                {
-                    Pushback(hit.transform, AttackPushbackForce);
-                }
-            }
-            if (hit.TryGetComponent(out IDamageable damaged))
+            if (hit.TryGetComponent(out IDamageable damaged) && hit.GetComponent<PlayerManager>() == null)
             {
                 damaged.TakeDamage(Damage);
                 if (hit.GetComponent<EnemyBase>() != null || hit.GetComponent<Spikes>() != null)
@@ -419,14 +411,13 @@ public class PlayerManager : MonoBehaviour, IDamageable
         }
         attackDisable = false;
     }
-
     #endregion
 
     #region Abilities
     [Header("Abilities")]
-    public int Mana = 100;
+    public int Mana;
     public int MaxMana => baseMaxMana + boostedMaxMana;
-    public int baseMaxMana = 100;
+    public int baseMaxMana;
     [HideInInspector] public int boostedMaxMana;
     [HideInInspector] public float amulet1ChargeTime;
     [HideInInspector] public float amulet2ChargeTime;
@@ -467,7 +458,6 @@ public class PlayerManager : MonoBehaviour, IDamageable
         if (amulet != null && amulet.Item is AbilityAmulet tmp)
         {
             tmp.ActivateAbility();
-            UpdateMana();
         }
     }
 
@@ -501,7 +491,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         if (tradeMenu.gameObject.activeSelf)
         {
             tradeMenu.gameObject.SetActive(false);
-            foreach (VendorNPC npc in FindObjectsByType<VendorNPC>(FindObjectsSortMode.None)) 
+            foreach (VendorNPC npc in FindObjectsByType<VendorNPC>(FindObjectsSortMode.None))
             {
                 npc.UpdateVendorNPC();
             }

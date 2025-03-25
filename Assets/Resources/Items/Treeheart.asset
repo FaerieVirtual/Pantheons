@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: Treeheart
   Type: 2
-  Description: Pulsing bundle of something's lifeforce. Hold activation button for
-    1 second and heal 1 Hp for 30 mana.
+  Description: Hold activation button for 1 second and heal 1 Hp for 30 mana.
   ItemSprite: {fileID: -188679330444342605, guid: 812be1d8af7298f468ca67aaeb530efe, type: 3}
   Price: 50
   chargeTime: 1

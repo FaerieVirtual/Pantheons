@@ -30,7 +30,7 @@ namespace Assets.Scripts.Player
                 maxReached = false;
                 OnDown.Invoke();
             }
-            if (Input.GetKey(key) && inputTimer < maxTime && !maxReached /*timePressed + maxTime > Time.time*/) 
+            if (Input.GetKey(key) && inputTimer < maxTime && !maxReached) 
             {
                 OnHold.Invoke();
                 inputTimer += Time.unscaledDeltaTime;

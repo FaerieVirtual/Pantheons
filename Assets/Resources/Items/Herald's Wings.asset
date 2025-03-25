@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: Herald's Wings
   Type: 2
-  Description: The Pantheon might be eternal, but their messengers... not as much.
-    Grants 3 seconds of invincibility for 50 mana on activation.
+  Description: Grants 3 seconds of invincibility for 50 mana on activation.
   ItemSprite: {fileID: 21300000, guid: 1546e3d73707ebf43a1866b6242000cb, type: 3}
   Price: 100
   chargeTime: 0.1

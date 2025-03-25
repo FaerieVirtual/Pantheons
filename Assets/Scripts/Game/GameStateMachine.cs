@@ -1,6 +1,6 @@
 public class GameStatemachine
 {
-    public GameState CurrentState {  get; set; }
+   public GameState CurrentState {  get; set; }
     public GameState PreviousState { get; set; }
     public void Init(GameState initialState) 
     { 

@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class EnemyBase : MonoBehaviour, IDamageable
 {
-    public EnemyStatemachine Machine { get; set; } = new EnemyStatemachine();
+    public EnemyStateMachine Machine { get; set; } = new EnemyStateMachine();
     private DeathState deathState;
     public EnemyPatrolState patrolState;
 
@@ -20,12 +20,12 @@ public class EnemyBase : MonoBehaviour, IDamageable
     }
     private void Update()
     {
-        Machine.currentState.Update();
+        Machine.CurrentState.Update();
     }
     private void FixedUpdate()
     {
         if (RigidBody.velocity.y > -1) RigidBody.velocity = new(RigidBody.velocity.x, Mathf.MoveTowards(RigidBody.velocity.y, -1, 4));
-        Machine.currentState.PhysicsUpdate();
+        Machine.CurrentState.PhysicsUpdate();
     }
     #endregion
 
@@ -37,7 +37,7 @@ public class EnemyBase : MonoBehaviour, IDamageable
 
     public void Die()
     {
-        if (Machine.currentState != deathState) Machine.ChangeState(deathState);
+        if (Machine.CurrentState != deathState) Machine.ChangeState(deathState);
     }
     public async void TakeDamage(int damage)
     {

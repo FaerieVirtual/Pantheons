@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
-public class TradeMenu : ItemManagingMenu 
+public class TradeMenu : ItemManagingMenu
 {
     public List<GraphicalSlot> slots;
     public TextMeshProUGUI itemName;
@@ -22,7 +21,6 @@ public class TradeMenu : ItemManagingMenu
             canvas.worldCamera = Camera.main;
         }
     }
-
     public override void UpdateMenu()
     {
         foreach (GraphicalSlot slot in slots)

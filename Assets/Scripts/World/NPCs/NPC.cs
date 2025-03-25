@@ -4,7 +4,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class NPC : InteractibleObject
+public class NPC : InteractiveObject
 {
     public string Name;
     [HideInInspector] public NPCData Data;

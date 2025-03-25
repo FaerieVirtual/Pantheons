@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.IO;
 using TMPro;
 using UnityEngine;
@@ -6,7 +5,6 @@ using UnityEngine.UI;
 
 public class LoadMenu : MonoBehaviour
 {
-    private DataSave GameSave;
     [HideInInspector] public StreamReader reader;
 
     public Image[] hpImages;
@@ -21,77 +19,10 @@ public class LoadMenu : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape)) Back();
     }
-    public void LoadSaveFile()
+    public void LoadSaveFile() // Listener to a button in a menu
     {
-        if (GameSave == null)
-        {
-            GameSave = GameManager.Instance.DataManager.LoadFile("DefaultSave");
-            if (UIManager.Instance != null && !UIManager.Instance.PlayerUI.activeSelf) UIManager.Instance.PlayerUI.SetActive(true);
-        }
-
-        GameManager.Instance.DataManager.Load(GameSave, SelectedIndex);
-        Level level = (GameManager.Instance.LevelManager.GetLevelByID(GameSave.lastLevelID));
-        GameManager.Instance.Machine.ChangeState(level);
-        if (!level.HasFlag("LastLevel")) { level.SetFlag("LastLevel"); }
-
-        if (FindObjectOfType<UIManager>() == null)
-        {
-            Instantiate(Resources.Load<UIManager>("UI/UI"));
-        }
-
-        PlayerManager player = Instantiate(Resources.Load<PlayerManager>("Player/Player"));
-        player.Inventory = GameSave.inventory.ToInventory();
-        if (GameSave.weapon.ItemPath != null) player.equippedWeapon.AddItem(Resources.Load<WeaponItem>(GameSave.weapon.ItemPath), GameSave.weapon.Quantity);
-        if (GameSave.consumable.ItemPath != null) player.equippedConsumable.AddItem(Resources.Load<ConsumableItem>(GameSave.consumable.ItemPath), GameSave.consumable.Quantity);
-        if (GameSave.amulet1.ItemPath != null)
-        {
-            Amulet amulet1 = Resources.Load<Amulet>(GameSave.amulet1.ItemPath);
-            player.equippedAmulet1.AddItem(amulet1, GameSave.amulet1.Quantity);
-            amulet1.OnEquip();
-        }
-        if (GameSave.amulet2.ItemPath != null)
-        {
-            Amulet amulet2 = Resources.Load<Amulet>(GameSave.amulet2.ItemPath);
-            player.equippedAmulet2.AddItem(amulet2, GameSave.amulet2.Quantity);
-            amulet2.OnEquip();
-        }
-        if (GameSave.amulet3.ItemPath != null)
-        {
-            Amulet amulet3 = Resources.Load<Amulet>(GameSave.amulet3.ItemPath);
-            player.equippedAmulet3.AddItem(amulet3, GameSave.amulet3.Quantity);
-            amulet3.OnEquip();
-        }
-
-        player.baseMaxHp = GameSave.baseMaxHp;
-        player.Hp = GameSave.Hp;
-        player.baseMaxMana = GameSave.baseMaxMana;
-        player.Mana = GameSave.Mana;
-        player.Gold = GameSave.Gold;
-
-        foreach (string key in GameSave.Levels.Keys)
-        {
-            GameManager.Instance.LevelManager.levels[key].ResetFlags();
-
-            foreach (string flag in GameSave.Levels[key].flags) 
-            {
-                GameManager.Instance.LevelManager.levels[key].Flags.Add(flag);
-            }
-        }
-
-        Dictionary<string, NPCData> SaveNPCDic = new();
-        foreach (string key in GameSave.NPCs.Keys)
-        {
-            GameManager.Instance.DataManager.NPCs[key].Flags = GameSave.NPCs[key].Flags;
-            GameManager.Instance.DataManager.NPCs[key].Inventory = GameSave.NPCs[key].Inventory.ToInventory();
-        }
-
-        if (FindObjectOfType<UIManager>() == null)
-        {
-            Instantiate(Resources.Load<UIManager>("UI/UI"));
-        }
-        FindObjectOfType<UIManager>().PlayerUI.SetActive(true);
-
-        player.transform.position = new(GameSave.lastX, GameSave.lastY);
+        DataManager dataManager = GameManager.Instance.DataManager;
+        dataManager.Load(dataManager.LoadFile(SelectedIndex), SelectedIndex);
     }
 
     public void Back()
@@ -102,9 +33,9 @@ public class LoadMenu : MonoBehaviour
 
     public void SelectSave(int index)
     {
-        GameSave = GameManager.Instance.DataManager.LoadFile(index);
+        DataSave gameSave = GameManager.Instance.DataManager.LoadFile(index);
 
-        if (GameSave == null)
+        if (gameSave == null)
         {
             foreach (Image image in hpImages)
             {
@@ -119,15 +50,15 @@ public class LoadMenu : MonoBehaviour
         {
             for (int i = 0; i < hpImages.Length; i++)
             {
-                if (i < GameSave.Hp) { hpImages[i].sprite = Resources.Load<Sprite>("Sprites/heartfull"); }
+                if (i < gameSave.Hp) { hpImages[i].sprite = Resources.Load<Sprite>("Sprites/heartfull"); }
                 else { hpImages[i].sprite = Resources.Load<Sprite>("Sprites/heartempty"); }
 
-                if (i < GameSave.MaxHp) { hpImages[i].enabled = true; }
+                if (i < gameSave.MaxHp) { hpImages[i].enabled = true; }
                 else { hpImages[i].enabled = false; }
             }
-            ManaCounter.text = GameSave.Mana.ToString();
-            GoldCounter.text = $"Gold: {GameSave.Gold}";
-            Area.text = $"Area: {GameManager.Instance.LevelManager.GetLevelByID(GameSave.lastLevelID).LevelScene}";
+            ManaCounter.text = gameSave.Mana.ToString();
+            GoldCounter.text = $"Gold: {gameSave.Gold}";
+            Area.text = $"Area: {GameManager.Instance.LevelManager.GetLevelByID(gameSave.lastLevelID).LevelScene}";
             if (!playerSpriteAnimator.gameObject.activeSelf) playerSpriteAnimator.gameObject.SetActive(true);
         }
         SelectedIndex = index;

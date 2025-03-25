@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine.SceneManagement;
 
@@ -12,8 +11,8 @@ public class GameMainMenuState : GameState
     {
         base.EnterState();
         await Task.Delay(200);
-        foreach (Scene scene in SceneManager.GetAllScenes()) 
-        { 
+        foreach (Scene scene in SceneManager.GetAllScenes())
+        {
             SceneManager.UnloadSceneAsync(scene);
         }
         if (!SceneManager.GetSceneByBuildIndex(0).isLoaded) await LevelManager.LoadScene("MainMenu");

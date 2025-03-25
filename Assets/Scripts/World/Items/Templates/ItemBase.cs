@@ -8,4 +8,11 @@ public abstract class ItemBase : ScriptableObject
     public Sprite ItemSprite;
     public int Price;
 }
+public enum ItemType
+{
+    Consumable,
+    Sword,
+    Amulet
+}
+
 
