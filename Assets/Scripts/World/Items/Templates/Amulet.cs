@@ -1,5 +1,7 @@
 ﻿public class Amulet : ItemBase
 {
+    public PlayerEffect Effect;
+
     public Amulet()
     {
         Type = ItemType.Amulet;

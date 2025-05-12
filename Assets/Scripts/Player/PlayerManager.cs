@@ -1,9 +1,12 @@
 using Assets.Scripts.Player;
+using JetBrains.Annotations;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using UnityEngine.WSA;
 
 public class PlayerManager : MonoBehaviour, IDamageable
 {
@@ -44,17 +47,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     #region Player Management
     [Header("INPUT")]
     public float VelocityForJumpThreshold = .1f;
-
-    private PlayerInput JumpInput;
-    private PlayerInput InteractInput;
-    private PlayerInput PauseInput;
-    private PlayerInput DebugInput;
-    private PlayerInput InventoryInput;
-    private PlayerInput ConsumableInput;
-    private PlayerInput Amulet1Input;
-    private PlayerInput Amulet2Input;
-    private PlayerInput Amulet3Input;
-    private PlayerInput AttackInput;
+    public List<PlayerInput> Inputs = new();
 
     public void ResetPlayer()
     {
@@ -65,53 +58,31 @@ public class PlayerManager : MonoBehaviour, IDamageable
     }
     private void SetInput()
     {
-        JumpInput = new(KeyCode.Space, MaxJumpTime);
-        JumpInput.OnDown.AddListener(Jump);
-        JumpInput.OnHold.AddListener(JumpSustain);
-        JumpInput.OnUp.AddListener(() => jumpSustainable = false);
-        JumpInput.OnUp.AddListener(() => endedJump = true);
-
-        InteractInput = new(KeyCode.DownArrow, MaxJumpTime);
-        InteractInput.OnDown.AddListener(Interact.Invoke);
-
-        PauseInput = new(KeyCode.Escape, 0.1f);
-        PauseInput.OnDown.AddListener(Pause);
-
-        DebugInput = new(KeyCode.O, 0.1f);
-        DebugInput.OnDown.AddListener(() => TakeDamage(1));
-
-        InventoryInput = new(KeyCode.Tab, 0.1f);
-        InventoryInput.OnDown.AddListener(TriggerInventory);
-
-        ConsumableInput = new(KeyCode.A, 0.1f);
-        ConsumableInput.OnDown.AddListener(ConsumeConsumableItem);
-
-        Amulet1Input = new(KeyCode.S, amulet1ChargeTime);
-        Amulet1Input.OnMaxReached.AddListener(() => AmuletAbility(0));
-
-        Amulet2Input = new(KeyCode.D, amulet2ChargeTime);
-        Amulet2Input.OnMaxReached.AddListener(() => AmuletAbility(1));
-
-        Amulet3Input = new(KeyCode.F, amulet3ChargeTime);
-        Amulet3Input.OnMaxReached.AddListener(() => AmuletAbility(2));
-
-        AttackInput = new(KeyCode.C, 0.1f);
-        AttackInput.OnDown.AddListener(HandleAttack);
-
+        AddInput(KeyCode.Space, MaxJumpTime, Jump, JumpSustain, () => { jumpSustainable = false; endedJump = true; });
+        AddInput(KeyCode.DownArrow, 0.2f, Interact.Invoke);
+        AddInput(KeyCode.Escape, 0.1f, Pause);
+        AddInput(KeyCode.Tab, 0.1f, TriggerInventory);
+        AddInput(KeyCode.A, 0.1f, ConsumeConsumableItem);
+        AddInput(KeyCode.S, amulet1ChargeTime, OnMax: () => AmuletAbility(0));
+        AddInput(KeyCode.D, amulet2ChargeTime, OnMax: () => AmuletAbility(1));
+        AddInput(KeyCode.F, amulet3ChargeTime, OnMax: () => AmuletAbility(2));
+        AddInput(KeyCode.C, 0.1f, HandleAttack);
     }
+
     private void UpdateInput()
     {
-        JumpInput.Update();
-        InteractInput.Update();
-        PauseInput.Update();
-        DebugInput.Update();
-        InventoryInput.Update();
-        ConsumableInput.Update();
-        Amulet1Input.Update();
-        Amulet2Input.Update();
-        Amulet3Input.Update();
-        AttackInput.Update();
-        MoveDirection = Input.GetKey(KeyCode.RightArrow) ? 1 : Input.GetKey(KeyCode.LeftArrow) ? -1 : 0;
+       foreach (PlayerInput input in Inputs) { input.Update(); }
+       MoveDirection = Input.GetKey(KeyCode.RightArrow) ? 1 : Input.GetKey(KeyCode.LeftArrow) ? -1 : 0;
+    }
+
+    private void AddInput(KeyCode code, float maxtime, UnityAction OnDown = null, UnityAction OnHold = null, UnityAction OnUp = null, UnityAction OnMax = null) 
+    {
+        PlayerInput input = new(code, maxtime);
+        if (OnDown != null) input.OnDown.AddListener(OnDown);
+        if (OnHold != null) input.OnHold.AddListener(OnHold);
+        if (OnUp != null) input.OnUp.AddListener(OnUp);
+        if (OnMax != null) input.OnMaxReached.AddListener(OnMax);
+        Inputs.Add(input);
     }
     #endregion
 
@@ -199,6 +170,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     [Header("JUMP")]
     public int JumpPower;
     public float MaxJumpTime;
+    public float StartJumpTime;
     public float MaxFallSpeed;
     public float FallAcceleration;
     public float JumpEndGModifier;
@@ -247,6 +219,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     private void Jump()
     {
+        StartJumpTime = Time.time;
         if (IsStanding || HasCoyoteTime)
         {
             CoyoteUsable = false;
@@ -258,7 +231,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
     }
     private void JumpSustain()
     {
-        if (!jumpSustainable || JumpInput.timePressed + MaxJumpTime < Time.time) return;
+        if (!jumpSustainable || StartJumpTime + MaxJumpTime < Time.time) return;
         CoyoteUsable = false;
         IsJumping = true;
         if (tempVelocity.y <= JumpPower) tempVelocity.y = JumpPower;
@@ -411,6 +384,17 @@ public class PlayerManager : MonoBehaviour, IDamageable
         }
         attackDisable = false;
     }
+
+    public async void BoostDamage(float duration, int amount)
+    {
+        boostedDamage += amount;
+        GetComponent<SpriteRenderer>().color = Color.red;
+
+        await Task.Delay((int)(duration * 1000));
+
+        boostedDamage -= amount;
+        GetComponent<SpriteRenderer>().color = Color.white;
+    }
     #endregion
 
     #region Abilities
@@ -457,8 +441,50 @@ public class PlayerManager : MonoBehaviour, IDamageable
         }
         if (amulet != null && amulet.Item is AbilityAmulet tmp)
         {
-            tmp.ActivateAbility();
+            ActivateEffect(tmp.Effect);
         }
+    }
+
+    public void ActivateEffect(PlayerEffect effect) 
+    {
+        if (Mana < effect.ManaCost) return;
+
+        switch (effect.type) 
+        {
+            case PlayerEffectType.DamageBoost:
+                BoostDamage(effect.Duration, (int)effect.Value);
+                break;
+            case PlayerEffectType.Healing:
+                if (Hp >= MaxHp) return;
+
+                Heal((int)effect.Value);
+                break;
+            case PlayerEffectType.Invincibility:
+                SetInvincibility(effect.Duration);
+                break;
+            case PlayerEffectType.ManaRegeneration:
+                if (Mana >= MaxMana) return;
+
+                AddMana((int)effect.Value);
+                break;
+            case PlayerEffectType.RaiseMaxHp:
+                boostedMaxHp += (int)effect.Value;
+                break;
+            case PlayerEffectType.RaiseMaxMana:
+                boostedMaxMana += (int)effect.Value;
+                break;
+            case PlayerEffectType.RaiseDamage:
+                boostedDamage += (int)effect.Value;
+                break;
+            case PlayerEffectType.RaiseGatheredGold:
+                GatherGoldBoost += (int)effect.Value;
+                break;
+            case PlayerEffectType.RaiseGatheredMana:
+                GatherManaBoost += (int)effect.Value;
+                break;
+        }
+        Mana -= effect.ManaCost;
+
     }
 
     public void AddMana(int amount)
@@ -514,8 +540,8 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     public void ConsumeConsumableItem()
     {
-        ConsumableItem consumable = (ConsumableItem)equippedConsumable.Item;
-        consumable.Consume();
+        if (equippedConsumable.Item is ConsumableItem tmp)
+        ActivateEffect(tmp.Effect);       
         equippedConsumable.RemoveItem(1);
     }
     #endregion

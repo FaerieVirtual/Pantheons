@@ -24,8 +24,8 @@ public class InventoryMenu : ItemManagingMenu
 
     private void OnEnable()
     {
-        if (TryGetComponent(out Canvas canvas) && canvas.worldCamera == null) 
-        { 
+        if (TryGetComponent(out Canvas canvas) && canvas.worldCamera == null)
+        {
             canvas.worldCamera = Camera.main;
         }
         SelectSlot(slots[1]);
@@ -70,8 +70,8 @@ public class InventoryMenu : ItemManagingMenu
 
         CoinCount.text = $"Gold: {PlayerManager.Instance.Gold}";
 
-        foreach (GraphicalSlot slot in slots) 
-        { 
+        foreach (GraphicalSlot slot in slots)
+        {
             slot.Button.interactable = true;
         }
 
@@ -104,12 +104,12 @@ public class InventoryMenu : ItemManagingMenu
         }
         selectedSlot = slot;
 
-        if (selectedSlot.Type == SlotType.EquipSlot) 
-        { 
-            EquipButton.interactable = true; 
-            UnequipButton.interactable = false; 
+        if (selectedSlot.Type == SlotType.EquipSlot)
+        {
+            EquipButton.interactable = true;
+            UnequipButton.interactable = false;
         }
-        if (selectedSlot.Type == SlotType.UnequipSlot) 
+        if (selectedSlot.Type == SlotType.UnequipSlot)
         {
             EquipButton.interactable = false;
             UnequipButton.interactable = true;
@@ -127,7 +127,7 @@ public class InventoryMenu : ItemManagingMenu
                 PlayerManager.Instance.equippedWeapon.RemoveItem(1);
                 PlayerManager.Instance.equippedWeapon.AddItem(selectedSlot.Item);
                 PlayerManager.Instance.UpdateAttack();
-                
+
                 break;
 
             case ItemType.Consumable:
@@ -157,11 +157,9 @@ public class InventoryMenu : ItemManagingMenu
                 }
                 else return;
 
-                if (!slotToEquipTo.IsEmpty && slotToEquipTo.Item is Amulet am) 
-                { 
-                    am.OnUnequip(); 
-                    if (selectedSlot.Item is Amulet am2) { am2.OnEquip(); }
-                }
+                if (!slotToEquipTo.IsEmpty && slotToEquipTo.Item is Amulet am) { am.OnUnequip(); }
+                if (selectedSlot.Item is Amulet am2) { am2.OnEquip(); }
+
                 PlayerManager.Instance.UpdateAbilities();
                 break;
             default: Debug.Log("Attempt to assign to searched slot failed. Unknown Items type."); break;
@@ -181,7 +179,7 @@ public class InventoryMenu : ItemManagingMenu
         UpdateMenu();
     }
 
-    public void UnequipItem() 
+    public void UnequipItem()
     {
         if (selectedSlot == null || selectedSlot.IsEmpty) return;
 
