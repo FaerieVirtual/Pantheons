@@ -15,7 +15,7 @@ MonoBehaviour:
   Name: Ancient Sword
   Type: 1
   Description: 2 damage, 4 reach
-  ItemSprite: {fileID: -2804744358768855969, guid: 4c4dc131d2c789e459cc64987d258654, type: 3}
+  ItemSprite: {fileID: 21300000, guid: e62530fc56727a246b5da359c04eed1f, type: 3}
   Price: 60
   damage: 2
   reach: 4

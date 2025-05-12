@@ -3,7 +3,7 @@
 public class AbilityAmulet : Amulet
 {
     public float chargeTime;
-    public virtual void ActivateAbility() { }
+
     public override void OnEquip()
     {
         if (PlayerManager.Instance.equippedAmulet1.Item == this) PlayerManager.Instance.amulet1ChargeTime = chargeTime; 

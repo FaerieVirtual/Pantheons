@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class ConsumableItem : ItemBase
 {
-    public virtual void Consume() 
-    {
-    }
+    public PlayerEffect Effect;
 }
 
