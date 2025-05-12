@@ -41,7 +41,7 @@ public class InventoryMenu : ItemManagingMenu
 
         if (!PlayerManager.Instance.Inventory.IsEmpty)
         {
-            List<AbstractSlot> playerInventory = PlayerManager.Instance.Inventory.GetAllItems();
+            List<AbstractSlot> playerInventory = PlayerManager.Instance.Inventory.Items;
             for (int i = 0; i < playerInventory.Count; i++)
             {
                 slots[i].AddItem(playerInventory[i].Item, playerInventory[i].Quantity);

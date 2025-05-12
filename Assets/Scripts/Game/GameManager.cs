@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -10,7 +8,7 @@ public class GameManager : MonoBehaviour
     public DataManager DataManager;
     public LevelManager LevelManager;
 
-    public GameStatemachine Machine = new();
+    public GameStateMachine Machine = new();
     private GameMainMenuState menuState;
 
     #region General

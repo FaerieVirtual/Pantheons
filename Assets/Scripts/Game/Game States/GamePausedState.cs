@@ -6,7 +6,7 @@ using UnityEngine.Events;
 
 public class GamePausedState : GameState
 {
-    public GamePausedState(GameStatemachine machine) : base(machine)
+    public GamePausedState(GameStateMachine machine) : base(machine)
     {
         this.machine = machine;
     }

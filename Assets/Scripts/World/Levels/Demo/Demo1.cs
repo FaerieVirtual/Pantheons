@@ -3,7 +3,7 @@
 public class Demo1 : Level
 {
     public NPCData NPCData;
-    public Demo1(GameStatemachine machine, string LevelID = "A1", string LevelScene = "Demo1") : base(machine, LevelID, LevelScene)
+    public Demo1(GameStateMachine machine, string LevelID = "A1", string LevelScene = "Demo1") : base(machine, LevelID, LevelScene)
     {
         this.machine = machine;
     }

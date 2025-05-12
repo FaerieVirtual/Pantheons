@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c0bca1854ebd7748b7f627586455560, type: 3}
+  m_Name: NitrilData
+  m_EditorClassIdentifier: 
+  Inventory:
+    Items:
+    - Item: {fileID: 11400000, guid: cb41d669322da1444a7f1088d798c5bf, type: 2}
+      Quantity: 1
+    - Item: {fileID: 11400000, guid: 307ef0d17d5b05d448218288bf2a4d5b, type: 2}
+      Quantity: 1
+    - Item: {fileID: 11400000, guid: ea6d0a853dc5c9c40921e61eedc83502, type: 2}
+      Quantity: 1
+    - Item: {fileID: 11400000, guid: a76bb65c5ceb76841a190806fd6fed0e, type: 2}
+      Quantity: 1
+    - Item: {fileID: 11400000, guid: 5c42652ce6adee242a84f35c526ba328, type: 2}
+      Quantity: 1
+    - Item: {fileID: 11400000, guid: 52878d5bd02bde4489852b01bb5d880c, type: 2}
+      Quantity: 2
+    - Item: {fileID: 11400000, guid: dff244ed1b843ca42983ab2fc168e3a6, type: 2}
+      Quantity: 4
+    - Item: {fileID: 11400000, guid: 5d123590f200d5c4db25deb8def16389, type: 2}
+      Quantity: 1
+  NPCResponses:
+  - {fileID: 11400000, guid: 7c1b861a439853543a916373a1927048, type: 2}
+  - {fileID: 11400000, guid: dd66390d3cc8e1043913cffc38fd3a51, type: 2}
+  - {fileID: 11400000, guid: b4eb423e7e5db3c41a939323c6d977ea, type: 2}

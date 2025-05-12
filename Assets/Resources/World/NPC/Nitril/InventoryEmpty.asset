@@ -9,13 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 438b583a4e662a84fbaf08ed42726fa4, type: 3}
-  m_Name: Rusty Dagger
+  m_Script: {fileID: 11500000, guid: a86890b59fc90d34592e9c6e6f98e0c3, type: 3}
+  m_Name: InventoryEmpty
   m_EditorClassIdentifier: 
-  Name: Rusty Dagger
-  Type: 1
-  Description: 1 damage, 2 reach
-  ItemSprite: {fileID: 3914693016000628799, guid: 4c4dc131d2c789e459cc64987d258654, type: 3}
-  Price: 10
-  damage: 1
-  reach: 2
+  TriggerFlag: InventoryEmpty
+  ExclusionFlag: 
+  SplitResponse:
+  - Apologies. I have no more stock.
+  - Maybe come back later?
+  - '#'

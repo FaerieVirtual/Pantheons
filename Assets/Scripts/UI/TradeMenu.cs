@@ -30,7 +30,7 @@ public class TradeMenu : ItemManagingMenu
 
         if (!traderData.Inventory.IsEmpty)
         {
-            List<AbstractSlot> traderInventory = traderData.Inventory.GetAllItems();
+            List<AbstractSlot> traderInventory = traderData.Inventory.Items;
             for (int i = 0; i < traderInventory.Count; i++)
             {
                 slots[i].AddItem(traderInventory[i].Item, traderInventory[i].Quantity);

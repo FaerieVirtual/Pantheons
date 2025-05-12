@@ -5,9 +5,8 @@ using UnityEngine;
 public class NPCData : ScriptableObject
 {
     public HashSet<string> Flags = new();
-    public Inventory Inventory = new();
+    public Inventory Inventory;
     public List<NPCResponse> NPCResponses = new();
-
     public bool HasFlag(string flag)
     {
         return Flags.Contains(flag);

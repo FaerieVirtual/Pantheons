@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class GameLoadMenuState : GameState
 {
-    public GameLoadMenuState(GameStatemachine machine) : base(machine)
+    public GameLoadMenuState(GameStateMachine machine) : base(machine)
     {
         this.machine = machine;
     }

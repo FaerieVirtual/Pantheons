@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
 {
-    private GameStatemachine machine;
+    private GameStateMachine machine;
 
     public Dictionary<string, Level> Levels;
     private void Start()

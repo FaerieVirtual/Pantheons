@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class PauseMenu : MonoBehaviour
 {
-    GameStatemachine machine;
+    GameStateMachine machine;
     private void OnEnable()
     {
         if (TryGetComponent(out Canvas canvas) && canvas.worldCamera == null)

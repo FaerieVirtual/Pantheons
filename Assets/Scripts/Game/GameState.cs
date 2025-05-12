@@ -1,7 +1,7 @@
 public class GameState
 {
-    protected GameStatemachine machine;
-    public GameState(GameStatemachine machine)
+    protected GameStateMachine machine;
+    public GameState(GameStateMachine machine)
     {
         this.machine = machine;
     }

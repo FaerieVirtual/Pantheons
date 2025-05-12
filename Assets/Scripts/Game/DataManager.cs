@@ -37,13 +37,13 @@ public class DataManager : MonoBehaviour
         GameSave = save;
         SaveIndex = index;
 
-        if (GameSave == null) 
+        if (GameSave == null)
         {
             GameSave = GameManager.Instance.DataManager.LoadFile("DefaultSave");
             if (UIManager.Instance != null && !UIManager.Instance.PlayerUI.activeSelf) UIManager.Instance.PlayerUI.SetActive(true);
         }
 
-        Level level = GameManager.Instance.LevelManager.GetLevelByID(GameSave.lastLevelID); 
+        Level level = GameManager.Instance.LevelManager.GetLevelByID(GameSave.lastLevelID);
         GameManager.Instance.Machine.ChangeState(level);
         if (!level.HasFlag("LastLevel")) { level.SetFlag("LastLevel"); }
 
@@ -202,54 +202,11 @@ public class DataManager : MonoBehaviour
     #endregion
 
     #region NPC Data
-    public Dictionary<string, NPCData> NPCs = new();
-
-    private void Start()
+    public Dictionary<string, NPCData> NPCs = new()
     {
-        InstantiateNPCs();
-    }
+        { "Nitril", Resources.Load<NPCData>("World/npc/Nitril/NitrilData") }
+    };
 
-    private void InstantiateNPCs()
-    {
-        NPCData Nitril;
-        Nitril = ScriptableObject.CreateInstance<NPCData>();
-
-        Nitril.Inventory = new Inventory();
-        Nitril.Inventory.AddItem(Resources.Load<HealthPotion>("Items/Small Blood vial"), 2);
-        Nitril.Inventory.AddItem(Resources.Load<ManaStone>("Items/Small Mana Stone"), 3);
-        Nitril.Inventory.AddItem(Resources.Load<BoostAmulet>("Items/Heart Locket"), 1);
-        Nitril.Inventory.AddItem(Resources.Load<AbilityAmulet>("Items/Herald's Wings"), 1);
-        Nitril.Inventory.AddItem(Resources.Load<AbilityAmulet>("Items/Nitril's Fang"), 1);
-        Nitril.Inventory.AddItem(Resources.Load<AbilityAmulet>("Items/Treeheart"), 1);
-        Nitril.Inventory.AddItem(Resources.Load<WeaponItem>("Items/Rusty Dagger"), 1);
-        Nitril.Inventory.AddItem(Resources.Load<BoostAmulet>("Items/Prayer Bead"), 1);
-
-        Nitril.NPCResponses = new()
-        {
-            new NPCResponse
-            {
-                ExclusionFlag = "Met",
-                SplitResponse = new()
-                {
-                    "Hi. I'm a vendor NPC. My name is Nitril.",
-                    "I'm talking to you, but after we're done, I will offer you some wares.",
-                    "There's a campfire ahead. Sit at it, set a respawn and save your game.",
-                    "#!"
-                },
-            },
-            new NPCResponse
-            {
-                ExclusionFlag = "InventoryEmpty",
-                SplitResponse = new() { "#$" }
-            },
-            new NPCResponse
-            {
-                TriggerFlag = "InventoryEmpty",
-                SplitResponse = new() { "Apologies. I have no more stock. Maybe come back later?", "#" }
-            }
-        };
-        NPCs.Add("Nitril", Nitril);
-    }
     #endregion
 }
 

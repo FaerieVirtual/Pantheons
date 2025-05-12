@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -75,6 +76,7 @@ public class GraphicalSlot : MonoBehaviour
     public ItemBase GetItem() => Item;
 }
 
+[Serializable]
 public class AbstractSlot
 {
     public ItemBase Item;

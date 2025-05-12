@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
-public class NPCResponse 
+[CreateAssetMenu(fileName = "NPCResponse", menuName = "Data/NPCResponse")]
+public class NPCResponse : ScriptableObject
 {
     public string TriggerFlag;
     public string ExclusionFlag;

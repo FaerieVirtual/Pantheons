@@ -107,7 +107,7 @@ Transform:
   m_GameObject: {fileID: 7231006712908300474}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.417, y: -0.611, z: 0}
+  m_LocalPosition: {x: 3.417, y: -0.611, z: -4}
   m_LocalScale: {x: 6, y: 6, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -262,6 +262,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d777ee7ca7db7624d8f85ab65da245ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  VelocityForJumpThreshold: 0.1
   baseMaxHp: 5
   boostedMaxHp: 0
   Hp: 0
@@ -279,21 +280,40 @@ MonoBehaviour:
   JumpEndGModifier: 2
   CoyoteTime: 0.1
   ApexSpeedModifier: 1.5
-  RigidBody: {fileID: 0}
   movementDisable: 0
   Interact:
     m_PersistentCalls:
       m_Calls: []
-  attackReach: 0
+  AttackPushbackForce: 10
+  attackDisable: 0
   baseDamage: 0
   boostedDamage: 0
-  AttackPushbackForce: 10
+  attackReach: 0
+  GatherGoldBoost: 0
+  GatherManaBoost: 0
   Mana: 100
   baseMaxMana: 100
   boostedMaxMana: 0
   amulet1ChargeTime: 0
   amulet2ChargeTime: 0
   amulet3ChargeTime: 0
+  Inventory:
+    Items: []
+  equippedConsumable:
+    Item: {fileID: 0}
+    Quantity: 0
+  equippedWeapon:
+    Item: {fileID: 0}
+    Quantity: 0
+  equippedAmulet1:
+    Item: {fileID: 0}
+    Quantity: 0
+  equippedAmulet2:
+    Item: {fileID: 0}
+    Quantity: 0
+  equippedAmulet3:
+    Item: {fileID: 0}
+    Quantity: 0
   Gold: 600
 --- !u!1 &9195820129829134308
 GameObject:

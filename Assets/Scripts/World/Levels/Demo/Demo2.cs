@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Demo2 : Level
 {
-    public Demo2(GameStatemachine machine, string LevelID = "A2", string LevelScene = "Demo2") : base(machine, LevelID, LevelScene)
+    public Demo2(GameStateMachine machine, string LevelID = "A2", string LevelScene = "Demo2") : base(machine, LevelID, LevelScene)
     {
         this.machine = machine;
     }

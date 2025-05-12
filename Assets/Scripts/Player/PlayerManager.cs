@@ -337,7 +337,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
         if (UIManager.Instance.InventoryUI.activeSelf) { UIManager.Instance.InventoryUI.SetActive(false); }
         else if (UIManager.Instance.TradeMenuUI.activeSelf) { UIManager.Instance.TradeMenuUI.SetActive(false); }
 
-        GameStatemachine machine = GameManager.Instance.Machine;
+        GameStateMachine machine = GameManager.Instance.Machine;
         GamePausedState pausedState = new(machine);
         if (machine.CurrentState is Level) machine.ChangeState(pausedState);
         else machine.ChangeState(machine.PreviousState);
@@ -390,7 +390,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
         return Vector2.zero;
     }
-    private void HandleAttack()
+    private async void HandleAttack()
     {
         if (attackDisable) return;
         attackDisable = true;
@@ -409,6 +409,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
                 }
             }
         }
+        await Task.Delay(500);
         attackDisable = false;
     }
     #endregion

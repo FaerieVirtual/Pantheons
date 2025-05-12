@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 public class GameRespawningState : GameState
 {
-    public GameRespawningState(GameStatemachine machine) : base(machine)
+    public GameRespawningState(GameStateMachine machine) : base(machine)
     {
         this.machine = machine;
     }

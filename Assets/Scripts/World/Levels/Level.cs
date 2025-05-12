@@ -9,7 +9,7 @@ public class Level : GameState
     public string LevelScene { get; private set; }
     public virtual HashSet<string> Flags { get; set; } = new HashSet<string>();
 
-    public Level(GameStatemachine machine, string LevelID, string LevelScene) : base(machine)
+    public Level(GameStateMachine machine, string LevelID, string LevelScene) : base(machine)
     {
         this.machine = machine;
         this.LevelID = LevelID;

@@ -1,51 +1,56 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
-public class Inventory
+[Serializable]
+public class Inventory 
 {
-    public Dictionary<ItemBase, AbstractSlot> Items = new();
+    public List<AbstractSlot> Items = new();
     public bool IsEmpty => Items.Count < 1;
     public void AddItem(ItemBase item, int amount)
     {
-        if (Items.TryGetValue(item, out var slot))
+        AbstractSlot slot = Items.FirstOrDefault(slot => slot.Item == item);
+        if (slot != null)
         {
+
             slot.AddItem(item, amount);
         }
         else
         {
-            Items[item] = new AbstractSlot();
-            Items[item].AddItem(item, amount);
+            slot = new AbstractSlot();
+            slot.AddItem(item, amount);
+            Items.Add(new AbstractSlot());
         }
     }
     public void RemoveItem(ItemBase item, int amount)
     {
-        if (Items.TryGetValue(item, out var slot))
+        AbstractSlot slot = Items.FirstOrDefault(slot => slot.Item == item);
+
+        if (slot != null)
         {
             slot.RemoveItem(amount);
             if (slot.IsEmpty)
             {
-                Items.Remove(item);
+                Items.Remove(slot);
             }
         }
     }
 
     public bool HasItem(ItemBase item)
     {
-        if (Items.TryGetValue(item, out var slot))
+        AbstractSlot slot = Items.FirstOrDefault(slot => slot.Item == item);
+        if (slot != null)
         {
             return true;
         }
         else return false;
     }
-    public List<AbstractSlot> GetAllItems()
-    {
-        return new List<AbstractSlot>(Items.Values);
-    }
 
     public SaveInventory ToSaveInventory()
     {
         SaveInventory inventory = new();
-        foreach (var slot in Items.Values)
+        foreach (var slot in Items)
         {
             SaveSlot saveslot = new()
             {

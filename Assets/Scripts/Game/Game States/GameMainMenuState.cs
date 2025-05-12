@@ -3,7 +3,7 @@ using UnityEngine.SceneManagement;
 
 public class GameMainMenuState : GameState
 {
-    public GameMainMenuState(GameStatemachine machine) : base(machine)
+    public GameMainMenuState(GameStateMachine machine) : base(machine)
     {
         this.machine = machine;
     }
