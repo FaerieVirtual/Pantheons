@@ -17,4 +17,8 @@ MonoBehaviour:
   Description: Thick liquid swerves in this bottle. Restores 1 hp on consumption
   ItemSprite: {fileID: 21300000, guid: a8ddf1ba00be36c44b8f86166f3ccc0e, type: 3}
   Price: 40
-  HealAmount: 1
+  Effect:
+    type: 1
+    ManaCost: 0
+    Duration: 0
+    Value: 1

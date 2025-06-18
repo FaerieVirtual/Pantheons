@@ -6,7 +6,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-using UnityEngine.WSA;
 
 public class PlayerManager : MonoBehaviour, IDamageable
 {

@@ -17,8 +17,8 @@ MonoBehaviour:
   Description: Raises Max Hp by 1.
   ItemSprite: {fileID: 21300000, guid: b351b3314ae0b614f92b81721ed3f4ef, type: 3}
   Price: 20
-  maxHpBoost: 1
-  maxManaBoost: 0
-  gatherGoldBoost: 0
-  gatherManaBoost: 0
-  damageBoost: 0
+  Effect:
+    type: 4
+    ManaCost: 0
+    Duration: 0
+    Value: 1

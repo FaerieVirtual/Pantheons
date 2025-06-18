@@ -17,6 +17,9 @@ MonoBehaviour:
   Description: Hold activation button for 1 second and heal 1 Hp for 30 mana.
   ItemSprite: {fileID: 21300000, guid: bb423a65864c925478eaa410507a5efa, type: 3}
   Price: 50
+  Effect:
+    type: 1
+    ManaCost: 30
+    Duration: 0
+    Value: 1
   chargeTime: 1
-  HealAmount: 1
-  ManaCost: 30

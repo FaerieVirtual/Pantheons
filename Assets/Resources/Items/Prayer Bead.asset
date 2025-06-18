@@ -14,12 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: Prayer Bead
   Type: 2
-  Description: Raises your max mana by 20 and the mana you gain from slaying foes
-    by 10.
+  Description: Raises your max mana by 20.
   ItemSprite: {fileID: 21300000, guid: bc523e36dbc8fc34296d43bed4db58d6, type: 3}
   Price: 50
-  maxHpBoost: 0
-  maxManaBoost: 20
-  gatherGoldBoost: 0
-  gatherManaBoost: 10
-  damageBoost: 0
+  Effect:
+    type: 5
+    ManaCost: 0
+    Duration: 0
+    Value: 20

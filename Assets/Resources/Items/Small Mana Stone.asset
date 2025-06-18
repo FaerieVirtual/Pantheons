@@ -17,4 +17,8 @@ MonoBehaviour:
   Description: Strange shiny rock. Restores 30 mana on consumption.
   ItemSprite: {fileID: 21300000, guid: 1276b4a6fd789624d8d4200e7c0d066f, type: 3}
   Price: 30
-  ManaAmount: 30
+  Effect:
+    type: 3
+    ManaCost: 0
+    Duration: 0
+    Value: 30
